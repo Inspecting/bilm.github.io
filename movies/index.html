@@ -1,20 +1,27 @@
-<!-- /tv-shows/index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <title>Bilm – TV Shows</title>
-  <link rel="stylesheet" href="/bilm.github.io/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bilm 💜 - Movies</title>
+
+  <!-- Fonts & Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
+
+<header>
   <nav>
-    <a href="/bilm.github.io/">🏠 Home</a>
-    <a href="/bilm.github.io/movies/">🎬 Movies</a>
-    <a href="/bilm.github.io/tv-shows/" class="active">📺 TV Shows</a>
+    <button data-page="home">Home</button>
+    <button data-page="movies">Movies</button>
   </nav>
+</header>
 
-  <main id="tv-sections"></main>
+<main style="max-width: 1200px; margin: auto; padding: 20px;">
+  <div id="movieSections"></div>
+</main>
 
-  <script src="script.js"></script>
+<script src="./script.js"></script>
 </body>
 </html>
