@@ -47,32 +47,35 @@ nav button:hover {
   background-color: #3a1361;
 }
 
-/* Main container: FULL WIDTH now */
+/* Main area */
 main {
   flex: 1;
   overflow-y: auto;
   width: 100vw;
-  padding: 30px 20px;
+  height: calc(100vh - 60px);
+  padding: 20px 10px;
   box-sizing: border-box;
 }
 
 /* Section container */
 .section {
-  margin-bottom: 36px;
+  margin-bottom: 30px;
 }
 .section-title {
-  font-size: 1.8rem;
+  font-size: 24px;
+  font-weight: 700;
   margin-bottom: 12px;
-  padding-left: 6px;
+  color: #c084fc;
 }
 
-/* Scroll row */
+/* Horizontal scroll row */
 .scroll-row {
   display: flex;
   overflow-x: auto;
   gap: 12px;
   padding-bottom: 6px;
   scroll-behavior: smooth;
+  width: 100vw;
 }
 .scroll-row::-webkit-scrollbar {
   height: 8px;
@@ -89,23 +92,36 @@ main {
 .movie-card {
   flex: 0 0 auto;
   width: 140px;
+  height: 210px;
+  background-color: #2a2a2a;
+  border-radius: 12px;
+  box-shadow: 0 0 8px #a14eff66;
+  overflow: hidden;
   cursor: pointer;
-  user-select: none;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+.movie-card:hover {
+  transform: scale(1.05);
 }
 .movie-card img {
   width: 140px;
-  height: 210px;
+  height: 180px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 12px 12px 0 0;
 }
 .movie-card p {
-  font-size: 0.9rem;
+  padding: 6px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #eee;
   text-align: center;
-  color: #ddd;
-  user-select: text;
+  flex-grow: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 /* Show more arrow card */
