@@ -1,31 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🎬 Movies - Bilm</title>
-  <link rel="stylesheet" href="/bilm.github.io/style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bilm Movies</title>
+<link rel="stylesheet" href="/style.css" />
 </head>
 <body>
 
-  <header>
-    <nav>
-      <button onclick="location.href='/'">🏠 Home</button>
-      <button onclick="location.href='/bilm.github.io/movies/'">🎬 Movies</button>
-      <button onclick="alert('TV Shows coming soon')">📺 TV Shows</button>
-      <button onclick="alert('Settings coming soon')">⚙ Settings</button>
-    </nav>
-  </header>
+<header>
+  <nav>
+    <button data-page="home" onclick="window.location.href='/home/'">🏠 Home</button>
+    <button data-page="movies" disabled>🎬 Movies</button>
+  </nav>
+</header>
 
-  <main>
-    <div class="search-container">
-      <h1>🎬 Movie Results</h1>
-      <div id="results"></div>
-    </div>
-  </main>
+<main>
+  <div id="resultsContainer" style="max-width: 800px; width: 100%;"></div>
+</main>
 
-  <div class="version-label">v0.1 test</div>
+<div id="overlay" class="hidden">
+  <button id="closeOverlay">×</button>
+  <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+</div>
 
-  <script src="script.js"></script>
+<script>
+  const tmdbKey = '3ade810499876bb5672f40e54960e6a2';
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchQuery = urlParams.get('search');
+
+  const resultsContainer = document.getElementById('resultsContainer');
+  const overlay = document.getElementById('overlay');
+  const closeOverlay = document.getElementById('closeOverlay');
+  const videoFrame = document.getElementById('videoFrame');
+
+  closeOverlay.onclick = () => {
+    videoFrame.src = '';
+    overlay.style.display = 'none';
+  };
+
+  async function fetchMovies(query) {
+    resultsContainer.innerHTML = '<p>Loading...</p>';
+    try {
+      const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbKey}&query=${encodeURIComponent(query)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!data.results.length) {
+        resultsContainer.innerHTML = '<p>No movies found.</p>';
+        return;
+      }
+      renderResults(data.results);
+    } catch {
+      resultsContainer.innerHTML = '<p>Failed to load movies.</p>';
+    }
+  }
+
+  function renderResults(movies) {
+    resultsContainer.innerHTML = '';
+    movies.forEach(movie => {
+      const div = document.createElement('div');
+      div.className = 'movie-item';
+      div.style.marginBottom = '16px';
+      div.style.cursor = 'pointer';
+      div.style.padding = '12px';
+      div.style.borderRadius = '12px';
+      div.style.background = '#222';
+      div.textContent = `${movie.title} (${movie.release_date ? movie.release_date.slice(0,4) : '?'})`;
+      div.onclick = () => {
+        // Embed vidsrc.to player in a 16:9 box and show overlay
+        const embedUrl = `https://vidsrc.to/embed/movie/${movie.id}`;
+        showOverlayVideo(embedUrl);
+      };
+      resultsContainer.appendChild(div);
+    });
+  }
+
+  function showOverlayVideo(url) {
+    videoFrame.src = url;
+    overlay.style.display = 'flex';
+  }
+
+  if (searchQuery) {
+    fetchMovies(searchQuery);
+  } else {
+    resultsContainer.innerHTML = '<p>Please search for a movie from the <a href="/home/">home page</a>.</p>';
+  }
+</script>
+
 </body>
 </html>
