@@ -2,29 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎬 Movies | Bilm</title>
-  <link rel="stylesheet" href="/bilm.github.io/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bilm - Movies</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/bilm.github.io/style.css" />
 </head>
 <body>
-  <header>
-    <nav>
-      <button onclick="location.href='/bilm.github.io/'">🏠 Home</button>
-      <button onclick="location.href='/bilm.github.io/movies/'">🎬 Movies</button>
-      <button onclick="location.href='/bilm.github.io/tv-shows/'">📺 TV Shows</button>
-      <button onclick="location.href='/bilm.github.io/settings/'">⚙ Settings</button>
-    </nav>
-  </header>
 
-  <main>
-    <div class="search-container">
-      <h1>🎬 Random Movies</h1>
-      <p style="margin-bottom: 20px;">Click to discover something new to watch!</p>
-      <button class="search-btn" onclick="getRandomMovie()">🎲 Random Movie</button>
-      <div id="movieResults" style="margin-top: 24px;"></div>
-    </div>
-  </main>
+<header>
+  <nav>
+    <button onclick="location.href='/'">🏠 Home</button>
+    <button disabled>🎬 Movies</button>
+    <button onclick="location.href='/bilm.github.io/tv-shows/'">📺 TV Shows</button>
+    <button onclick="location.href='/bilm.github.io/settings/'">⚙ Settings</button>
+  </nav>
+</header>
 
-  <script src="script.js" defer></script>
+<main>
+  <div class="search-container">
+    <h1>🎬 Random Movies</h1>
+    <div id="movieList">Loading movies...</div>
+  </div>
+</main>
+
+<script src="script.js"></script>
 </body>
 </html>
