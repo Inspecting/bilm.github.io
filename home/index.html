@@ -15,7 +15,7 @@
 
 <header>
   <nav>
-    <button data-page="home" class="active">Home</button>
+    <button data-page="home">Home</button>
     <button data-page="movies">Movies</button>
     <button data-page="tv">TV Shows</button>
   </nav>
@@ -36,17 +36,17 @@
   const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Navigation buttons logic
+    // Navigation buttons
     document.querySelectorAll('nav button').forEach(btn => {
-      btn.onclick = () => {
+      btn.addEventListener('click', () => {
         const page = btn.dataset.page;
         if (page === 'home') window.location.href = `${BASE_URL}/home/`;
         else if (page === 'movies') window.location.href = `${BASE_URL}/movies/`;
         else if (page === 'tv') window.location.href = `${BASE_URL}/tv-shows/`;
-      };
+      });
     });
 
-    // Search buttons logic
+    // Search buttons
     const searchMovieBtn = document.getElementById('searchMovie');
     const searchTVBtn = document.getElementById('searchTV');
     const searchInput = document.getElementById('searchInput');
