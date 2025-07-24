@@ -17,12 +17,32 @@
   <nav>
     <button data-page="home">Home</button>
     <button data-page="movies">Movies</button>
+    <button data-page="tv">TV Shows</button> <!-- ✅ Added this line -->
   </nav>
 </header>
 
 <main>
   <div id="movieSections"></div>
 </main>
+
+<script>
+  const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('nav button').forEach(btn => {
+      btn.onclick = () => {
+        const page = btn.dataset.page;
+        if (page === 'home') {
+          window.location.href = `${BASE_URL}/home/`;
+        } else if (page === 'movies') {
+          window.location.href = `${BASE_URL}/movies/`;
+        } else if (page === 'tv') {
+          window.location.href = `${BASE_URL}/tv-shows/`;
+        }
+      };
+    });
+  });
+</script>
 
 <script src="./script.js"></script>
 
