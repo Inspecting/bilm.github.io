@@ -139,50 +139,12 @@ button.search-btn:hover {
   background-color: #a855f7;
 }
 
-/* Overlay Video */
-#overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: #000;
-  display: none;
-  flex-direction: column;
-  z-index: 2000;
-}
-#overlay iframe {
-  flex-grow: 1;
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-#closeOverlay {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 32px;
-  color: white;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  z-index: 2100;
-}
-.hidden {
-  display: none;
-}
-
-/* ✅ Version label */
+/* Version label */
 .version-label {
   position: fixed;
-  bottom: 12px;
-  right: 16px;
-  background-color: #1e1e1e;
-  color: #aaa;
-  font-size: 13px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  opacity: 0.7;
-  z-index: 5000;
-  pointer-events: none;
+  bottom: 8px;
+  right: 8px;
+  font-size: 0.9rem;
+  color: #777;
   user-select: none;
 }
