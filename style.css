@@ -13,12 +13,13 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 /* Header navigation */
 header {
   background-color: #1e1e1e;
   padding: 12px 20px;
   display: flex;
-  justify-content: center; /* Center nav horizontally */
+  justify-content: center;
   align-items: center;
   box-shadow: 0 2px 10px rgba(0,0,0,0.4);
   position: sticky;
@@ -65,6 +66,7 @@ main {
 main.visible {
   opacity: 1;
 }
+
 /* Search container */
 .search-container {
   text-align: center;
@@ -161,6 +163,6 @@ button.search-btn:hover {
   user-select: none;
   z-index: 9999;
   opacity: 1;
-  transition: opacity 1s ease;
+  transition: opacity 0.5s ease;
   font-weight: 600;
 }
