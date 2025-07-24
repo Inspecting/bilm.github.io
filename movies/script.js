@@ -29,6 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 
+  // Add horizontal mouse wheel scroll support for each scroll-row
+  document.addEventListener('wheel', e => {
+    const target = e.target;
+    if (target.classList.contains('scroll-row')) {
+      e.preventDefault();
+      target.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
+
   // Create all category sections
   categories.forEach(section => createSection(section, movieSections));
 });
@@ -40,7 +49,6 @@ function createSection({ id, label, endpoint }, container) {
   section.innerHTML = `
     <div class="section-title">
       <span>${label}</span>
-      <span class="scroll-arrow" onclick="document.getElementById('${id}Row').scrollBy({ left: 300, behavior: 'smooth' })">→</span>
     </div>
     <div class="scroll-row" id="${id}Row"></div>
   `;
@@ -62,6 +70,8 @@ async function fetchMovies(endpoint, rowId) {
 
 function renderMovies(movies, rowId) {
   const row = document.getElementById(`${rowId}Row`);
+  row.innerHTML = '';  // Clear previous if any
+
   movies.forEach(movie => {
     const card = document.createElement('div');
     card.className = 'movie-card';
@@ -74,9 +84,19 @@ function renderMovies(movies, rowId) {
       <p title="${movie.title}">${movie.title} (${year})</p>
     `;
 
-    // You can add click handler to open viewer or detail later
-    // card.onclick = () => { ... }
+    // Add click handler if needed:
+    // card.onclick = () => { /* open viewer or detail page */ };
 
     row.appendChild(card);
   });
+
+  // Add the "Show More" box at the end
+  const showMore = document.createElement('div');
+  showMore.className = 'show-more-card';
+  showMore.textContent = 'Show More →';
+  showMore.onclick = () => {
+    alert(`Show more clicked for ${rowId}! Implement your logic here.`);
+    // Example: window.location.href = `/movies/more.html?category=${rowId}`;
+  };
+  row.appendChild(showMore);
 }
