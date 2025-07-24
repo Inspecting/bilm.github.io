@@ -1,42 +1,30 @@
-<!-- /movies/index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <title>Bilm – Movies</title>
-  <link rel="stylesheet" href="/bilm.github.io/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bilm 💜 - Movies</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
 
 <header>
   <nav>
     <button data-page="home">Home</button>
-    <button data-page="movies" class="active">Movies</button>
-    <button data-page="tv">TV Shows</button>
+    <button data-page="movies">Movies</button>
   </nav>
 </header>
 
-<main id="movieSections"></main>
+<main>
+  <div id="movieSections"></div>
+</main>
 
-<script>
-  const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
+<script src="./script.js"></script>
 
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('nav button').forEach(btn => {
-      btn.onclick = () => {
-        const page = btn.dataset.page;
-        if (page === 'home') {
-          window.location.href = `${BASE_URL}/home/`;
-        } else if (page === 'movies') {
-          window.location.href = `${BASE_URL}/movies/`;
-        } else if (page === 'tv') {
-          window.location.href = `${BASE_URL}/tv-shows/`;
-        }
-      };
-    });
-  });
-</script>
-
-<script src="script.js"></script>
 </body>
 </html>
