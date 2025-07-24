@@ -13,8 +13,6 @@
 </head>
 <body>
 
-<div id="introOverlay">💜 Bilm 💜</div>
-
 <header>
   <nav>
     <button data-page="home">Home</button>
@@ -42,7 +40,6 @@
   const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
   document.addEventListener('DOMContentLoaded', () => {
-    const intro = document.getElementById('introOverlay');
     const header = document.querySelector('header');
     const main = document.querySelector('main');
     const overlay = document.getElementById('overlay');
@@ -52,15 +49,9 @@
     const searchMovieBtn = document.getElementById('searchMovie');
     const searchTVBtn = document.getElementById('searchTV');
 
-    // Intro fadeout
-    setTimeout(() => {
-      intro.style.opacity = '0';
-      setTimeout(() => {
-        intro.style.display = 'none';
-        header.classList.add('visible');
-        main.classList.add('visible');
-      }, 1000);
-    }, 1500);
+    // Show header and main immediately (fade in)
+    header.classList.add('visible');
+    main.classList.add('visible');
 
     // Close overlay button
     closeOverlay.onclick = () => {
