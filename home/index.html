@@ -1,56 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bilm Home</title>
-<link rel="stylesheet" href="/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bilm - Home</title>
+  <link rel="stylesheet" href="/bilm.github.io/style.css" />
 </head>
 <body>
+  <header style="opacity: 0;">
+    <nav>
+      <button data-page="home">Home</button>
+      <button data-page="movies">Movies</button>
+    </nav>
+    <h1>Bilm Home</h1>
+  </header>
 
-<header>
-  <nav>
-    <button data-page="home" disabled>🏠 Home</button>
-    <button data-page="movies" onclick="window.location.href='/movies/'">🎬 Movies</button>
-  </nav>
-</header>
+  <main style="opacity: 0;">
+    <input id="searchInput" type="search" placeholder="Search movies..." />
+    <button id="searchMovie">Search Movie</button>
+    <button id="searchTV">Search TV (Coming Soon)</button>
+    <p id="versionLabel"></p>
+  </main>
 
-<main>
-  <div class="search-container" id="searchContainer">
-    <h1>💜 Bilm 💜</h1>
-    <input type="text" id="searchInput" placeholder="Search for a movie..." autocomplete="off" />
-    <div class="button-row">
-      <button class="search-btn" id="searchMovie">Search Movies</button>
-    </div>
-  </div>
-</main>
-
-<script>
-  const tmdbKey = '3ade810499876bb5672f40e54960e6a2';
-
-  document.getElementById('searchMovie').onclick = async () => {
-    const query = document.getElementById('searchInput').value.trim();
-    if (!query) return alert('Please enter a movie name.');
-    try {
-      const url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbKey}&query=${encodeURIComponent(query)}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!data.results.length) return alert('No movies found.');
-      // Redirect to movies page with query param for results
-      window.location.href = `/movies/?search=${encodeURIComponent(query)}`;
-    } catch (e) {
-      alert('Search failed.');
-      console.error(e);
-    }
-  };
-
-  // Enter key triggers search
-  document.getElementById('searchInput').addEventListener('keydown', e => {
-    if(e.key === 'Enter') {
-      document.getElementById('searchMovie').click();
-    }
-  });
-</script>
-
+  <script src="script.js"></script>
 </body>
 </html>
