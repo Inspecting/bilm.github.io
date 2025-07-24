@@ -10,27 +10,9 @@ body, html {
   font-family: 'Poppins', sans-serif;
   background-color: #121212;
   color: #f0f0f0;
-  overflow: hidden;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-}
-
-/* Fullscreen Intro */
-#introOverlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: #000;
-  color: #a14eff;
-  font-size: 96px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  font-weight: 600;
-  transition: opacity 0.5s ease;
-  opacity: 1;
-  pointer-events: none;
 }
 
 /* Header */
@@ -44,11 +26,6 @@ header {
   position: sticky;
   top: 0;
   z-index: 1000;
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-header.visible {
-  opacity: 1;
 }
 nav {
   display: flex;
@@ -66,9 +43,13 @@ nav button {
   border-radius: 12px;
   user-select: none;
 }
-nav button:hover {
+nav button:hover:not(:disabled) {
   color: #fff;
   background-color: #3a1361;
+}
+nav button:disabled {
+  color: #6a0dad;
+  cursor: default;
 }
 
 /* Main Content */
@@ -76,14 +57,9 @@ main {
   flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   padding: 20px;
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-main.visible {
-  opacity: 1;
 }
 
 /* Search UI */
@@ -139,12 +115,39 @@ button.search-btn:hover {
   background-color: #a855f7;
 }
 
-/* Version label */
-.version-label {
+/* Movie Results */
+.movie-item:hover {
+  background-color: #3a1361;
+}
+
+/* Overlay Video */
+#overlay {
   position: fixed;
-  bottom: 8px;
-  right: 8px;
-  font-size: 0.9rem;
-  color: #777;
-  user-select: none;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  display: none;
+  flex-direction: column;
+  z-index: 2000;
+}
+#overlay iframe {
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+#closeOverlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 32px;
+  color: white;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 2100;
+}
+.hidden {
+  display: none;
 }
