@@ -2,31 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Movie Viewer – Bilm</title>
-  <link rel="stylesheet" href="/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎥 Watch Movie | Bilm</title>
+  <link rel="stylesheet" href="/bilm.github.io/style.css">
 </head>
 <body>
   <header>
     <nav>
-      <button onclick="location.href='/'">🏠 Home</button>
-      <button onclick="location.href='/movies/'">🎬 Movies</button>
-      <button onclick="location.href='/tv-shows/'">📺 TV Shows</button>
-      <button onclick="location.href='/settings/'">⚙ Settings</button>
+      <button onclick="location.href='/bilm.github.io/'">🏠 Home</button>
+      <button onclick="location.href='/bilm.github.io/movies/'">🎬 Movies</button>
+      <button onclick="location.href='/bilm.github.io/tv-shows/'">📺 TV Shows</button>
+      <button onclick="location.href='/bilm.github.io/settings/'">⚙ Settings</button>
     </nav>
   </header>
 
   <main>
-    <div class="search-container" id="movieDetails">
-      <h1>Loading movie...</h1>
+    <div class="search-container">
+      <h1 id="movieTitle">🎬 Loading...</h1>
+      <div style="margin: 20px auto; max-width: 720px; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; box-shadow: 0 0 12px rgba(0,0,0,0.4);">
+        <iframe id="videoFrame" allowfullscreen allow="autoplay" style="width: 100%; height: 100%; border: none;"></iframe>
+      </div>
     </div>
   </main>
 
-  <div id="overlay" class="hidden">
-    <button id="closeOverlay">×</button>
-    <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
-  </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
 
-  <script src="script.js"></script>
+    if (!id) {
+      document.getElementById("movieTitle").textContent = "Movie not found.";
+    } else {
+      fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=3ade810499876bb5672f40e54960e6a2`)
+        .then(res => res.json())
+        .then(movie => {
+          document.getElementById("movieTitle").textContent = `${movie.title} (${(movie.release_date || "????").slice(0, 4)})`;
+          document.getElementById("videoFrame").src = `https://vidsrc.to/embed/movie/${id}`;
+        })
+        .catch(() => {
+          document.getElementById("movieTitle").textContent = "Movie failed to load.";
+        });
+    }
+  </script>
 </body>
 </html>
