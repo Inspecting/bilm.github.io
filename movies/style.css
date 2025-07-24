@@ -47,10 +47,13 @@ nav button:hover {
   background-color: #3a1361;
 }
 
-/* Main container */
+/* Main container: FULL WIDTH now */
 main {
   flex: 1;
   overflow-y: auto;
+  width: 100vw;
+  padding: 30px 20px;
+  box-sizing: border-box;
 }
 
 /* Section container */
