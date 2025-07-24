@@ -1,32 +1,132 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bilm - Movies</title>
-  <link rel="stylesheet" href="/bilm.github.io/style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bilm 💜 - Movies</title>
+
+<!-- Google Fonts: Poppins -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+
+<!-- Local stylesheet -->
+<link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <header style="opacity: 0;">
-    <nav>
-      <button data-page="home">Home</button>
-      <button data-page="movies">Movies</button>
-    </nav>
+
+<header>
+  <nav>
+    <button data-page="home">Home</button>
+    <button data-page="movies">Movies</button>
+  </nav>
+</header>
+
+<main>
+  <div class="search-container" id="resultsContainer">
     <h1>Movie Search Results</h1>
-  </header>
+    <p id="infoText">Loading...</p>
+  </div>
+</main>
 
-  <main style="opacity: 0;">
-    <div id="resultsContainer">
-      <p>Loading or use the search on home page.</p>
-    </div>
+<div id="overlay">
+  <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+  <button id="closeOverlay">×</button>
+</div>
 
-    <!-- Video overlay -->
-    <div id="overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); justify-content:center; align-items:center;">
-      <iframe id="videoFrame" src="" width="80%" height="80%" frameborder="0" allowfullscreen></iframe>
-      <button id="closeOverlay" style="position:absolute; top:20px; right:20px; font-size:2rem;">×</button>
-    </div>
-  </main>
+<script>
+  const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
+  const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
-  <script src="script.js"></script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const header = document.querySelector('header');
+    const main = document.querySelector('main');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const infoText = document.getElementById('infoText');
+    const overlay = document.getElementById('overlay');
+    const closeOverlay = document.getElementById('closeOverlay');
+    const videoFrame = document.getElementById('videoFrame');
+
+    header.classList.add('visible');
+    main.classList.add('visible');
+
+    // Navigation buttons
+    document.querySelectorAll('nav button').forEach(btn => {
+      btn.onclick = () => {
+        const page = btn.dataset.page;
+        if (page === 'home') {
+          window.location.href = `${BASE_URL}/home/`;
+        } else if (page === 'movies') {
+          window.location.href = `${BASE_URL}/movies/`;
+        }
+      };
+    });
+
+    // Close overlay
+    closeOverlay.onclick = () => {
+      videoFrame.src = '';
+      overlay.style.display = 'none';
+    };
+
+    // Parse query param ?search=
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('search');
+
+    if (!searchQuery) {
+      infoText.textContent = 'Please search for movies from the home page.';
+      return;
+    }
+
+    // Fetch movies from TMDB
+    fetchMovies(searchQuery);
+
+    async function fetchMovies(query) {
+      infoText.textContent = 'Loading...';
+      try {
+        const response = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`);
+        const data = await response.json();
+
+        if (!data.results || data.results.length === 0) {
+          infoText.textContent = 'No results found.';
+          return;
+        }
+
+        displayMovies(data.results);
+      } catch (error) {
+        infoText.textContent = 'Failed to fetch results.';
+        console.error(error);
+      }
+    }
+
+    function displayMovies(movies) {
+      infoText.style.display = 'none';
+      resultsContainer.innerHTML = ''; // Clear old content
+
+      movies.forEach(movie => {
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        card.style.marginBottom = '16px';
+
+        // Movie title + year
+        const title = document.createElement('h3');
+        const year = movie.release_date ? movie.release_date.slice(0, 4) : 'Unknown';
+        title.textContent = `${movie.title} (${year})`;
+
+        // Watch preview button
+        const watchBtn = document.createElement('button');
+        watchBtn.textContent = '▶ Watch Preview';
+        watchBtn.style.marginTop = '8px';
+        watchBtn.onclick = () => {
+          const embedUrl = `https://vidsrc.to/embed/movie/${movie.id}`;
+          videoFrame.src = embedUrl;
+          overlay.style.display = 'flex';
+        };
+
+        card.appendChild(title);
+        card.appendChild(watchBtn);
+        resultsContainer.appendChild(card);
+      });
+    }
+  });
+</script>
+
 </body>
 </html>
