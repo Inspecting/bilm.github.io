@@ -3,28 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🎬 Movies - Bilm</title>
-  <link rel="stylesheet" href="../style.css" />
-  <script defer src="script.js"></script>
+  <title>🎬 Bilm Movies</title>
+  <link rel="stylesheet" href="/bilm.github.io/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <header>
+
+  <header class="visible">
     <nav>
-      <button onclick="location.href='/'">🏠 Home</button>
-      <button onclick="location.href='/movies/'">🎬 Movies</button>
-      <button onclick="alert('TV coming soon')">📺 TV Shows</button>
-      <button onclick="alert('Settings coming soon')">⚙ Settings</button>
+      <button onclick="location.href='/bilm.github.io/'">🏠 Home</button>
+      <button onclick="location.href='/bilm.github.io/movies/'">🎬 Movies</button>
+      <button onclick="location.href='/bilm.github.io/tv-shows/'">📺 TV Shows</button>
+      <button onclick="location.href='/bilm.github.io/settings/'">⚙ Settings</button>
     </nav>
   </header>
-  <main>
-    <div class="search-container">
-      <h1>🎬 Movies</h1>
-      <input type="text" id="searchInput" placeholder="Search for a movie..." />
-      <div class="button-row">
-        <button class="search-btn" id="searchMovie">Search</button>
-      </div>
-      <div id="results" style="margin-top: 20px;"></div>
+
+  <main class="visible">
+    <div class="search-container" id="movieList">
+      <h1>🎬 Random Movies</h1>
+      <div id="movieResults"></div>
     </div>
   </main>
+
+  <div class="version-label">v0.1 testing</div>
+
+  <script src="script.js"></script>
 </body>
 </html>
