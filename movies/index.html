@@ -2,30 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🎬 Movies – Bilm</title>
-  <link rel="stylesheet" href="/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎬 Movies | Bilm</title>
+  <link rel="stylesheet" href="/bilm.github.io/style.css">
 </head>
 <body>
   <header>
     <nav>
-      <button onclick="location.href='/'">🏠 Home</button>
-      <button onclick="location.href='/movies/'">🎬 Movies</button>
-      <button onclick="location.href='/tv-shows/'">📺 TV Shows</button>
-      <button onclick="location.href='/settings/'">⚙ Settings</button>
+      <button onclick="location.href='/bilm.github.io/'">🏠 Home</button>
+      <button onclick="location.href='/bilm.github.io/movies/'">🎬 Movies</button>
+      <button onclick="location.href='/bilm.github.io/tv-shows/'">📺 TV Shows</button>
+      <button onclick="location.href='/bilm.github.io/settings/'">⚙ Settings</button>
     </nav>
   </header>
 
   <main>
     <div class="search-container">
-      <h1>🎬 Discover Movies</h1>
-      <div class="button-row">
-        <button class="search-btn" onclick="loadRandomMovie()">🎲 Random Movie</button>
-        <button class="search-btn" onclick="searchMovies()">🔍 Search</button>
-      </div>
+      <h1>🎬 Random Movies</h1>
+      <p style="margin-bottom: 20px;">Click to discover something new to watch!</p>
+      <button class="search-btn" onclick="getRandomMovie()">🎲 Random Movie</button>
+      <div id="movieResults" style="margin-top: 24px;"></div>
     </div>
   </main>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
