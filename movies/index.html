@@ -1,1 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎬 Movies - Bilm</title>
+  <link rel="stylesheet" href="../style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="introOverlay">💜 Bilm 💜</div>
 
+  <header>
+    <nav>
+      <button onclick="navigate('/')">🏠 Home</button>
+      <button onclick="navigate('/movies/')">🎬 Movies</button>
+      <button onclick="navigate('/tv-shows/')">📺 TV Shows</button>
+      <button onclick="navigate('/settings/')">⚙ Settings</button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="search-container">
+      <h1>🎬 Movie Picks</h1>
+      <div class="list" id="movieList">
+        <!-- Movie list dynamically loaded here -->
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_KEY = "3ade810499876bb5672f40e54960e6a2";
+    const movieList = document.getElementById("movieList");
+
+    function navigate(path) {
+      window.location.href = path;
+    }
+
+    function loadRandomMovies() {
+      fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=1`)
+        .then(res => res.json())
+        .then(data => {
+          data.results.slice(0, 10).forEach(movie => {
+            const item = document.createElement("div");
+            item.className = "list-item";
+            item.innerHTML = `
+              <div class="title">${movie.title}</div>
+              <div class="actions">
+                <button onclick="viewMovie(${movie.id})">▶ Watch</button>
+              </div>
+            `;
+            movieList.appendChild(item);
+          });
+        })
+        .catch(err => console.error("Failed to fetch movies:", err));
+    }
+
+    function viewMovie(id) {
+      window.location.href = `/bilm.github.io/movies/${id}`;
+    }
+
+    // Fade in
+    window.addEventListener("DOMContentLoaded", () => {
+      const intro = document.getElementById("introOverlay");
+      const header = document.querySelector("header");
+      const main = document.querySelector("main");
+
+      setTimeout(() => {
+        intro.style.opacity = '0';
+        setTimeout(() => {
+          intro.remove();
+          header.classList.add("visible");
+          main.classList.add("visible");
+          loadRandomMovies();
+        }, 500);
+      }, 500);
+    });
+  </script>
+</body>
+</html>
