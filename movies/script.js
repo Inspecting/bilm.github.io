@@ -1,81 +1,128 @@
 const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
-const moviesPerLoad = 15;
+const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
-const movieSections = [
-  { title: 'Trending', endpoint: '/trending/movie/week' },
-  { title: 'Popular', endpoint: '/movie/popular' },
-  { title: 'Top Rated', endpoint: '/movie/top_rated' },
-  { title: 'Now Playing', endpoint: '/movie/now_playing' },
-  { title: 'Action', endpoint: '/discover/movie?with_genres=28' },
-  { title: 'Adventure', endpoint: '/discover/movie?with_genres=12' },
-  { title: 'Animation', endpoint: '/discover/movie?with_genres=16' },
-  { title: 'Comedy', endpoint: '/discover/movie?with_genres=35' },
-  { title: 'Crime', endpoint: '/discover/movie?with_genres=80' },
-  { title: 'Documentary', endpoint: '/discover/movie?with_genres=99' },
-  { title: 'Drama', endpoint: '/discover/movie?with_genres=18' },
-  { title: 'Family', endpoint: '/discover/movie?with_genres=10751' },
-  { title: 'Fantasy', endpoint: '/discover/movie?with_genres=14' },
-  { title: 'History', endpoint: '/discover/movie?with_genres=36' },
-  { title: 'Horror', endpoint: '/discover/movie?with_genres=27' },
-  { title: 'Music', endpoint: '/discover/movie?with_genres=10402' },
-  { title: 'Mystery', endpoint: '/discover/movie?with_genres=9648' },
-  { title: 'Romance', endpoint: '/discover/movie?with_genres=10749' },
-  { title: 'Science Fiction', endpoint: '/discover/movie?with_genres=878' },
-  { title: 'TV Movie', endpoint: '/discover/movie?with_genres=10770' },
-  { title: 'Thriller', endpoint: '/discover/movie?with_genres=53' },
-  { title: 'War', endpoint: '/discover/movie?with_genres=10752' },
-  { title: 'Western', endpoint: '/discover/movie?with_genres=37' }
-];
+// Track how many movies loaded per section for "Show More"
+const moviesPerLoad = 15;
+const loadedCounts = {};
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Navigation buttons
+  document.querySelectorAll('nav button').forEach(btn => {
+    btn.onclick = () => {
+      const page = btn.dataset.page;
+      if (page === 'home') {
+        window.location.href = `${BASE_URL}/home/`;
+      } else if (page === 'movies') {
+        window.location.href = `${BASE_URL}/movies/`;
+      }
+    };
+  });
+
+  const sections = [
+    { title: 'Trending', endpoint: '/trending/movie/week' },
+    { title: 'Popular', endpoint: '/movie/popular' },
+    { title: 'Top Rated', endpoint: '/movie/top_rated' },
+    { title: 'Now Playing', endpoint: '/movie/now_playing' },
+
+    // Genres
+    { title: 'Action', endpoint: '/discover/movie?with_genres=28' },
+    { title: 'Adventure', endpoint: '/discover/movie?with_genres=12' },
+    { title: 'Animation', endpoint: '/discover/movie?with_genres=16' },
+    { title: 'Comedy', endpoint: '/discover/movie?with_genres=35' },
+    { title: 'Crime', endpoint: '/discover/movie?with_genres=80' },
+    { title: 'Drama', endpoint: '/discover/movie?with_genres=18' },
+    { title: 'Fantasy', endpoint: '/discover/movie?with_genres=14' },
+    { title: 'Horror', endpoint: '/discover/movie?with_genres=27' },
+    { title: 'Mystery', endpoint: '/discover/movie?with_genres=9648' },
+    { title: 'Romance', endpoint: '/discover/movie?with_genres=10749' },
+    { title: 'Science Fiction', endpoint: '/discover/movie?with_genres=878' },
+    { title: 'Thriller', endpoint: '/discover/movie?with_genres=53' }
+  ];
+
   const container = document.getElementById('movieSections');
-  movieSections.forEach(section => renderSection(section, container));
+  sections.forEach(section => {
+    loadedCounts[section.title] = 0;
+    renderMovieSection(section, container);
+  });
 });
 
-async function renderSection(section, container) {
-  const sectionEl = document.createElement('section');
-  sectionEl.className = 'section';
+async function renderMovieSection(section, container, loadMore = false) {
+  let sectionEl = document.getElementById(`section-${section.title.replace(/\s/g, '')}`);
+  let rowEl;
+  if (!sectionEl) {
+    sectionEl = document.createElement('div');
+    sectionEl.className = 'section';
+    sectionEl.id = `section-${section.title.replace(/\s/g, '')}`;
 
-  const title = document.createElement('h2');
-  title.textContent = section.title;
-  sectionEl.appendChild(title);
+    const titleEl = document.createElement('h2');
+    titleEl.className = 'section-title';
+    titleEl.textContent = section.title;
 
-  const row = document.createElement('div');
-  row.className = 'scroll-row';
-  sectionEl.appendChild(row);
-  container.appendChild(sectionEl);
+    rowEl = document.createElement('div');
+    rowEl.className = 'scroll-row';
+    rowEl.id = `row-${section.title.replace(/\s/g, '')}`;
+
+    sectionEl.appendChild(titleEl);
+    sectionEl.appendChild(rowEl);
+    container.appendChild(sectionEl);
+  } else {
+    rowEl = sectionEl.querySelector('.scroll-row');
+  }
 
   try {
+    // Calculate page number based on loaded counts
+    const alreadyLoaded = loadedCounts[section.title] || 0;
+    const page = Math.floor(alreadyLoaded / moviesPerLoad) + 1;
+
     const url = section.endpoint.includes('?')
-      ? `https://api.themoviedb.org/3${section.endpoint}&api_key=${TMDB_API_KEY}&page=1`
-      : `https://api.themoviedb.org/3${section.endpoint}?api_key=${TMDB_API_KEY}&page=1`;
+      ? `https://api.themoviedb.org/3${section.endpoint}&api_key=${TMDB_API_KEY}&page=${page}`
+      : `https://api.themoviedb.org/3${section.endpoint}?api_key=${TMDB_API_KEY}&page=${page}`;
 
     const res = await fetch(url);
     const data = await res.json();
 
-    (data.results || []).slice(0, moviesPerLoad).forEach(movie => {
+    // Remove old Show More button before adding new movies
+    const oldShowMore = rowEl.querySelector('.show-more-card');
+    if (oldShowMore) oldShowMore.remove();
+
+    const movies = data.results || [];
+
+    // Only add next batch of movies
+    movies.slice(0, moviesPerLoad).forEach(movie => {
       const card = document.createElement('div');
-      card.className = 'card';
+      card.className = 'movie-card';
 
       const poster = document.createElement('img');
       poster.src = movie.poster_path
-        ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
-        : 'https://via.placeholder.com/200x300?text=No+Image';
+        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+        : 'https://via.placeholder.com/140x210?text=No+Image';
 
       const title = document.createElement('p');
-      title.className = 'card-title';
-      title.textContent = movie.title;
-
-      const year = document.createElement('p');
-      year.className = 'card-date';
-      year.textContent = movie.release_date?.slice(0, 4) || 'N/A';
+      title.textContent = `${movie.title} (${movie.release_date?.slice(0, 4) || 'N/A'})`;
 
       card.appendChild(poster);
       card.appendChild(title);
-      card.appendChild(year);
-      row.appendChild(card);
+
+      // Optionally, add click listener to open movie details...
+
+      rowEl.appendChild(card);
     });
-  } catch (e) {
-    row.textContent = 'Error loading section';
+
+    loadedCounts[section.title] = alreadyLoaded + moviesPerLoad;
+
+    // Add Show More button back
+    if (loadedCounts[section.title] < data.total_results) {
+      const moreCard = document.createElement('div');
+      moreCard.className = 'show-more-card';
+      moreCard.textContent = '→';
+      moreCard.title = `Show more ${section.title}`;
+      moreCard.onclick = () => {
+        renderMovieSection(section, container, true);
+      };
+      rowEl.appendChild(moreCard);
+    }
+
+  } catch (err) {
+    console.error(`Error loading section ${section.title}:`, err);
   }
 }
