@@ -1,23 +1,72 @@
 const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
 const BASE_URL = 'https://api.themoviedb.org/3';
-const IMG_BASE = 'https://image.tmdb.org/t/p/w300';
-
-const categories = [
-  { id: 'trending', label: '🔥 Trending', endpoint: '/trending/movie/week' },
-  { id: 'popular', label: '🌟 Popular', endpoint: '/movie/popular' },
-  { id: 'now_playing', label: '🎬 Now Playing', endpoint: '/movie/now_playing' },
-  { id: 'upcoming', label: '⏭ Upcoming', endpoint: '/movie/upcoming' },
-];
 
 document.addEventListener('DOMContentLoaded', () => {
-  const header = document.querySelector('header');
-  const main = document.querySelector('main');
-  const movieSections = document.getElementById('movieSections');
+  const sections = [
+    { title: 'Trending', path: '/trending/movie/day' },
+    { title: 'Popular', path: '/movie/popular' },
+    { title: 'Top Rated', path: '/movie/top_rated' },
+    { title: 'Now Playing', path: '/movie/now_playing' }
+  ];
 
-  header.classList.add('visible');
-  main.classList.add('visible');
+  const container = document.getElementById('movieSections');
 
-  // Navigation button handlers
+  sections.forEach(section => {
+    createMovieSection(section.title, section.path);
+  });
+
+  function createMovieSection(title, apiPath) {
+    let page = 1;
+    const section = document.createElement('div');
+    section.className = 'section';
+
+    const heading = document.createElement('h2');
+    heading.className = 'section-title';
+    heading.textContent = title;
+    section.appendChild(heading);
+
+    const row = document.createElement('div');
+    row.className = 'scroll-row';
+    section.appendChild(row);
+
+    container.appendChild(section);
+
+    async function loadMovies() {
+      const url = `${BASE_URL}${apiPath}?api_key=${TMDB_API_KEY}&page=${page}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      data.results.slice(0, 15).forEach(movie => {
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+
+        const img = document.createElement('img');
+        img.src = movie.poster_path
+          ? `https://image.tmdb.org/t/p/w342${movie.poster_path}`
+          : 'https://via.placeholder.com/140x210?text=No+Image';
+
+        const label = document.createElement('p');
+        const year = movie.release_date?.slice(0, 4) || 'N/A';
+        label.textContent = `${movie.title} (${year})`;
+
+        card.appendChild(img);
+        card.appendChild(label);
+        row.insertBefore(card, row.lastChild); // insert before the arrow
+      });
+
+      page++;
+    }
+
+    const showMore = document.createElement('div');
+    showMore.className = 'show-more-card';
+    showMore.innerHTML = '➡️';
+    showMore.onclick = loadMovies;
+
+    row.appendChild(showMore);
+    loadMovies(); // initial load
+  }
+
+  // Nav buttons
   document.querySelectorAll('nav button').forEach(btn => {
     btn.onclick = () => {
       const page = btn.dataset.page;
@@ -28,75 +77,4 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
   });
-
-  // Add horizontal mouse wheel scroll support for each scroll-row
-  document.addEventListener('wheel', e => {
-    const target = e.target;
-    if (target.classList.contains('scroll-row')) {
-      e.preventDefault();
-      target.scrollLeft += e.deltaY;
-    }
-  }, { passive: false });
-
-  // Create all category sections
-  categories.forEach(section => createSection(section, movieSections));
 });
-
-function createSection({ id, label, endpoint }, container) {
-  const section = document.createElement('div');
-  section.className = 'section';
-
-  section.innerHTML = `
-    <div class="section-title">
-      <span>${label}</span>
-    </div>
-    <div class="scroll-row" id="${id}Row"></div>
-  `;
-
-  container.appendChild(section);
-  fetchMovies(endpoint, id);
-}
-
-async function fetchMovies(endpoint, rowId) {
-  try {
-    const res = await fetch(`${BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&language=en-US&page=1`);
-    const data = await res.json();
-    const movies = data.results.slice(0, 15);
-    renderMovies(movies, rowId);
-  } catch (err) {
-    console.error(`Failed to load ${rowId}`, err);
-  }
-}
-
-function renderMovies(movies, rowId) {
-  const row = document.getElementById(`${rowId}Row`);
-  row.innerHTML = '';  // Clear previous if any
-
-  movies.forEach(movie => {
-    const card = document.createElement('div');
-    card.className = 'movie-card';
-
-    const poster = movie.poster_path ? `${IMG_BASE}${movie.poster_path}` : 'https://via.placeholder.com/140x210?text=No+Image';
-    const year = movie.release_date ? movie.release_date.slice(0, 4) : '----';
-
-    card.innerHTML = `
-      <img src="${poster}" alt="${movie.title}" />
-      <p title="${movie.title}">${movie.title} (${year})</p>
-    `;
-
-    // Add click handler if needed:
-    // card.onclick = () => { /* open viewer or detail page */ };
-
-    row.appendChild(card);
-  });
-
-  // Add the "Show More" box at the end
-  const showMore = document.createElement('div');
-  showMore.className = 'show-more-card';
-  showMore.textContent = 'Show More →';
-  showMore.onclick = () => {
-    alert(`Show more clicked for ${rowId}! Implement your logic here.`);
-    // Example: window.location.href = `/movies/more.html?category=${rowId}`;
-  };
-  row.appendChild(showMore);
-}
