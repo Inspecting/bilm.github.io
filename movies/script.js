@@ -1,38 +1,39 @@
 const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMG_BASE = 'https://image.tmdb.org/t/p/w300';
-const movieSections = document.getElementById('movieSections');
 
 const categories = [
-  { id: 'trending', label: '🔥 Trending', endpoint: `/trending/movie/week` },
-  { id: 'popular', label: '🌟 Popular', endpoint: `/movie/popular` },
-  { id: 'now_playing', label: '🎬 Now Playing', endpoint: `/movie/now_playing` },
-  { id: 'upcoming', label: '⏭ Upcoming', endpoint: `/movie/upcoming` },
+  { id: 'trending', label: '🔥 Trending', endpoint: '/trending/movie/week' },
+  { id: 'popular', label: '🌟 Popular', endpoint: '/movie/popular' },
+  { id: 'now_playing', label: '🎬 Now Playing', endpoint: '/movie/now_playing' },
+  { id: 'upcoming', label: '⏭ Upcoming', endpoint: '/movie/upcoming' },
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Header fade-in
   const header = document.querySelector('header');
   const main = document.querySelector('main');
-  if (header) header.classList.add('visible');
-  if (main) main.classList.add('visible');
+  const movieSections = document.getElementById('movieSections');
 
-  // Nav button actions
+  header.classList.add('visible');
+  main.classList.add('visible');
+
+  // Navigation button handlers
   document.querySelectorAll('nav button').forEach(btn => {
     btn.onclick = () => {
       const page = btn.dataset.page;
-      if (page === 'home') window.location.href = 'https://inspecting.github.io/bilm.github.io/home/';
-      if (page === 'movies') window.location.href = 'https://inspecting.github.io/bilm.github.io/movies/';
+      if (page === 'home') {
+        window.location.href = 'https://inspecting.github.io/bilm.github.io/home/';
+      } else if (page === 'movies') {
+        window.location.href = 'https://inspecting.github.io/bilm.github.io/movies/';
+      }
     };
   });
 
-  // Load each category section
-  categories.forEach(section => {
-    createSection(section);
-  });
+  // Create all category sections
+  categories.forEach(section => createSection(section, movieSections));
 });
 
-function createSection({ id, label, endpoint }) {
+function createSection({ id, label, endpoint }, container) {
   const section = document.createElement('div');
   section.className = 'section';
 
@@ -44,7 +45,7 @@ function createSection({ id, label, endpoint }) {
     <div class="scroll-row" id="${id}Row"></div>
   `;
 
-  movieSections.appendChild(section);
+  container.appendChild(section);
   fetchMovies(endpoint, id);
 }
 
@@ -60,7 +61,7 @@ async function fetchMovies(endpoint, rowId) {
 }
 
 function renderMovies(movies, rowId) {
-  const row = document.getElementById(rowId + 'Row');
+  const row = document.getElementById(`${rowId}Row`);
   movies.forEach(movie => {
     const card = document.createElement('div');
     card.className = 'movie-card';
@@ -70,8 +71,11 @@ function renderMovies(movies, rowId) {
 
     card.innerHTML = `
       <img src="${poster}" alt="${movie.title}" />
-      <p>${movie.title} (${year})</p>
+      <p title="${movie.title}">${movie.title} (${year})</p>
     `;
+
+    // You can add click handler to open viewer or detail later
+    // card.onclick = () => { ... }
 
     row.appendChild(card);
   });
