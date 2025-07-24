@@ -1,27 +1,32 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bilm - Home</title>
-  <link rel="stylesheet" href="/bilm.github.io/style.css" />
+  <title>Bilm 💜</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <header style="opacity: 0;">
-    <nav>
-      <button data-page="home">Home</button>
-      <button data-page="movies">Movies</button>
-    </nav>
-    <h1>Bilm Home</h1>
-  </header>
 
-  <main style="opacity: 0;">
-    <input id="searchInput" type="search" placeholder="Search movies..." />
-    <button id="searchMovie">Search Movie</button>
-    <button id="searchTV">Search TV (Coming Soon)</button>
-    <p id="versionLabel"></p>
-  </main>
+<header>
+  <nav>
+    <button data-page="home">Home</button>
+    <button data-page="movies">Movies</button>
+  </nav>
+</header>
 
-  <script src="script.js"></script>
+<main>
+  <div class="search-container">
+    <h1>💜 Bilm 💜</h1>
+    <input id="searchInput" type="search" placeholder="Search movies..." autocomplete="off" />
+    <div class="button-row">
+      <button class="search-btn" id="searchMovie">Search Movie</button>
+      <button class="search-btn" id="searchTV">Search TV (Coming Soon)</button>
+    </div>
+  </div>
+</main>
+
+<script src="./script.js"></script>
 </body>
 </html>
