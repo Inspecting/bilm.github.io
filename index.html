@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bilm 💜</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/bilm.github.io/style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bilm 💜</title>
+<!-- Google Fonts: Poppins -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+<!-- Use relative path to style.css in root -->
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
@@ -13,15 +15,15 @@
 
 <header>
   <nav>
-    <button onclick="location.href='/'">🏠 Home</button>
-    <button onclick="location.href='/bilm.github.io/movies/'">🎬 Movies</button>
-    <button onclick="alert('TV Shows not yet implemented')">📺 TV Shows</button>
-    <button onclick="alert('Settings coming soon')">⚙ Settings</button>
+    <button data-page="home" id="btnHome">🏠 Home</button>
+    <button data-page="movies" id="btnMovies">🎬 Movies</button>
+    <button data-page="tv" id="btnTV">📺 TV Shows</button>
+    <button data-page="settings" id="btnSettings">⚙ Settings</button>
   </nav>
 </header>
 
 <main>
-  <div class="search-container">
+  <div class="search-container" id="searchContainer">
     <h1>💜 Bilm 💜</h1>
     <input type="text" id="searchInput" placeholder="Search for a movie or show..." />
     <div class="button-row">
@@ -36,6 +38,7 @@
   <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
 </div>
 
-<script src="script.js"></script>
+<script src="main.js"></script>
+
 </body>
 </html>
