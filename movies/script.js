@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadAllSections();
 });
 
-// Setup top nav buttons
 function setupNavButtons() {
   document.querySelectorAll('nav button').forEach(btn => {
     btn.onclick = () => {
@@ -30,7 +29,6 @@ function setupNavButtons() {
   });
 }
 
-// Fetch genres once and map id => name
 async function fetchGenres() {
   try {
     const res = await fetch(`https://api.themoviedb.org/3/genre/movie/list?api_key=${TMDB_API_KEY}&language=en-US`);
@@ -45,16 +43,13 @@ async function fetchGenres() {
   }
 }
 
-// Load all sections on page load
 async function loadAllSections() {
   for (const section of movieSections) {
     await loadMovies(section);
     renderMovieSection(section);
-    setupScrollArrows(section.title);
   }
 }
 
-// Load movies from TMDB for given section and page
 async function loadMovies(section) {
   try {
     const url = `https://api.themoviedb.org/3/${section.endpoint}?api_key=${TMDB_API_KEY}&language=en-US&page=${section.page}`;
@@ -68,7 +63,6 @@ async function loadMovies(section) {
   }
 }
 
-// Render a movie section with horizontal scroll, show more button
 function renderMovieSection(section) {
   const container = document.getElementById('movieSections');
 
@@ -86,16 +80,6 @@ function renderMovieSection(section) {
   h2.className = 'section-title';
   h2.textContent = section.title;
   sectionDiv.appendChild(h2);
-
-  // Scroll wrapper
-  const scrollWrapper = document.createElement('div');
-  scrollWrapper.className = 'scroll-wrapper';
-
-  // Left arrow
-  const leftArrow = document.createElement('div');
-  leftArrow.className = 'scroll-arrow scroll-left';
-  leftArrow.innerHTML = '&#8592;'; // ←
-  scrollWrapper.appendChild(leftArrow);
 
   // Scroll row container
   const scrollRow = document.createElement('div');
@@ -129,19 +113,10 @@ function renderMovieSection(section) {
   };
   scrollRow.appendChild(showMoreBtn);
 
-  scrollWrapper.appendChild(scrollRow);
-
-  // Right arrow
-  const rightArrow = document.createElement('div');
-  rightArrow.className = 'scroll-arrow scroll-right';
-  rightArrow.innerHTML = '&#8594;'; // →
-  scrollWrapper.appendChild(rightArrow);
-
-  sectionDiv.appendChild(scrollWrapper);
+  sectionDiv.appendChild(scrollRow);
   container.appendChild(sectionDiv);
 }
 
-// Create a single movie card element
 function createMovieCard(movie) {
   const card = document.createElement('div');
   card.className = 'movie-card';
@@ -192,29 +167,6 @@ function createMovieCard(movie) {
   return card;
 }
 
-// Setup horizontal scroll arrow button handlers
-function setupScrollArrows(sectionTitle) {
-  const row = document.getElementById(`row-${sectionTitle.replace(/\s/g, '')}`);
-  if (!row) return;
-
-  const wrapper = row.parentElement; // .scroll-wrapper
-
-  const btnLeft = wrapper.querySelector('.scroll-left');
-  const btnRight = wrapper.querySelector('.scroll-right');
-
-  const cardWidth = 140; // movie card width in px
-  const gap = 12; // gap between cards in px
-  const scrollAmount = (cardWidth + gap) * 3; // scroll by 3 cards
-
-  btnLeft.onclick = () => {
-    row.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-  };
-  btnRight.onclick = () => {
-    row.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-  };
-}
-
-// Open overlay video player
 function openVideoOverlay(url) {
   let overlay = document.getElementById('overlay');
   if (!overlay) {
