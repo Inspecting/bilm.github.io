@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bilm 💜</title>
+
+<!-- Google Fonts: Poppins -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+
+<!-- Local stylesheet -->
+<link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+
+<header>
+  <nav>
+    <button data-page="home">Home</button>
+    <button data-page="movies">Movies</button>
+  </nav>
+</header>
+
+<main>
+  <div class="search-container">
+    <h1>💜 Bilm 💜</h1>
+    <input id="searchInput" type="search" placeholder="Search movies..." autocomplete="off" />
+    <div class="button-row">
+      <button class="search-btn" id="searchMovie">Search Movie</button>
+      <button class="search-btn" id="searchTV">Search TV (Coming Soon)</button>
+    </div>
+  </div>
+</main>
+
+<div id="overlay">
+  <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+  <button id="closeOverlay">×</button>
+</div>
+
+<script>
+  const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const header = document.querySelector('header');
+    const main = document.querySelector('main');
+    const overlay = document.getElementById('overlay');
+    const closeOverlay = document.getElementById('closeOverlay');
+    const videoFrame = document.getElementById('videoFrame');
+    const searchInput = document.getElementById('searchInput');
+    const searchMovieBtn = document.getElementById('searchMovie');
+    const searchTVBtn = document.getElementById('searchTV');
+
+    // Show header and main immediately (fade in)
+    header.classList.add('visible');
+    main.classList.add('visible');
+
+    // Close overlay button
+    closeOverlay.onclick = () => {
+      videoFrame.src = '';
+      overlay.style.display = 'none';
+    };
+
+    // Navigation buttons
+    document.querySelectorAll('nav button').forEach(btn => {
+      btn.onclick = () => {
+        const page = btn.dataset.page;
+        if (page === 'home') {
+          window.location.href = `${BASE_URL}/home/`;
+        } else if (page === 'movies') {
+          window.location.href = `${BASE_URL}/movies/`;
+        }
+      };
+    });
+
+    // Search buttons logic
+    searchMovieBtn.onclick = () => {
+      const query = searchInput.value.trim();
+      if (!query) return alert('Please enter a search term');
+      window.location.href = `${BASE_URL}/movies/?search=${encodeURIComponent(query)}`;
+    };
+
+    searchTVBtn.onclick = () => {
+      alert('TV search not implemented yet.');
+    };
+  });
+</script>
+
+</body>
+</html>
