@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="dark">
-<head>
-  <meta charset="UTF-8" />
+@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bilm 💜 - Movies</title>
 
+  <!-- Fonts & Styles -->
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   
@@ -12,36 +10,16 @@
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-
-<header>
-  <nav>
-    <button data-page="home">Home</button>
-    <button data-page="movies" class="active">Movies</button>
-    <button data-page="tv">TV Shows</button>
+@@ -18,10 +20,11 @@
   </nav>
 </header>
 
+<main style="max-width: 1200px; margin: auto; padding: 20px;">
 <main>
   <div id="movieSections"></div>
 </main>
 
 <script src="./script.js"></script>
-
-<script>
-  const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
-
-  document.addEventListener('DOMContentLoaded', () => {
-    // Navigation buttons logic
-    document.querySelectorAll('nav button').forEach(btn => {
-      btn.onclick = () => {
-        const page = btn.dataset.page;
-        if (page === 'home') window.location.href = `${BASE_URL}/home/`;
-        else if (page === 'movies') window.location.href = `${BASE_URL}/movies/`;
-        else if (page === 'tv') window.location.href = `${BASE_URL}/tv-shows/`;
-      };
-    });
-  });
-</script>
 
 </body>
 </html>
