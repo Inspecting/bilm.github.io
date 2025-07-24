@@ -10,7 +10,7 @@
 </head>
 <body>
 
-<div id="introOverlay">Bilm</div>
+<div id="introOverlay">💜 Bilm 💜</div>
 
 <header>
   <nav>
@@ -43,15 +43,15 @@
     const header = document.querySelector('header');
     const main = document.querySelector('main');
 
-    // After 1.5 seconds fade out intro
+    // After 0.5 seconds fade out intro
     setTimeout(() => {
       intro.style.opacity = '0';
       setTimeout(() => {
         intro.style.display = 'none';
         header.classList.add('visible');
         main.classList.add('visible');
-      }, 1000);
-    }, 1500);
+      }, 500);
+    }, 500);
 
     // Overlay close
     const overlay = document.getElementById('overlay');
