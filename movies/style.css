@@ -93,6 +93,12 @@ main {
   overflow: hidden;
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
   text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+.movie-card:hover {
+  transform: scale(1.05);
 }
 .movie-card img {
   width: 100%;
@@ -103,6 +109,9 @@ main {
   padding: 8px;
   font-size: 0.9rem;
   color: #eee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .scroll-arrow {
   font-size: 24px;
