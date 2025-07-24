@@ -1,88 +1,6 @@
-/* Reset and base */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-html, body {
-  width: 100vw;
-  height: 100vh;
-  overflow-x: hidden; /* prevent horizontal scroll on body */
-  margin: 0; padding: 0;
-  font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #121212;
-  color: #f0f0f0;
-}
-body {
-  display: flex;
-  flex-direction: column;
-  width: 100vw;
-  height: 100vh;
-}
+/* ...existing styles above... */
 
-/* Header navigation */
-header {
-  background-color: #1e1e1e;
-  padding: 12px 20px;
-  display: flex;
-  justify-content: center; /* Center nav horizontally */
-  align-items: center;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  opacity: 0;
-  transition: opacity 1s ease;
-}
-header.visible {
-  opacity: 1;
-}
-nav {
-  display: flex;
-  gap: 20px;
-}
-nav button {
-  background: none;
-  border: none;
-  color: #ccc;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: color 0.3s ease;
-  padding: 8px 14px;
-  border-radius: 12px;
-  user-select: none;
-}
-nav button:hover {
-  color: #fff;
-  background-color: #3a1361;
-}
-
-/* Main container */
-main {
-  flex: 1 1 auto;
-  width: 100vw;
-  max-width: 100vw;
-  padding: 30px 20px;
-  box-sizing: border-box;
-  overflow-y: auto; /* vertical scroll */
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Section styling */
-.section {
-  margin-bottom: 40px;
-}
-
-.section-title {
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: #c084fc;
-  user-select: none;
-}
-
-/* Horizontal scroll container */
+/* Scroll Row Styling */
 .scroll-row {
   display: flex;
   overflow-x: auto;
@@ -92,17 +10,21 @@ main {
   scroll-snap-type: x mandatory;
   width: 100%;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #3a1361 transparent;
 }
-
 .scroll-row::-webkit-scrollbar {
-  height: 6px;
+  height: 4px;
 }
 .scroll-row::-webkit-scrollbar-thumb {
   background-color: #3a1361;
   border-radius: 4px;
 }
+.scroll-row::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-/* Movie card */
+/* Movie card (unchanged) */
 .movie-card {
   width: 140px;
   flex: 0 0 auto;
@@ -137,16 +59,16 @@ main {
   flex-grow: 1;
 }
 
-/* Show more button */
+/* Show more (arrow) card */
 .show-more-card {
   width: 140px;
-  height: 258px; /* same total height as movie card */
+  height: 258px;
   flex: 0 0 auto;
   background-color: #3a1361;
   border-radius: 12px;
   color: white;
-  font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 2.4rem;
+  font-weight: bold;
   display: flex;
   justify-content: center;
   align-items: center;
