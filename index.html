@@ -1,42 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bilm 💜</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bilm 💜</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-<div id="introOverlay">💜 Bilm 💜</div>
+  <!-- Fullscreen Intro -->
+  <div id="introOverlay">💜 Bilm 💜</div>
 
-<header>
-  <nav>
-    <button data-page="home">🏠 Home</button>
-    <button data-page="movies">🎬 Movies</button>
-    <button data-page="tv">📺 TV Shows</button>
-    <button data-page="settings">⚙ Settings</button>
-  </nav>
-</header>
+  <!-- Top Nav -->
+  <header>
+    <nav>
+      <button data-page="home">🏠 Home</button>
+      <button data-page="movies">🎬 Movies</button>
+      <button data-page="tv">📺 TV Shows</button>
+      <button data-page="settings">⚙ Settings</button>
+    </nav>
+  </header>
 
-<main>
-  <div class="search-container" id="searchContainer">
-    <h1>💜 Bilm 💜</h1>
-    <input type="text" id="searchInput" placeholder="Search for a movie or show..." />
-    <div class="button-row">
-      <button class="search-btn" id="searchMovie">Search Movies</button>
-      <button class="search-btn" id="searchTV">Search TV Shows</button>
+  <!-- Main Search Area -->
+  <main>
+    <div class="search-container" id="searchContainer">
+      <h1>💜 Bilm 💜</h1>
+      <input type="text" id="searchInput" placeholder="Search for a movie or show..." />
+      <div class="button-row">
+        <button class="search-btn" id="searchMovie">Search Movies</button>
+        <button class="search-btn" id="searchTV">Search TV Shows</button>
+      </div>
     </div>
+  </main>
+
+  <!-- Video Overlay -->
+  <div id="overlay" class="hidden">
+    <button id="closeOverlay">×</button>
+    <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
   </div>
-</main>
 
-<div id="overlay" class="hidden">
-  <button id="closeOverlay">×</button>
-  <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
-</div>
-
-<script src="app.js"></script>
-
+  <!-- App Logic -->
+  <script src="app.js"></script>
 </body>
 </html>
