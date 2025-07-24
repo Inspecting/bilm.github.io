@@ -1,44 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bilm 💜</title>
-<!-- Google Fonts: Poppins -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-<!-- Use relative path to style.css in root -->
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bilm 💜</title>
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="script.js"></script>
 </head>
 <body>
-
-<div id="introOverlay">💜 Bilm 💜</div>
-
-<header>
-  <nav>
-    <button data-page="home" id="btnHome">🏠 Home</button>
-    <button data-page="movies" id="btnMovies">🎬 Movies</button>
-    <button data-page="tv" id="btnTV">📺 TV Shows</button>
-    <button data-page="settings" id="btnSettings">⚙ Settings</button>
-  </nav>
-</header>
-
-<main>
-  <div class="search-container" id="searchContainer">
-    <h1>💜 Bilm 💜</h1>
-    <input type="text" id="searchInput" placeholder="Search for a movie or show..." />
-    <div class="button-row">
-      <button class="search-btn" id="searchMovie">Search Movies</button>
-      <button class="search-btn" id="searchTV">Search TV Shows</button>
+  <div id="introOverlay">💜 Bilm 💜</div>
+  <header>
+    <nav>
+      <button onclick="location.href='/'">🏠 Home</button>
+      <button onclick="location.href='movies/'">🎬 Movies</button>
+      <button onclick="alert('TV coming soon')">📺 TV Shows</button>
+      <button onclick="alert('Settings coming soon')">⚙ Settings</button>
+    </nav>
+  </header>
+  <main>
+    <div class="search-container">
+      <h1>💜 Bilm 💜</h1>
+      <input type="text" id="searchInput" placeholder="Search for a movie or show..." />
+      <div class="button-row">
+        <button class="search-btn" id="searchMovie">Search Movies</button>
+        <button class="search-btn" id="searchTV">Search TV Shows</button>
+      </div>
     </div>
-  </div>
-</main>
-
-<div id="overlay" class="hidden">
-  <button id="closeOverlay">×</button>
-  <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
-</div>
-
-<script src="main.js"></script>
-
+  </main>
 </body>
 </html>
