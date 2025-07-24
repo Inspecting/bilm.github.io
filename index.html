@@ -1,49 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bilm Intro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-  <style>
-    body, html {
-      margin: 0; padding: 0; height: 100%;
-      background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #a14eff;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      font-size: 96px;
-      user-select: none;
-    }
-    #introOverlay {
-      opacity: 1;
-      transition: opacity 0.5s ease;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bilm Intro</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%;
+    background: #000; color: #a14eff;
+    display: flex; justify-content: center; align-items: center;
+    font-family: 'Poppins', sans-serif;
+    font-size: 96px; font-weight: 600;
+    user-select: none;
+  }
+</style>
 </head>
 <body>
-  <div id="introOverlay">💜 Bilm 💜</div>
-
+  Bilm
   <script>
-    const intro = document.getElementById('introOverlay');
-    const visited = localStorage.getItem('bilmVisited');
-
-    if (visited) {
-      // Already visited, redirect immediately to /home
-      window.location.href = '/bilm.github.io/home/';
-    } else {
-      // First visit: show intro, fade out, then redirect
-      setTimeout(() => {
-        intro.style.opacity = '0';
-        setTimeout(() => {
-          localStorage.setItem('bilmVisited', 'true');
-          window.location.href = '/bilm.github.io/home/';
-        }, 500);
-      }, 500); // intro visible for 0.5 sec
-    }
+    setTimeout(() => {
+      window.location.href = '/home/';
+    }, 1500);
   </script>
 </body>
 </html>
