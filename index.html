@@ -1,44 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bilm 💜</title>
-  <style>
-    /* Full style.css contents go here — already copied from your canvas */
-    /* Paste from the canvas Style document here */
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bilm 💜</title>
+<style>
+  /* Reset and base */
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
+  html, body {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #f0f0f0;
+    overflow: hidden;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+  /* Header navigation */
+  header {
+    background-color: #1e1e1e;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  .logo {
+    font-size: 24px;
+    color: #c084fc;
+    font-weight: bold;
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 16px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  nav button:hover {
+    color: #fff;
+  }
+
+  /* Main area fullscreen center */
+  main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+  }
+  /* Search container */
+  .search-container {
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    user-select: none;
+  }
+  .search-container.visible {
+    opacity: 1;
+  }
+  .search-container h1 {
+    font-size: 3rem;
+    color: #c084fc;
+    margin-bottom: 24px;
+    user-select: none;
+  }
+  input#searchInput {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    border: none;
+    outline: none;
+    margin-bottom: 20px;
+    box-shadow: 0 0 8px #a14eff44;
+    background-color: #222;
+    color: #eee;
+  }
+  input#searchInput::placeholder {
+    color: #999;
+  }
+  .button-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+  button.search-btn {
+    padding: 12px 24px;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    background-color: #c084fc;
+    box-shadow: 0 4px 8px #9b64f5cc;
+    transition: background-color 0.3s ease;
+    user-select: none;
+    flex: 1;
+    max-width: 160px;
+  }
+  button.search-btn:hover {
+    background-color: #a855f7;
+  }
+
+  /* Overlay player */
+  #overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    display: none;
+    flex-direction: column;
+    z-index: 2000;
+  }
+  #overlay iframe {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  #closeOverlay {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 32px;
+    color: white;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 2100;
+  }
+
+  /* Intro overlay */
+  #introOverlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #000;
+    color: #a14eff;
+    font-family: sans-serif;
+    font-size: 72px;
+    padding: 40px 80px;
+    border-radius: 24px;
+    box-shadow: 0 0 40px #a14eff88;
+    user-select: none;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 1s ease;
+  }
+</style>
 </head>
 <body>
-  <header>
-    <div class="logo">💜 Bilm 💜</div>
-    <nav>
-      <button data-page="home">🏠 Home</button>
-      <button data-page="movies">🎬 Movies</button>
-      <button data-page="tv">📺 TV Shows</button>
-      <button data-page="settings">⚙ Settings</button>
-    </nav>
-  </header>
 
-  <main id="main">
-    <div class="search-container">
-      <h1>💜 Bilm 💜</h1>
-      <input type="text" id="searchInput" placeholder="Search for a movie or show..." />
-      <div style="margin-top: 8px;">
-        <button id="searchMovie">Search Movies</button>
-        <button id="searchTV">Search TV Shows</button>
-      </div>
+<header>
+  <div class="logo">💜 Bilm 💜</div>
+  <nav>
+    <button data-page="home">🏠 Home</button>
+    <button data-page="movies">🎬 Movies</button>
+    <button data-page="tv">📺 TV Shows</button>
+    <button data-page="settings">⚙ Settings</button>
+  </nav>
+</header>
+
+<main>
+  <div class="search-container" id="searchContainer">
+    <h1>💜 Bilm 💜</h1>
+    <input type="text" id="searchInput" placeholder="Search for a movie or show..." />
+    <div class="button-row">
+      <button class="search-btn" id="searchMovie">Search Movies</button>
+      <button class="search-btn" id="searchTV">Search TV Shows</button>
     </div>
-  </main>
-
-  <div id="overlay" class="hidden">
-    <button id="closeOverlay">×</button>
-    <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
   </div>
+</main>
 
-  <script>
-    // Add minimal JavaScript handlers for navigation and overlay closing
-    const main = document.getElementById('main');
+<div id="overlay" class="hidden">
+  <button id="closeOverlay">×</button>
+  <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+</div>
+
+<div id="introOverlay">Bilm</div>
+
+<script>
+  // Wait for DOM
+  document.addEventListener('DOMContentLoaded', () => {
+    const intro = document.getElementById('introOverlay');
+    const searchContainer = document.getElementById('searchContainer');
+
+    // Show intro, then fade out after 1.5s
+    setTimeout(() => {
+      intro.style.opacity = '0';
+      setTimeout(() => {
+        intro.style.display = 'none';
+        searchContainer.classList.add('visible');
+      }, 1000);
+    }, 1500);
+
+    // Overlay close
     const overlay = document.getElementById('overlay');
     const closeOverlay = document.getElementById('closeOverlay');
     const videoFrame = document.getElementById('videoFrame');
@@ -48,19 +218,22 @@
       overlay.style.display = 'none';
     };
 
+    // Nav buttons alert placeholder
     document.querySelectorAll('nav button').forEach(btn => {
       btn.onclick = () => {
         alert('Page switching not yet implemented: ' + btn.dataset.page);
       };
     });
 
+    // Search buttons alert placeholder
     document.getElementById('searchMovie').onclick = () => {
       alert('Movie search not yet connected');
     };
-
     document.getElementById('searchTV').onclick = () => {
       alert('TV search not yet connected');
     };
-  </script>
+  });
+</script>
+
 </body>
 </html>
