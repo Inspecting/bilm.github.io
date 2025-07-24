@@ -1,29 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🎬 Movies | Bilm</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/bilm.github.io/style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bilm Movies</title>
+<!-- Google Fonts: Poppins -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+<!-- relative path: one folder up -->
+<link rel="stylesheet" href="../style.css" />
 </head>
 <body>
 
+<div id="introOverlay">💜 Bilm Movies 💜</div>
+
 <header>
   <nav>
-    <button onclick="location.href='/bilm.github.io/'">🏠 Home</button>
-    <button disabled>🎬 Movies</button>
-    <button onclick="alert('TV Shows not yet implemented')">📺 TV Shows</button>
-    <button onclick="alert('Settings coming soon')">⚙ Settings</button>
+    <button id="btnHome">🏠 Home</button>
+    <button id="btnMovies" disabled>🎬 Movies</button>
+    <button id="btnTV">📺 TV Shows</button>
+    <button id="btnSettings">⚙ Settings</button>
   </nav>
 </header>
 
 <main>
-  <div class="search-container">
-    <h1>🎬 Random Movies</h1>
-    <p style="margin: 10px 0;">(Feature coming soon)</p>
+  <div id="movieList" class="list-container">
+    <!-- Movie search results or random movies will be displayed here -->
   </div>
 </main>
+
+<div id="overlay" class="hidden">
+  <button id="closeOverlay">×</button>
+  <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+</div>
+
+<script src="script.js"></script>
 
 </body>
 </html>
