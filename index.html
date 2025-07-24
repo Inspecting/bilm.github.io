@@ -3,76 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bilm 💜</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>💜 Bilm 💜</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/bilm.github.io/style.css" />
 </head>
 <body>
 
-<div id="introOverlay">💜 Bilm 💜</div>
+  <div id="introOverlay">💜 Bilm 💜</div>
 
-<header>
-  <nav>
-    <button data-page="home">🏠 Home</button>
-    <button onclick="location.href='movies/'">🎬 Movies</button>
-    <button data-page="tv">📺 TV Shows</button>
-    <button data-page="settings">⚙ Settings</button>
-  </nav>
-</header>
+  <header>
+    <nav>
+      <button onclick="location.href='/'">🏠 Home</button>
+      <button onclick="location.href='/bilm.github.io/movies/'">🎬 Movies</button>
+      <button onclick="alert('TV Shows coming soon')">📺 TV Shows</button>
+      <button onclick="alert('Settings coming soon')">⚙ Settings</button>
+    </nav>
+  </header>
 
-<main>
-  <div class="search-container" id="searchContainer">
-    <h1>💜 Bilm 💜</h1>
-    <input type="text" id="searchInput" placeholder="Search for a movie or show..." />
-    <div class="button-row">
-      <button class="search-btn" id="searchMovie">Search Movies</button>
-      <button class="search-btn" id="searchTV">Search TV Shows</button>
+  <main>
+    <div class="search-container">
+      <h1>💜 Bilm 💜</h1>
+      <input type="text" id="searchInput" placeholder="Search for a movie or show..." />
+      <div class="button-row">
+        <button class="search-btn" id="searchMovie">Search Movies</button>
+        <button class="search-btn" id="searchTV">Search TV Shows</button>
+      </div>
     </div>
-  </div>
-</main>
+  </main>
 
-<div id="overlay" class="hidden">
-  <button id="closeOverlay">×</button>
-  <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
-</div>
+  <div class="version-label">v0.1 test</div>
 
-<!-- ✅ Version label -->
-<div class="version-label">v0.1-beta</div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const intro = document.getElementById('introOverlay');
-    const header = document.querySelector('header');
-    const main = document.querySelector('main');
-
-    setTimeout(() => {
-      intro.style.opacity = '0';
-      setTimeout(() => {
-        intro.style.display = 'none';
-        header.classList.add('visible');
-        main.classList.add('visible');
-      }, 500);
-    }, 500);
-
-    document.getElementById('searchMovie').onclick = () => {
-      alert('Movie search not implemented yet.');
-    };
-    document.getElementById('searchTV').onclick = () => {
-      alert('TV search not implemented yet.');
-    };
-
-    document.querySelectorAll('nav button[data-page]').forEach(btn => {
-      btn.onclick = () => {
-        alert(`"${btn.dataset.page}" page not implemented yet.`);
-      };
-    });
-
-    document.getElementById('closeOverlay').onclick = () => {
-      document.getElementById('overlay').style.display = 'none';
-      document.getElementById('videoFrame').src = '';
-    };
-  });
-</script>
-
+  <script src="script.js"></script>
 </body>
 </html>
