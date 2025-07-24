@@ -1,39 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bilm Movies</title>
-<!-- Google Fonts: Poppins -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-<!-- relative path: one folder up -->
-<link rel="stylesheet" href="../style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎬 Movies - Bilm</title>
+  <link rel="stylesheet" href="../style.css" />
+  <script defer src="script.js"></script>
 </head>
 <body>
-
-<div id="introOverlay">💜 Bilm Movies 💜</div>
-
-<header>
-  <nav>
-    <button id="btnHome">🏠 Home</button>
-    <button id="btnMovies" disabled>🎬 Movies</button>
-    <button id="btnTV">📺 TV Shows</button>
-    <button id="btnSettings">⚙ Settings</button>
-  </nav>
-</header>
-
-<main>
-  <div id="movieList" class="list-container">
-    <!-- Movie search results or random movies will be displayed here -->
-  </div>
-</main>
-
-<div id="overlay" class="hidden">
-  <button id="closeOverlay">×</button>
-  <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
-</div>
-
-<script src="script.js"></script>
-
+  <header>
+    <nav>
+      <button onclick="location.href='/'">🏠 Home</button>
+      <button onclick="location.href='/movies/'">🎬 Movies</button>
+      <button onclick="alert('TV coming soon')">📺 TV Shows</button>
+      <button onclick="alert('Settings coming soon')">⚙ Settings</button>
+    </nav>
+  </header>
+  <main>
+    <div class="search-container">
+      <h1>🎬 Movies</h1>
+      <input type="text" id="searchInput" placeholder="Search for a movie..." />
+      <div class="button-row">
+        <button class="search-btn" id="searchMovie">Search</button>
+      </div>
+      <div id="results" style="margin-top: 20px;"></div>
+    </div>
+  </main>
 </body>
 </html>
