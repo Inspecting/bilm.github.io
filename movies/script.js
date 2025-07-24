@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const row = document.createElement('div');
     row.className = 'scroll-row';
     section.appendChild(row);
-
     container.appendChild(section);
 
     async function loadMovies() {
@@ -51,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         card.appendChild(img);
         card.appendChild(label);
-        row.insertBefore(card, row.lastChild); // insert before the arrow
+        row.insertBefore(card, row.lastChild);
       });
 
       page++;
@@ -63,10 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
     showMore.onclick = loadMovies;
 
     row.appendChild(showMore);
-    loadMovies(); // initial load
+    loadMovies(); // Load initial batch
   }
 
-  // Nav buttons
+  // Navigation buttons
   document.querySelectorAll('nav button').forEach(btn => {
     btn.onclick = () => {
       const page = btn.dataset.page;
