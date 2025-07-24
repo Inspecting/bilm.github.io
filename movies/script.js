@@ -11,6 +11,13 @@ const categories = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Header fade-in
+  const header = document.querySelector('header');
+  const main = document.querySelector('main');
+  if (header) header.classList.add('visible');
+  if (main) main.classList.add('visible');
+
+  // Nav button actions
   document.querySelectorAll('nav button').forEach(btn => {
     btn.onclick = () => {
       const page = btn.dataset.page;
@@ -19,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 
+  // Load each category section
   categories.forEach(section => {
     createSection(section);
   });
