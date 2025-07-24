@@ -14,14 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 
-  // Section list: Categories and Genres
   const sections = [
     { title: 'Trending', endpoint: '/trending/movie/week' },
     { title: 'Popular', endpoint: '/movie/popular' },
     { title: 'Top Rated', endpoint: '/movie/top_rated' },
     { title: 'Now Playing', endpoint: '/movie/now_playing' },
 
-    // Genres (using TMDB genre IDs)
+    // Genres
     { title: 'Action', endpoint: '/discover/movie?with_genres=28' },
     { title: 'Adventure', endpoint: '/discover/movie?with_genres=12' },
     { title: 'Animation', endpoint: '/discover/movie?with_genres=16' },
@@ -56,10 +55,14 @@ async function renderMovieSection(section, container) {
   container.appendChild(sectionEl);
 
   try {
-    const res = await fetch(`https://api.themoviedb.org/3${section.endpoint}&api_key=${TMDB_API_KEY}`);
-    const data = await res.json();
-    const movies = data.results.slice(0, 15);
+    const url = section.endpoint.includes('?')
+      ? `https://api.themoviedb.org/3${section.endpoint}&api_key=${TMDB_API_KEY}`
+      : `https://api.themoviedb.org/3${section.endpoint}?api_key=${TMDB_API_KEY}`;
 
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const movies = data.results.slice(0, 15);
     movies.forEach(movie => {
       const card = document.createElement('div');
       card.className = 'movie-card';
@@ -74,6 +77,10 @@ async function renderMovieSection(section, container) {
 
       card.appendChild(poster);
       card.appendChild(title);
+
+      // Optional: Add click listener for future viewer page
+      // card.onclick = () => { ... };
+
       rowEl.appendChild(card);
     });
 
@@ -81,8 +88,9 @@ async function renderMovieSection(section, container) {
     const moreCard = document.createElement('div');
     moreCard.className = 'show-more-card';
     moreCard.textContent = '→';
+    moreCard.title = `Show more ${section.title}`;
     moreCard.onclick = () => {
-      alert(`Show more for ${section.title}`);
+      alert(`Show more for ${section.title} (Not implemented yet)`);
     };
     rowEl.appendChild(moreCard);
 
