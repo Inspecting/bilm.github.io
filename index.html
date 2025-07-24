@@ -37,48 +37,7 @@
   <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
 </div>
 
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const intro = document.getElementById('introOverlay');
-    const header = document.querySelector('header');
-    const main = document.querySelector('main');
-
-    // After 0.5 seconds fade out intro
-    setTimeout(() => {
-      intro.style.opacity = '0';
-      setTimeout(() => {
-        intro.style.display = 'none';
-        header.classList.add('visible');
-        main.classList.add('visible');
-      }, 500);
-    }, 500);
-
-    // Overlay close
-    const overlay = document.getElementById('overlay');
-    const closeOverlay = document.getElementById('closeOverlay');
-    const videoFrame = document.getElementById('videoFrame');
-
-    closeOverlay.onclick = () => {
-      videoFrame.src = '';
-      overlay.style.display = 'none';
-    };
-
-    // Nav buttons alert placeholder
-    document.querySelectorAll('nav button').forEach(btn => {
-      btn.onclick = () => {
-        alert('Page switching not yet implemented: ' + btn.dataset.page);
-      };
-    });
-
-    // Search buttons alert placeholder
-    document.getElementById('searchMovie').onclick = () => {
-      alert('Movie search not yet connected');
-    };
-    document.getElementById('searchTV').onclick = () => {
-      alert('TV search not yet connected');
-    };
-  });
-</script>
+<script src="app.js"></script>
 
 </body>
 </html>
