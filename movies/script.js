@@ -1,80 +1,70 @@
 const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
+const BASE_URL = 'https://api.themoviedb.org/3';
+const IMG_BASE = 'https://image.tmdb.org/t/p/w300';
+const movieSections = document.getElementById('movieSections');
+
+const categories = [
+  { id: 'trending', label: '🔥 Trending', endpoint: `/trending/movie/week` },
+  { id: 'popular', label: '🌟 Popular', endpoint: `/movie/popular` },
+  { id: 'now_playing', label: '🎬 Now Playing', endpoint: `/movie/now_playing` },
+  { id: 'upcoming', label: '⏭ Upcoming', endpoint: `/movie/upcoming` },
+];
 
 document.addEventListener('DOMContentLoaded', () => {
-  const header = document.querySelector('header');
-  const main = document.querySelector('main');
-  const resultsContainer = document.getElementById('resultsContainer');
-  const overlay = document.getElementById('overlay');
-  const videoFrame = document.getElementById('videoFrame');
-  const closeOverlay = document.getElementById('closeOverlay');
-
-  header.style.opacity = '1';
-  main.style.opacity = '1';
-
-  // Navigation buttons
   document.querySelectorAll('nav button').forEach(btn => {
     btn.onclick = () => {
       const page = btn.dataset.page;
-      if(page === 'home') {
-        window.location.href = 'https://inspecting.github.io/bilm.github.io/home/';
-      } else if(page === 'movies') {
-        window.location.href = 'https://inspecting.github.io/bilm.github.io/movies/';
-      }
+      if (page === 'home') window.location.href = 'https://inspecting.github.io/bilm.github.io/home/';
+      if (page === 'movies') window.location.href = 'https://inspecting.github.io/bilm.github.io/movies/';
     };
   });
 
-  closeOverlay.onclick = () => {
-    videoFrame.src = '';
-    overlay.style.display = 'none';
-  };
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const searchQuery = urlParams.get('search');
-  if (searchQuery) {
-    fetchMovies(searchQuery);
-  } else {
-    resultsContainer.innerHTML = '<p>Use the search on home page or add ?search=movie_name</p>';
-  }
-
-  async function fetchMovies(query) {
-    resultsContainer.innerHTML = '<p>Loading...</p>';
-    try {
-      const response = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      if (!data.results || data.results.length === 0) {
-        resultsContainer.innerHTML = '<p>No results found.</p>';
-        return;
-      }
-      displayMovies(data.results);
-    } catch (err) {
-      resultsContainer.innerHTML = '<p>Failed to fetch results.</p>';
-    }
-  }
-
-  function displayMovies(movies) {
-    resultsContainer.innerHTML = '';
-    movies.forEach(movie => {
-      const card = document.createElement('div');
-      card.className = 'movie-card';
-
-      const title = document.createElement('h3');
-      title.textContent = `${movie.title} (${movie.release_date ? movie.release_date.slice(0,4) : '?'})`;
-
-      const watchBtn = document.createElement('button');
-      watchBtn.textContent = '▶ Watch Preview';
-      watchBtn.onclick = () => {
-        const embedUrl = `https://vidsrc.to/embed/movie/${movie.id}`;
-        showVideoEmbed(embedUrl);
-      };
-
-      card.appendChild(title);
-      card.appendChild(watchBtn);
-      resultsContainer.appendChild(card);
-    });
-  }
-
-  function showVideoEmbed(url) {
-    videoFrame.src = url;
-    overlay.style.display = 'flex';
-  }
+  categories.forEach(section => {
+    createSection(section);
+  });
 });
+
+function createSection({ id, label, endpoint }) {
+  const section = document.createElement('div');
+  section.className = 'section';
+
+  section.innerHTML = `
+    <div class="section-title">
+      <span>${label}</span>
+      <span class="scroll-arrow" onclick="document.getElementById('${id}Row').scrollBy({ left: 300, behavior: 'smooth' })">→</span>
+    </div>
+    <div class="scroll-row" id="${id}Row"></div>
+  `;
+
+  movieSections.appendChild(section);
+  fetchMovies(endpoint, id);
+}
+
+async function fetchMovies(endpoint, rowId) {
+  try {
+    const res = await fetch(`${BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&language=en-US&page=1`);
+    const data = await res.json();
+    const movies = data.results.slice(0, 15);
+    renderMovies(movies, rowId);
+  } catch (err) {
+    console.error(`Failed to load ${rowId}`, err);
+  }
+}
+
+function renderMovies(movies, rowId) {
+  const row = document.getElementById(rowId + 'Row');
+  movies.forEach(movie => {
+    const card = document.createElement('div');
+    card.className = 'movie-card';
+
+    const poster = movie.poster_path ? `${IMG_BASE}${movie.poster_path}` : 'https://via.placeholder.com/140x210?text=No+Image';
+    const year = movie.release_date ? movie.release_date.slice(0, 4) : '----';
+
+    card.innerHTML = `
+      <img src="${poster}" alt="${movie.title}" />
+      <p>${movie.title} (${year})</p>
+    `;
+
+    row.appendChild(card);
+  });
+}
