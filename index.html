@@ -1,560 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bilm - Movie & TV Search</title>
-<style>
-  /* Your dynamic styles will be injected by JS,
-     but let's add some base styles */
-  body {
-    margin: 0;
-    background: #eee;
-    font-family: sans-serif;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bilm 💜</title>
+  <style>
+    /* Full style.css contents go here — already copied from your canvas */
+    /* Paste from the canvas Style document here */
+  </style>
 </head>
 <body>
+  <header>
+    <div class="logo">💜 Bilm 💜</div>
+    <nav>
+      <button data-page="home">🏠 Home</button>
+      <button data-page="movies">🎬 Movies</button>
+      <button data-page="tv">📺 TV Shows</button>
+      <button data-page="settings">⚙ Settings</button>
+    </nav>
+  </header>
 
-<!-- Container for Bilm UI -->
-<div id="bilm-root"></div>
+  <main id="main">
+    <div class="search-container">
+      <h1>💜 Bilm 💜</h1>
+      <input type="text" id="searchInput" placeholder="Search for a movie or show..." />
+      <div style="margin-top: 8px;">
+        <button id="searchMovie">Search Movies</button>
+        <button id="searchTV">Search TV Shows</button>
+      </div>
+    </div>
+  </main>
 
-<script>
-(async () => {
-  // Instead of checking location.hostname, just allow anywhere
-  // Remove alerts and redirects from bookmarklet
-  
-  const root = document.getElementById("bilm-root");
+  <div id="overlay" class="hidden">
+    <button id="closeOverlay">×</button>
+    <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+  </div>
 
-  // Create intro overlay (optional)
-  let intro = document.createElement("div");
-  intro.id = "bilmIntroOverlay";
-  intro.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:300px;height:150px;background:#000;color:#a14eff;display:flex;justify-content:center;align-items:center;font-size:36px;font-family:sans-serif;z-index:10000000;opacity:1;border-radius:12px;transition:opacity 0.5s ease;box-shadow:0 0 20px rgba(0,0,0,0.5);";
-  intro.textContent = "Bilm";
-  document.body.appendChild(intro);
-  await new Promise(r => setTimeout(r, 500));
-  intro.style.opacity = "0";
-  await new Promise(r => setTimeout(r, 500));
-  intro.remove();
+  <script>
+    // Add minimal JavaScript handlers for navigation and overlay closing
+    const main = document.getElementById('main');
+    const overlay = document.getElementById('overlay');
+    const closeOverlay = document.getElementById('closeOverlay');
+    const videoFrame = document.getElementById('videoFrame');
 
-  async function startBilm() {
-    const k = "vidsrc_recent",
-      fkey = "vidsrc_favorites",
-      tmdb = "3ade810499876bb5672f40e54960e6a2";
-
-    let historyList = JSON.parse(localStorage.getItem(k) || "[]"),
-      favoritesObj = JSON.parse(localStorage.getItem(fkey) || "{}") || { movies: [], tvshows: [] },
-      darkMode = localStorage.getItem("vidsrc_darkmode") === "true",
-      lastTVResults = null,
-      lastTVQuery = "",
-      lastMovieResults = null,
-      lastMovieQuery = "";
-
-    // Save to local storage functions
-    function saveToHistory(t, u) {
-      historyList = historyList.filter(x => x.url !== u);
-      historyList.unshift({ title: t, url: u });
-      historyList = historyList.slice(0, 10);
-      localStorage.setItem(k, JSON.stringify(historyList));
-    }
-
-    function saveFavorites() {
-      localStorage.setItem(fkey, JSON.stringify(favoritesObj));
-    }
-
-    function toggleDarkMode() {
-      darkMode = !darkMode;
-      localStorage.setItem("vidsrc_darkmode", darkMode ? "true" : "false");
-      applyStyles();
-      showSettingsMenu();
-    }
-
-    function applyStyles() {
-      const bg = darkMode ? "#1e1e1e" : "#eee",
-        fg = darkMode ? "#fff" : "#111",
-        btnBg = darkMode ? "#333" : "#ddd",
-        btnHover = darkMode ? "#555" : "#bbb";
-
-      let styleContent = `
-        #customMenu {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%) scale(0.95);
-          background: ${bg};
-          color: ${fg};
-          padding: 20px;
-          border-radius: 12px;
-          box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-          z-index: 9999999;
-          font-family: sans-serif;
-          width: 320px;
-          max-height: 80vh;
-          overflow-y: auto;
-          user-select: none;
-          cursor: move;
-          animation: popupGrow 0.2s ease forwards;
-        }
-        #customMenu h2 {
-          margin: 0 0 12px 0;
-          font-size: 20px;
-          text-align: center;
-          color: ${darkMode ? "#a14eff" : "#6a0dad"};
-        }
-        #customMenu button {
-          background: ${btnBg};
-          border: none;
-          color: ${fg};
-          padding: 10px 12px;
-          margin: 6px 4px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-size: 14px;
-          width: calc(100% - 16px);
-          text-align: left;
-          transition: background 0.3s;
-        }
-        #customMenu .backRow {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 10px;
-        }
-        #customMenu .backRow button {
-          width: auto;
-          flex: 1;
-          margin: 4px;
-        }
-        #customMenu button:hover {
-          background: ${btnHover};
-        }
-        @keyframes popupGrow {
-          from {
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.6);
-          }
-          to {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-          }
-        }
-        #customClose {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          width: 24px;
-          height: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 16px;
-          background: ${btnBg};
-          border-radius: 50%;
-          cursor: pointer;
-          color: ${fg};
-        }
-      `;
-      let style = document.getElementById("customStyle");
-      if (!style) {
-        style = document.createElement("style");
-        style.id = "customStyle";
-        document.head.appendChild(style);
-      }
-      style.textContent = styleContent;
-    }
-
-    // Create main menu container
-    let menu = document.createElement("div");
-    menu.id = "customMenu";
-    root.appendChild(menu);
-
-    // Dragging variables
-    let isDragging = false,
-      offsetX = 0,
-      offsetY = 0;
-
-    menu.onmousedown = e => {
-      if (e.target.id !== "customClose") {
-        isDragging = true;
-        offsetX = e.clientX - menu.offsetLeft;
-        offsetY = e.clientY - menu.offsetTop;
-      }
+    closeOverlay.onclick = () => {
+      videoFrame.src = '';
+      overlay.style.display = 'none';
     };
 
-    document.onmousemove = e => {
-      if (isDragging) {
-        menu.style.left = e.clientX - offsetX + "px";
-        menu.style.top = e.clientY - offsetY + "px";
-        menu.style.transform = "none";
-      }
+    document.querySelectorAll('nav button').forEach(btn => {
+      btn.onclick = () => {
+        alert('Page switching not yet implemented: ' + btn.dataset.page);
+      };
+    });
+
+    document.getElementById('searchMovie').onclick = () => {
+      alert('Movie search not yet connected');
     };
 
-    document.onmouseup = () => (isDragging = false);
-
-    // Close button
-    let close = document.createElement("div");
-    close.id = "customClose";
-    close.textContent = "×";
-    close.onclick = () => {
-      if (overlay.style.display === "block") {
-        hideOverlayVideo();
-      } else {
-        menu.remove();
-        let s = document.getElementById("customStyle");
-        if (s) s.remove();
-      }
+    document.getElementById('searchTV').onclick = () => {
+      alert('TV search not yet connected');
     };
-    menu.appendChild(close);
-
-    // Helpers to build UI
-    function clearMenu() {
-      menu.innerHTML = "";
-      menu.appendChild(close);
-    }
-
-    function addTitle(t) {
-      let h = document.createElement("h2");
-      h.textContent = t;
-      menu.appendChild(h);
-    }
-
-    function addButton(label, onClick) {
-      let b = document.createElement("button");
-      b.textContent = label;
-      b.onclick = onClick;
-      menu.appendChild(b);
-    }
-
-    function addBackButtons(buttons) {
-      let row = document.createElement("div");
-      row.className = "backRow";
-      buttons.forEach(([text, fn]) => {
-        let b = document.createElement("button");
-        b.textContent = "⬅ " + text;
-        b.onclick = fn;
-        row.appendChild(b);
-      });
-      menu.appendChild(row);
-    }
-
-    function addFavoriteToggle(title, url, stay, type = "movie") {
-      let list = type === "tvshow" ? favoritesObj.tvshows : favoritesObj.movies;
-      let fav = list.find(x => x.url === url);
-      addButton(fav ? "★ Remove from Favorites" : "☆ Add to Favorites", () => {
-        if (fav) {
-          if (type === "tvshow")
-            favoritesObj.tvshows = favoritesObj.tvshows.filter(x => x.url !== url);
-          else favoritesObj.movies = favoritesObj.movies.filter(x => x.url !== url);
-          alert(`Removed "${title}"`);
-        } else {
-          if (type === "tvshow")
-            favoritesObj.tvshows.unshift({ title, url });
-          else favoritesObj.movies.unshift({ title, url });
-          alert(`Added "${title}"`);
-        }
-        saveFavorites();
-        stay();
-      });
-    }
-
-    // Main menu
-    function showMainMenu() {
-      clearMenu();
-      addTitle("Bilm");
-      addButton("🎬 Movie", showMovieSearch);
-      addButton("📺 TV Show", showTVSearch);
-      addButton("⚙ Settings", showSettingsMenu);
-    }
-
-    function showSettingsMenu() {
-      clearMenu();
-      addBackButtons([["Menu", showMainMenu]]);
-      addTitle("Settings");
-      addButton("🕘 History", showHistory);
-      addButton("🖤 Favorites", showFavorites);
-      addButton(darkMode ? "🌞 Light Mode" : "🌙 Dark Mode", toggleDarkMode);
-      addButton("🗑 Clear All Data", () => {
-        if (confirm("Clear all saved data?")) {
-          localStorage.removeItem(k);
-          localStorage.removeItem(fkey);
-          localStorage.removeItem("vidsrc_darkmode");
-          favoritesObj = { movies: [], tvshows: [] };
-          historyList = [];
-          alert("Cleared.");
-          showMainMenu();
-        }
-      });
-    }
-
-    async function showMovieSearch() {
-      clearMenu();
-      addBackButtons([["Menu", showMainMenu]]);
-      addTitle("Movie Search");
-      let q = prompt("What movie?");
-      if (!q) return showMainMenu();
-      let clean = q.trim().toLowerCase(),
-        f = clean[0],
-        enc = encodeURIComponent(clean),
-        url = `https://v2.sg.media-imdb.com/suggestion/${f}/${enc}.json`;
-      try {
-        let res = await fetch(url),
-          d = await res.json(),
-          list = d.d || [];
-        if (list.length === 0) {
-          alert("No results");
-          return showMainMenu();
-        }
-        lastMovieResults = list;
-        lastMovieQuery = q;
-        showMovieResults();
-      } catch (e) {
-        alert("Failed");
-        showMainMenu();
-      }
-    }
-
-    function showMovieResults() {
-      if (!lastMovieResults) return showMainMenu();
-      clearMenu();
-      addBackButtons([["Menu", showMainMenu]]);
-      addTitle(`Results for "${lastMovieQuery}"`);
-      lastMovieResults.forEach(i => {
-        let title = `${i.l} (${i.y || "?"})`,
-          u = `https://vidsrc.to/embed/movie/${i.id}`;
-        addButton(title, () => {
-          saveToHistory(title, u);
-          showMovieDetail(title, u);
-        });
-      });
-    }
-
-    function showMovieDetail(t, u) {
-      clearMenu();
-      addBackButtons([
-        ["Menu", showMainMenu],
-        ["Results", showMovieResults],
-      ]);
-      addTitle(t);
-      addFavoriteToggle(t, u, () => showMovieDetail(t, u), "movie");
-      addButton("▶ Watch", () => {
-        saveToHistory(t, u);
-        menu.style.opacity = "0";
-        setTimeout(() => {
-          menu.style.display = "none";
-          showOverlayVideo(u);
-        }, 500);
-      });
-    }
-
-    async function showTVSearch() {
-      clearMenu();
-      addBackButtons([["Menu", showMainMenu]]);
-      addTitle("TV Search");
-      let q = prompt("What show?");
-      if (!q) return showMainMenu();
-      try {
-        let e = encodeURIComponent(q.trim()),
-          url = `https://api.themoviedb.org/3/search/tv?api_key=${tmdb}&query=${e}`,
-          res = await fetch(url),
-          d = await res.json();
-        lastTVResults = d.results || [];
-        lastTVQuery = q;
-        showTVResults();
-      } catch (e) {
-        alert("Failed");
-        showMainMenu();
-      }
-    }
-
-    function showTVResults() {
-      clearMenu();
-      addBackButtons([["Menu", showMainMenu]]);
-      addTitle(`Results for "${lastTVQuery}"`);
-      lastTVResults.forEach(s => {
-        let t = `${s.name} (${(s.first_air_date || "????").slice(0, 4)})`;
-        addButton(t, () => {
-          saveToHistory(s.name, `https://www.themoviedb.org/tv/${s.id}`);
-          showSeasons(s.id, s.name, true);
-        });
-      });
-    }
-
-    async function showSeasons(id, name, isFromSearch) {
-      clearMenu();
-      let backBtn = isFromSearch
-        ? [
-            ["Menu", showMainMenu],
-            ["Results", showTVResults],
-          ]
-        : [
-            ["Menu", showSettingsMenu],
-            ["Favorites", showFavorites],
-          ];
-      addBackButtons(backBtn);
-      addTitle(name + " - Seasons");
-      try {
-        let res = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${tmdb}`),
-          d = await res.json(),
-          seasons = d.seasons || [];
-        addFavoriteToggle(name, `https://www.themoviedb.org/tv/${id}`, () => showSeasons(id, name, isFromSearch), "tvshow");
-        seasons.forEach(s =>
-          addButton(`Season ${s.season_number}`, () => showEpisodes(id, name, s.season_number, isFromSearch))
-        );
-      } catch (e) {
-        alert("Failed");
-        showTVResults();
-      }
-    }
-
-    async function showEpisodes(id, name, sn, isFromSearch) {
-      clearMenu();
-      let backBtn = isFromSearch
-        ? [
-            ["Menu", showMainMenu],
-            ["Seasons", () => showSeasons(id, name, true)],
-          ]
-        : [
-            ["Menu", showSettingsMenu],
-            ["Favorites", showFavorites],
-          ];
-      addBackButtons(backBtn);
-      addTitle(`${name} - S${sn}`);
-      try {
-        let res = await fetch(`https://api.themoviedb.org/3/tv/${id}/season/${sn}?api_key=${tmdb}`),
-          d = await res.json(),
-          eps = d.episodes || [];
-        eps.forEach(e => {
-          let t = `${e.episode_number}. "${e.name || "Untitled"}"`,
-            u = `https://vidsrc.to/embed/tv/${id}/${sn}-${e.episode_number}`,
-            lbl = `${name} S${sn}E${e.episode_number}`;
-          addButton(t, () => showEpisodeDetail(t, u, lbl, id, name, sn, isFromSearch));
-        });
-      } catch (e) {
-        alert("Failed");
-        showSeasons(id, name, isFromSearch);
-      }
-    }
-
-    function showEpisodeDetail(t, u, lbl, id, name, sn, isFromSearch) {
-      clearMenu();
-      let backBtn = isFromSearch
-        ? [
-            ["Menu", showMainMenu],
-            ["Episodes", () => showEpisodes(id, name, sn, true)],
-          ]
-        : [
-            ["Menu", showSettingsMenu],
-            ["Favorites", showFavorites],
-          ];
-      addBackButtons(backBtn);
-      addTitle(t);
-      addFavoriteToggle(lbl, u, () => showEpisodeDetail(t, u, lbl, id, name, sn, isFromSearch), "tvshow");
-      addButton("▶ Watch", () => {
-        menu.style.opacity = "0";
-        setTimeout(() => {
-          menu.style.display = "none";
-          showOverlayVideo(u);
-        }, 500);
-      });
-    }
-
-    function showHistory() {
-      clearMenu();
-      addBackButtons([["Menu", showSettingsMenu]]);
-      addTitle("History");
-      if (historyList.length === 0) {
-        let p = document.createElement("p");
-        p.textContent = "No history.";
-        menu.appendChild(p);
-        return;
-      }
-      historyList.forEach(i => {
-        let isMovie = i.url.includes("/movie/"),
-          isTV = i.url.includes("/tv/");
-        if (isMovie) addButton(i.title, () => showMovieDetail(i.title, i.url));
-        else if (isTV) {
-          let m = i.url.match(/\/tv\/(\d+)/);
-          if (m) {
-            let id = parseInt(m[1]);
-            addButton(i.title, () => showSeasons(id, i.title, false));
-          } else addButton(i.title, () => window.open(i.url, "_blank"));
-        }
-      });
-      addButton("Clear History", () => {
-        if (confirm("Clear all?")) {
-          localStorage.removeItem(k);
-          historyList = [];
-          showHistory();
-        }
-      });
-    }
-
-    function showFavorites() {
-      clearMenu();
-      addBackButtons([["Menu", showSettingsMenu]]);
-      addTitle("Favorites");
-      if (favoritesObj.movies.length === 0 && favoritesObj.tvshows.length === 0) {
-        let p = document.createElement("p");
-        p.textContent = "No favorites.";
-        menu.appendChild(p);
-        return;
-      }
-      if (favoritesObj.movies.length > 0) {
-        addTitle("Movie Favorites");
-        favoritesObj.movies.forEach((i, j) => addButton(`${j + 1}. ${i.title}`, () => showMovieDetail(i.title, i.url)));
-      }
-      if (favoritesObj.tvshows.length > 0) {
-        addTitle("TV Show Favorites");
-        favoritesObj.tvshows.forEach((i, j) => {
-          let m = i.url.match(/\/tv\/(\d+)/);
-          if (m) {
-            let id = parseInt(m[1]);
-            addButton(`${j + 1}. ${i.title}`, () => showSeasons(id, i.title, false));
-          }
-        });
-      }
-    }
-
-    // Overlay video player
-    let overlay = null,
-      iframe = null;
-
-    function showOverlayVideo(url) {
-      if (!overlay) {
-        overlay = document.createElement("div");
-        overlay.style.cssText =
-          "position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:10000001;display:flex;flex-direction:column;";
-        let closeBtn = document.createElement("button");
-        closeBtn.textContent = "×";
-        closeBtn.style.cssText =
-          "font-size:30px;color:#fff;background:transparent;border:none;position:absolute;top:10px;right:10px;cursor:pointer;z-index:10000002";
-        closeBtn.onclick = hideOverlayVideo;
-        overlay.appendChild(closeBtn);
-        iframe = document.createElement("iframe");
-        iframe.style.cssText = "flex-grow:1;border:none;width:100%;height:100%";
-        iframe.allow = "autoplay;fullscreen";
-        overlay.appendChild(iframe);
-        document.body.appendChild(overlay);
-      }
-      iframe.src = url;
-      overlay.style.display = "flex";
-      menu.style.display = "none";
-      menu.style.opacity = "1";
-    }
-
-    function hideOverlayVideo() {
-      overlay.style.display = "none";
-      iframe.src = "";
-      menu.style.display = "block";
-      menu.style.opacity = "1";
-    }
-
-    applyStyles();
-    showMainMenu();
-  }
-
-  startBilm();
-})();
-</script>
-
+  </script>
 </body>
 </html>
