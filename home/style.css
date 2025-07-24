@@ -145,22 +145,3 @@ button.search-btn:hover {
   cursor: pointer;
   z-index: 2100;
 }
-
-/* Intro overlay full screen */
-#introOverlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: #000;
-  color: #a14eff;
-  font-family: 'Poppins', sans-serif;
-  font-size: 96px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  user-select: none;
-  z-index: 9999;
-  opacity: 1;
-  transition: opacity 1s ease;
-  font-weight: 600;
-}
