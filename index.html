@@ -3,36 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>💜 Bilm 💜</title>
+  <title>Bilm Intro</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/bilm.github.io/style.css" />
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #a14eff;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 96px;
+      user-select: none;
+    }
+    #introOverlay {
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+  </style>
 </head>
 <body>
-
   <div id="introOverlay">💜 Bilm 💜</div>
 
-  <header>
-    <nav>
-      <button onclick="location.href='/'">🏠 Home</button>
-      <button onclick="location.href='/bilm.github.io/movies/'">🎬 Movies</button>
-      <button onclick="alert('TV Shows coming soon')">📺 TV Shows</button>
-      <button onclick="alert('Settings coming soon')">⚙ Settings</button>
-    </nav>
-  </header>
+  <script>
+    const intro = document.getElementById('introOverlay');
+    const visited = localStorage.getItem('bilmVisited');
 
-  <main>
-    <div class="search-container">
-      <h1>💜 Bilm 💜</h1>
-      <input type="text" id="searchInput" placeholder="Search for a movie or show..." />
-      <div class="button-row">
-        <button class="search-btn" id="searchMovie">Search Movies</button>
-        <button class="search-btn" id="searchTV">Search TV Shows</button>
-      </div>
-    </div>
-  </main>
-
-  <div class="version-label">v0.1 test</div>
-
-  <script src="script.js"></script>
+    if (visited) {
+      // Already visited, redirect immediately to /home
+      window.location.href = '/bilm.github.io/home/';
+    } else {
+      // First visit: show intro, fade out, then redirect
+      setTimeout(() => {
+        intro.style.opacity = '0';
+        setTimeout(() => {
+          localStorage.setItem('bilmVisited', 'true');
+          window.location.href = '/bilm.github.io/home/';
+        }, 500);
+      }, 500); // intro visible for 0.5 sec
+    }
+  </script>
 </body>
 </html>
