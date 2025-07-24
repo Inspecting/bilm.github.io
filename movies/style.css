@@ -5,15 +5,19 @@
   box-sizing: border-box;
 }
 html, body {
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
+  overflow-x: hidden; /* prevent horizontal scroll on body */
+  margin: 0; padding: 0;
   font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #121212;
   color: #f0f0f0;
-  overflow: hidden;
 }
 body {
   display: flex;
   flex-direction: column;
+  width: 100vw;
+  height: 100vh;
 }
 
 /* Header navigation */
@@ -54,22 +58,22 @@ nav button:hover {
   background-color: #3a1361;
 }
 
-/* Main content uses full viewport width and height */
+/* Main container */
 main {
-  flex: 1;
+  flex: 1 1 auto;
   width: 100vw;
   max-width: 100vw;
   padding: 30px 20px;
-  overflow-y: auto;
   box-sizing: border-box;
+  overflow-y: auto; /* vertical scroll */
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Each movie category section */
+/* Section styling */
 .section {
   margin-bottom: 40px;
 }
 
-/* Section title styling */
 .section-title {
   font-size: 1.6rem;
   font-weight: 700;
@@ -86,9 +90,10 @@ main {
   gap: 12px;
   padding: 10px 0;
   scroll-snap-type: x mandatory;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Custom horizontal scrollbar */
 .scroll-row::-webkit-scrollbar {
   height: 6px;
 }
@@ -97,9 +102,9 @@ main {
   border-radius: 4px;
 }
 
-/* Movie card styling */
+/* Movie card */
 .movie-card {
-  width: 140px;         /* fixed width */
+  width: 140px;
   flex: 0 0 auto;
   background-color: #1f1f1f;
   border-radius: 12px;
@@ -113,18 +118,15 @@ main {
   display: flex;
   flex-direction: column;
 }
-
 .movie-card:hover {
   transform: scale(1.05);
 }
-
 .movie-card img {
-  width: 140px;         /* fixed width same as card */
-  height: 210px;        /* fixed height */
-  object-fit: cover;    /* cover so no distortion */
+  width: 140px;
+  height: 210px;
+  object-fit: cover;
   flex-shrink: 0;
 }
-
 .movie-card p {
   padding: 8px;
   font-size: 0.9rem;
@@ -132,13 +134,13 @@ main {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex-grow: 1;         /* fill remaining space if needed */
+  flex-grow: 1;
 }
 
-/* Show more card styling */
+/* Show more button */
 .show-more-card {
   width: 140px;
-  height: 258px; /* match movie card total height */
+  height: 258px; /* same total height as movie card */
   flex: 0 0 auto;
   background-color: #3a1361;
   border-radius: 12px;
