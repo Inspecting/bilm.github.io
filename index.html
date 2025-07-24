@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bilm 💜</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bilm 💜</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div id="introOverlay">💜 Bilm 💜</div>
+<div id="introOverlay">Bilm</div>
 
 <header>
   <nav>
@@ -29,11 +29,23 @@
       <button class="search-btn" id="searchTV">Search TV Shows</button>
     </div>
   </div>
+
+  <div id="resultContainer" class="hidden">
+    <h2 id="resultTitle"></h2>
+    <div id="resultsList" class="list"></div>
+    <div id="embedContainer" class="hidden">
+      <div class="embed-wrapper">
+        <iframe id="embedPlayer" allowfullscreen allow="autoplay"></iframe>
+        <button id="fullscreenBtn" title="Fullscreen">⛶</button>
+      </div>
+      <button id="closeEmbedBtn">Close Player</button>
+    </div>
+  </div>
 </main>
 
-<div id="overlay" class="hidden">
-  <button id="closeOverlay">×</button>
-  <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+<div id="fullscreenOverlay" class="hidden">
+  <button id="closeFullscreenBtn">×</button>
+  <iframe id="fullscreenPlayer" allowfullscreen allow="autoplay"></iframe>
 </div>
 
 <script src="script.js"></script>
