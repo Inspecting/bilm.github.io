@@ -1,79 +1,72 @@
 const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
-const BASE_URL = 'https://api.themoviedb.org/3';
+const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const sections = [
-    { title: 'Trending', path: '/trending/movie/day' },
-    { title: 'Popular', path: '/movie/popular' },
-    { title: 'Top Rated', path: '/movie/top_rated' },
-    { title: 'Now Playing', path: '/movie/now_playing' }
-  ];
-
-  const container = document.getElementById('movieSections');
-
-  sections.forEach(section => {
-    createMovieSection(section.title, section.path);
-  });
-
-  function createMovieSection(title, apiPath) {
-    let page = 1;
-    const section = document.createElement('div');
-    section.className = 'section';
-
-    const heading = document.createElement('h2');
-    heading.className = 'section-title';
-    heading.textContent = title;
-    section.appendChild(heading);
-
-    const row = document.createElement('div');
-    row.className = 'scroll-row';
-    section.appendChild(row);
-    container.appendChild(section);
-
-    async function loadMovies() {
-      const url = `${BASE_URL}${apiPath}?api_key=${TMDB_API_KEY}&page=${page}`;
-      const res = await fetch(url);
-      const data = await res.json();
-
-      data.results.slice(0, 15).forEach(movie => {
-        const card = document.createElement('div');
-        card.className = 'movie-card';
-
-        const img = document.createElement('img');
-        img.src = movie.poster_path
-          ? `https://image.tmdb.org/t/p/w342${movie.poster_path}`
-          : 'https://via.placeholder.com/140x210?text=No+Image';
-
-        const label = document.createElement('p');
-        const year = movie.release_date?.slice(0, 4) || 'N/A';
-        label.textContent = `${movie.title} (${year})`;
-
-        card.appendChild(img);
-        card.appendChild(label);
-        row.insertBefore(card, row.lastChild);
-      });
-
-      page++;
-    }
-
-    const showMore = document.createElement('div');
-    showMore.className = 'show-more-card';
-    showMore.innerHTML = '➡️';
-    showMore.onclick = loadMovies;
-
-    row.appendChild(showMore);
-    loadMovies(); // Load initial batch
-  }
-
-  // Navigation buttons
+  // Nav buttons
   document.querySelectorAll('nav button').forEach(btn => {
     btn.onclick = () => {
       const page = btn.dataset.page;
       if (page === 'home') {
-        window.location.href = 'https://inspecting.github.io/bilm.github.io/home/';
+        window.location.href = `${BASE_URL}/home/`;
       } else if (page === 'movies') {
-        window.location.href = 'https://inspecting.github.io/bilm.github.io/movies/';
+        window.location.href = `${BASE_URL}/movies/`;
       }
     };
   });
+
+  const sections = [
+    { title: 'Trending', endpoint: '/trending/movie/week' },
+    { title: 'Popular', endpoint: '/movie/popular' },
+    { title: 'Top Rated', endpoint: '/movie/top_rated' },
+    { title: 'Now Playing', endpoint: '/movie/now_playing' }
+  ];
+
+  const container = document.getElementById('movieSections');
+  sections.forEach(section => renderMovieSection(section, container));
 });
+
+async function renderMovieSection(section, container) {
+  const sectionEl = document.createElement('div');
+  sectionEl.className = 'section';
+
+  const titleEl = document.createElement('h2');
+  titleEl.className = 'section-title';
+  titleEl.textContent = section.title;
+
+  const rowEl = document.createElement('div');
+  rowEl.className = 'scroll-row';
+
+  sectionEl.appendChild(titleEl);
+  sectionEl.appendChild(rowEl);
+  container.appendChild(sectionEl);
+
+  try {
+    const res = await fetch(`https://api.themoviedb.org/3${section.endpoint}?api_key=${TMDB_API_KEY}`);
+    const data = await res.json();
+    const movies = data.results.slice(0, 15);
+    movies.forEach(movie => {
+      const card = document.createElement('div');
+      card.className = 'movie-card';
+      const poster = document.createElement('img');
+      poster.src = movie.poster_path
+        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+        : 'https://via.placeholder.com/140x210?text=No+Image';
+      const title = document.createElement('p');
+      title.textContent = `${movie.title} (${movie.release_date?.slice(0, 4) || 'N/A'})`;
+      card.appendChild(poster);
+      card.appendChild(title);
+      rowEl.appendChild(card);
+    });
+
+    const moreCard = document.createElement('div');
+    moreCard.className = 'show-more-card';
+    moreCard.textContent = '→';
+    moreCard.onclick = () => {
+      alert(`Show more for ${section.title}`);
+      // Optional: implement real loading later
+    };
+    rowEl.appendChild(moreCard);
+  } catch (err) {
+    console.error(`Failed to load ${section.title}`, err);
+  }
+}
