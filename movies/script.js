@@ -1,7 +1,6 @@
 const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
 const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
-// Track how many movies loaded per section for "Show More"
 const moviesPerLoad = 15;
 const loadedCounts = {};
 
@@ -23,8 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { title: 'Popular', endpoint: '/movie/popular' },
     { title: 'Top Rated', endpoint: '/movie/top_rated' },
     { title: 'Now Playing', endpoint: '/movie/now_playing' },
-
-    // Genres
     { title: 'Action', endpoint: '/discover/movie?with_genres=28' },
     { title: 'Adventure', endpoint: '/discover/movie?with_genres=12' },
     { title: 'Animation', endpoint: '/discover/movie?with_genres=16' },
@@ -46,9 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-async function renderMovieSection(section, container, loadMore = false) {
+async function renderMovieSection(section, container) {
   let sectionEl = document.getElementById(`section-${section.title.replace(/\s/g, '')}`);
   let rowEl;
+
   if (!sectionEl) {
     sectionEl = document.createElement('div');
     sectionEl.className = 'section';
@@ -70,7 +68,6 @@ async function renderMovieSection(section, container, loadMore = false) {
   }
 
   try {
-    // Calculate page number based on loaded counts
     const alreadyLoaded = loadedCounts[section.title] || 0;
     const page = Math.floor(alreadyLoaded / moviesPerLoad) + 1;
 
@@ -81,13 +78,12 @@ async function renderMovieSection(section, container, loadMore = false) {
     const res = await fetch(url);
     const data = await res.json();
 
-    // Remove old Show More button before adding new movies
+    // Remove old Show More button if present
     const oldShowMore = rowEl.querySelector('.show-more-card');
     if (oldShowMore) oldShowMore.remove();
 
     const movies = data.results || [];
 
-    // Only add next batch of movies
     movies.slice(0, moviesPerLoad).forEach(movie => {
       const card = document.createElement('div');
       card.className = 'movie-card';
@@ -98,31 +94,28 @@ async function renderMovieSection(section, container, loadMore = false) {
         : 'https://via.placeholder.com/140x210?text=No+Image';
 
       const title = document.createElement('p');
-      title.textContent = `${movie.title} (${movie.release_date?.slice(0, 4) || 'N/A'})`;
+      title.textContent = `${movie.title} (${movie.release_date?.slice(0,4) || 'N/A'})`;
 
       card.appendChild(poster);
       card.appendChild(title);
-
-      // Optionally, add click listener to open movie details...
 
       rowEl.appendChild(card);
     });
 
     loadedCounts[section.title] = alreadyLoaded + moviesPerLoad;
 
-    // Add Show More button back
+    // Add show more arrow button if more movies remain
     if (loadedCounts[section.title] < data.total_results) {
       const moreCard = document.createElement('div');
       moreCard.className = 'show-more-card';
       moreCard.textContent = '→';
       moreCard.title = `Show more ${section.title}`;
       moreCard.onclick = () => {
-        renderMovieSection(section, container, true);
+        renderMovieSection(section, container);
       };
       rowEl.appendChild(moreCard);
     }
-
   } catch (err) {
-    console.error(`Error loading section ${section.title}:`, err);
+    console.error('Failed loading', section.title, err);
   }
 }
