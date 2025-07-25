@@ -4,8 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>🎬 Movie Viewer</title>
-  <link rel="stylesheet" href="../style.css" /> <!-- fixed -->
+  <link rel="stylesheet" href="../style.css" />
   <style>
+    .search-container {
+      text-align: center;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #1e1e1e;
+      border-radius: 20px;
+      box-shadow: 0 0 20px #a14eff33;
+    }
+
     .video-container {
       position: relative;
       width: 100%;
@@ -60,3 +70,44 @@
     <button onclick="location.href='https://inspecting.github.io/bilm.github.io/tv-shows/'">📺 TV Shows</button>
   </nav>
 </header>
+
+<main>
+  <div class="search-container">
+    <h1 id="movieTitle">Loading...</h1>
+
+    <div class="video-container" id="videoBox">
+      <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+      <button class="fullscreen-btn" id="fullscreenToggle">⛶</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  const apiKey = "3ade810499876bb5672f40e54960e6a2";
+  const id = new URLSearchParams(location.search).get("id");
+
+  const videoFrame = document.getElementById("videoFrame");
+  const videoBox = document.getElementById("videoBox");
+  const fullscreenToggle = document.getElementById("fullscreenToggle");
+
+  if (id) {
+    fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("movieTitle").textContent = data.title || "Unknown Movie";
+        videoFrame.src = `https://vidsrc.to/embed/movie/${id}`;
+      })
+      .catch(() => {
+        document.getElementById("movieTitle").textContent = "Failed to load movie info.";
+      });
+  } else {
+    document.getElementById("movieTitle").textContent = "No movie ID provided.";
+  }
+
+  fullscreenToggle.onclick = () => {
+    videoBox.classList.toggle("fullscreen");
+  };
+</script>
+
+</body>
+</html>
