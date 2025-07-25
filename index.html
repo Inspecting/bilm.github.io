@@ -39,23 +39,25 @@
       -webkit-text-fill-color: transparent;
       animation: pulse 1.2s infinite ease-in-out, gradientSlide 4s infinite linear;
       z-index: 2;
+
+      display: inline-flex;
+      align-items: center;
+      gap: 28px;
     }
 
-    #introOverlay::before, #introOverlay::after {
-      content: '💜';
-      margin: 0 10px;
-      font-size: 0.9em;
-      vertical-align: middle;
-      display: inline-block;
-      animation: pulse 1.5s infinite ease-in-out;
-    }
-
-    #introOverlay::before {
-      margin-left: 0;
-    }
-
+    /* Remove previous ::before and ::after hearts */
+    #introOverlay::before,
     #introOverlay::after {
-      margin-right: 0;
+      content: none;
+    }
+
+    .heart-icon {
+      width: 80px;
+      height: 80px;
+      user-select: none;
+      pointer-events: none;
+      filter: drop-shadow(0 0 3px #a14eff);
+      animation: pulse 1.5s infinite ease-in-out;
     }
 
     #subtext {
@@ -101,23 +103,36 @@
       z-index: 0;
       pointer-events: none;
       opacity: 0.1;
+      transition: opacity 1s ease;
     }
   </style>
 </head>
 <body>
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-  <div id="introOverlay" aria-label="Bilm">Bilm</div>
+  <div id="introOverlay" aria-label="Bilm">
+    <img class="heart-icon" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Purple Heart" />
+    Bilm
+    <img class="heart-icon" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Purple Heart" />
+  </div>
   <div id="subtext">Loading your experience...</div>
 
   <script>
-    setTimeout(() => {
-      document.getElementById('introOverlay').classList.add('fade-out');
-      document.getElementById('subtext').classList.add('fade-out');
+    function fadeOutAndRedirect() {
+      const intro = document.getElementById('introOverlay');
+      const subtext = document.getElementById('subtext');
+      const canvas = document.getElementById('bgCanvas');
+
+      intro.classList.add('fade-out');
+      subtext.classList.add('fade-out');
+      canvas.classList.add('fade-out');
+
       setTimeout(() => {
         window.location.href = '/bilm.github.io/home/';
       }, 1000);
-    }, 3000);
+    }
+
+    setTimeout(fadeOutAndRedirect, 3000);
 
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
