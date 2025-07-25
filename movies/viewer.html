@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movie Viewer</title>
 
-  <!-- Fonts & Main Stylesheet -->
+  <!-- Fonts & CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/bilm.github.io/style.css" />
 
-  <!-- Additional Styles -->
   <style>
     html, body {
       height: 100%;
@@ -148,20 +147,17 @@
     }
 
     const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const videoFrame = document.getElementById('videoFrame');
+    const videoBox = document.getElementById('videoBox');
 
     fullscreenBtn.onclick = () => {
-      // Try fullscreen iframe
-      if (videoFrame.requestFullscreen) {
-        videoFrame.requestFullscreen();
-      } else if (videoFrame.webkitRequestFullscreen) {
-        videoFrame.webkitRequestFullscreen();
-      } else if (videoFrame.msRequestFullscreen) {
-        videoFrame.msRequestFullscreen();
+      if (videoBox.requestFullscreen) {
+        videoBox.requestFullscreen();
+      } else if (videoBox.webkitRequestFullscreen) {
+        videoBox.webkitRequestFullscreen();
+      } else if (videoBox.msRequestFullscreen) {
+        videoBox.msRequestFullscreen();
       } else {
-        // Fallback: open in new tab (especially for iOS)
-        const id = new URLSearchParams(location.search).get("id");
-        window.open(`https://vidsrc.to/embed/movie/${id}`, '_blank');
+        alert("Fullscreen not supported on this browser.");
       }
     };
   </script>
