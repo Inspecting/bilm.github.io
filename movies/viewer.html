@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Movie Viewer</title>
+  <title>🎬 Movie Viewer</title>
 
   <!-- Fonts & CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
@@ -11,6 +11,8 @@
 
   <style>
     html, body {
+      margin: 0;
+      padding: 0;
       height: 100%;
       font-family: 'Poppins', sans-serif;
       background-color: #121212;
@@ -81,7 +83,7 @@
       box-shadow: 0 0 12px #a14eff88;
     }
 
-    .video-container iframe {
+    iframe {
       width: 100%;
       height: 100%;
       border: none;
@@ -105,6 +107,13 @@
     .fullscreen-btn:hover {
       background-color: #a855f7;
     }
+
+    @media (max-width: 767px) {
+      .video-container {
+        height: auto;
+        aspect-ratio: 16 / 9;
+      }
+    }
   </style>
 </head>
 <body>
@@ -120,9 +129,8 @@
   <main>
     <div class="search-container">
       <h1 id="movieTitle">Loading...</h1>
-
       <div class="video-container" id="videoBox">
-        <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+        <iframe id="videoFrame" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
         <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
       </div>
     </div>
@@ -150,14 +158,17 @@
     const videoBox = document.getElementById('videoBox');
 
     fullscreenBtn.onclick = () => {
-      if (videoBox.requestFullscreen) {
-        videoBox.requestFullscreen();
-      } else if (videoBox.webkitRequestFullscreen) {
-        videoBox.webkitRequestFullscreen();
-      } else if (videoBox.msRequestFullscreen) {
-        videoBox.msRequestFullscreen();
+      const iframe = document.getElementById('videoFrame');
+      if (iframe.requestFullscreen) {
+        iframe.requestFullscreen();
+      } else if (iframe.webkitRequestFullscreen) {
+        iframe.webkitRequestFullscreen();
+      } else if (iframe.mozRequestFullScreen) {
+        iframe.mozRequestFullScreen();
+      } else if (iframe.msRequestFullscreen) {
+        iframe.msRequestFullscreen();
       } else {
-        alert("Fullscreen not supported on this browser.");
+        alert("Fullscreen not supported");
       }
     };
   </script>
