@@ -1,102 +1,112 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bilm 💜 - Movie Viewer</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bilm 💜 - Movie Viewer</title>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-  
-  <style>
-    /* Reset and base */
-    * {
-      margin: 0; padding: 0; box-sizing: border-box;
-    }
-    html, body {
-      height: 100%;
-      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #121212;
-      color: #f0f0f0;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    header {
-      background-color: #1e1e1e;
-      padding: 12px 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-    nav {
-      display: flex;
-      gap: 20px;
-    }
-    nav button {
-      background: none;
-      border: none;
-      color: #ccc;
-      font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: color 0.3s ease;
-      padding: 8px 14px;
-      border-radius: 12px;
-      user-select: none;
-    }
-    nav button:hover {
-      color: #fff;
-      background-color: #3a1361;
-    }
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 
-    main {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
+<style>
+  /* Reset and base */
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
+  html, body {
+    height: 100%;
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #f0f0f0;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
 
-    #videoPlayer {
-      width: 640px;
-      height: 360px;
-      border-radius: 12px;
-      box-shadow: 0 0 16px #a14eff88;
-      background-color: #000;
-    }
-    
-    #videoPlayer iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 12px;
-    }
+  /* Header navigation */
+  header {
+    background-color: #1e1e1e;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: center; /* Center nav horizontally */
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  nav {
+    display: flex;
+    gap: 20px;
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    padding: 8px 14px;
+    border-radius: 12px;
+    user-select: none;
+  }
+  nav button:hover {
+    color: #fff;
+    background-color: #3a1361;
+  }
 
-    #fullscreenBtn {
-      margin-top: 12px;
-      padding: 10px 20px;
-      background-color: #3a1361;
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-weight: 600;
-      font-size: 16px;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.3s ease;
-      align-self: center;
-    }
-    #fullscreenBtn:hover {
-      background-color: #a855f7;
-    }
-  </style>
+  /* Main content */
+  main {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Player container */
+  #playerContainer {
+    width: 800px;
+    max-width: 95vw;
+    aspect-ratio: 16 / 9;
+    background-color: black;
+    position: relative;
+    border-radius: 12px;
+    box-shadow: 0 0 15px #a14effaa;
+    margin-bottom: 12px;
+  }
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 12px;
+  }
+
+  /* Fullscreen button */
+  #fullscreenBtn {
+    position: relative;
+    margin: 8px auto 16px auto;
+    display: block;
+    background-color: #3a1361;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    max-width: 120px;
+    text-align: center;
+  }
+  #fullscreenBtn:hover {
+    background-color: #a855f7;
+  }
+</style>
 </head>
 <body>
 
@@ -109,15 +119,14 @@
 </header>
 
 <main>
-  <div id="videoPlayer">
+  <div id="playerContainer">
     <iframe
-      id="playerIframe"
+      id="videoPlayer"
       src=""
-      allow="fullscreen; autoplay; encrypted-media"
       allowfullscreen
-      sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
-      loading="lazy"
-      title="Movie Stream Player"
+      allow="fullscreen; encrypted-media"
+      playsinline
+      scrolling="no"
     ></iframe>
   </div>
 
@@ -127,47 +136,38 @@
 <script>
   const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
+  // Navigation button clicks
   document.querySelectorAll('nav button').forEach(btn => {
     btn.onclick = () => {
       const page = btn.dataset.page;
-      if (page === 'home') {
-        window.location.href = `${BASE_URL}/home/`;
-      } else if (page === 'movies') {
-        window.location.href = `${BASE_URL}/movies/`;
-      } else if (page === 'tv') {
-        window.location.href = `${BASE_URL}/tv-shows/`;
-      }
+      if (page === 'home') window.location.href = `${BASE_URL}/home/`;
+      else if (page === 'movies') window.location.href = `${BASE_URL}/movies/`;
+      else if (page === 'tv') window.location.href = `${BASE_URL}/tv-shows/`;
     };
   });
 
-  // Extract movie id from URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const movieId = urlParams.get('id');
+  const params = new URLSearchParams(window.location.search);
+  const movieId = params.get('id');
 
-  const playerIframe = document.getElementById('playerIframe');
-
-  if (movieId) {
-    // Use vidsrc.icu for embedding movies (example)
-    playerIframe.src = `https://vidsrc.icu/embed/movie/${movieId}`;
-  } else {
-    playerIframe.src = '';
-  }
-
-  // Fullscreen function
-  function goFullscreen(el) {
-    if (el.requestFullscreen) {
-      el.requestFullscreen();
-    } else if (el.webkitRequestFullscreen) {
-      el.webkitRequestFullscreen();
-    } else if (el.msRequestFullscreen) {
-      el.msRequestFullscreen();
-    }
-  }
-
+  const iframe = document.getElementById('videoPlayer');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+  function loadVideo() {
+    if (!movieId) {
+      iframe.src = '';
+      alert('No movie ID provided.');
+      return;
+    }
+    iframe.src = `https://vidsrc.xyz/embed/movie/${movieId}`;
+  }
+
   fullscreenBtn.onclick = () => {
-    goFullscreen(document.getElementById('videoPlayer'));
+    if (iframe.requestFullscreen) iframe.requestFullscreen();
+    else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+    else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
   };
+
+  loadVideo();
 </script>
 
 </body>
