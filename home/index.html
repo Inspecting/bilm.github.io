@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bilm 💜</title>
+  <title>Bilm</title>
 
   <!-- Google Fonts: Poppins -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
@@ -12,15 +12,37 @@
   <link rel="stylesheet" href="./style.css" />
 
   <style>
-    .bilm-logo {
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      background-color: #000;
       font-family: 'Poppins', sans-serif;
+      color: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+
+    header, main {
+      position: relative;
+      z-index: 2;
+    }
+
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .bilm-logo {
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
       font-weight: 600;
-      font-size: clamp(2.5rem, 8vw, 5rem);
-      background: linear-gradient(90deg, #a14eff, #c084fc, #a14eff);
-      background-size: 300% 100%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: gradientSlide 4s infinite linear, pulse 1.2s infinite ease-in-out;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -31,24 +53,24 @@
     .bilm-logo img {
       width: 1.2em;
       height: 1.2em;
-      filter: drop-shadow(0 0 3px #a14eff);
-      animation: pulse 1.5s infinite ease-in-out;
+      vertical-align: middle;
       user-select: none;
       pointer-events: none;
     }
 
-    @keyframes gradientSlide {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 100% 50%; }
+    .search-container {
+      text-align: center;
+      padding: 40px 20px;
     }
 
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.05); opacity: 0.85; }
+    .search-btn {
+      margin-top: 12px;
     }
   </style>
 </head>
 <body>
+
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
 
 <header>
   <nav>
@@ -77,15 +99,60 @@
   const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
   document.addEventListener('DOMContentLoaded', () => {
-    const header = document.querySelector('header');
-    const main = document.querySelector('main');
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
+    // Particle canvas setup
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let dots = [];
+    const dotCount = 80;
 
-    header.classList.add('visible');
-    main.classList.add('visible');
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
 
-    // Navigation buttons
+    function initDots() {
+      dots = [];
+      for (let i = 0; i < dotCount; i++) {
+        dots.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * 2 + 1,
+          dx: (Math.random() - 0.5) * 0.7,
+          dy: (Math.random() - 0.5) * 0.7,
+        });
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.shadowColor = '#c084fc';
+      ctx.shadowBlur = 8;
+
+      for (let dot of dots) {
+        ctx.beginPath();
+        ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(193, 132, 252, 0.9)';
+        ctx.fill();
+        dot.x += dot.dx;
+        dot.y += dot.dy;
+        if (dot.x < 0 || dot.x > canvas.width) dot.dx *= -1;
+        if (dot.y < 0 || dot.y > canvas.height) dot.dy *= -1;
+      }
+
+      ctx.shadowBlur = 0;
+      requestAnimationFrame(animate);
+    }
+
+    resize();
+    initDots();
+    animate();
+
+    window.addEventListener('resize', () => {
+      resize();
+      initDots();
+    });
+
+    // Navigation
     document.querySelectorAll('nav button').forEach(btn => {
       btn.onclick = () => {
         const page = btn.dataset.page;
@@ -99,7 +166,9 @@
       };
     });
 
-    // Search button click
+    // Search button
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
     searchBtn.onclick = () => {
       const query = searchInput.value.trim();
       if (!query) return alert('Please enter a search term');
@@ -108,9 +177,7 @@
 
     // Enter key triggers search
     searchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        searchBtn.click();
-      }
+      if (e.key === 'Enter') searchBtn.click();
     });
   });
 </script>
