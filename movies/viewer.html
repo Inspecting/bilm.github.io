@@ -16,7 +16,7 @@
       background-color: #121212;
       color: white;
       margin: 0;
-      overflow: hidden; /* removes scrollbars */
+      overflow: hidden;
     }
 
     header {
@@ -54,10 +54,6 @@
     }
 
     @media (max-width: 768px) {
-      nav {
-        gap: 12px;
-      }
-
       nav button {
         font-size: 16px;
         padding: 6px 12px;
@@ -103,6 +99,33 @@
       border: none;
       display: block;
     }
+
+    .fullscreen-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 18px;
+      background: #3a1361;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 6px 10px;
+      z-index: 10;
+      transition: opacity 0.3s ease;
+    }
+
+    .fullscreen-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      .video-container {
+        height: auto;
+        aspect-ratio: 16/9;
+      }
+    }
   </style>
 </head>
 <body>
@@ -118,8 +141,10 @@
   <main>
     <div class="search-container">
       <h1 id="movieTitle">Loading...</h1>
-      <div class="video-container">
-        <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+
+      <div class="video-container" id="videoBox">
+        <iframe id="videoFrame" allow="autoplay; fullscreen"></iframe>
+        <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
       </div>
     </div>
   </main>
@@ -128,12 +153,16 @@
     const apiKey = "3ade810499876bb5672f40e54960e6a2";
     const id = new URLSearchParams(location.search).get("id");
 
+    const videoFrame = document.getElementById("videoFrame");
+    const videoBox = document.getElementById("videoBox");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+
     if (id) {
       fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
         .then(res => res.json())
         .then(data => {
           document.getElementById("movieTitle").textContent = data.title || "Unknown Movie";
-          document.getElementById("videoFrame").src = `https://vidsrc.icu/embed/movie/${id}`;
+          videoFrame.src = `https://vidsrc.icu/embed/movie/${id}`;
         })
         .catch(() => {
           document.getElementById("movieTitle").textContent = "Failed to load movie info.";
@@ -141,6 +170,34 @@
     } else {
       document.getElementById("movieTitle").textContent = "No movie ID provided.";
     }
+
+    // Handle fullscreen toggle
+    fullscreenBtn.onclick = () => {
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        document.exitFullscreen?.() || document.webkitExitFullscreen?.();
+      } else {
+        videoBox.requestFullscreen?.() || videoBox.webkitRequestFullscreen?.();
+      }
+    };
+
+    // Auto-hide fullscreen button after inactivity
+    let hideTimeout;
+
+    const resetFullscreenButtonVisibility = () => {
+      fullscreenBtn.classList.remove("hidden");
+      clearTimeout(hideTimeout);
+      hideTimeout = setTimeout(() => {
+        fullscreenBtn.classList.add("hidden");
+      }, 3500);
+    };
+
+    // Mobile: tap anywhere to show fullscreen button
+    document.addEventListener("touchstart", resetFullscreenButtonVisibility);
+
+    // Desktop: mouse move anywhere
+    document.addEventListener("mousemove", resetFullscreenButtonVisibility);
+
+    resetFullscreenButtonVisibility(); // init
   </script>
 
 </body>
