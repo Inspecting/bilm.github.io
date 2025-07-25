@@ -9,24 +9,36 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/bilm.github.io/style.css" />
 
+  <!-- Viewer-Specific Styling -->
   <style>
-    html, body {
+    * {
       margin: 0;
       padding: 0;
-      background: #121212;
-      font-family: 'Poppins', sans-serif;
-      color: white;
+      box-sizing: border-box;
+    }
+
+    html, body {
       height: 100%;
-      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      background-color: #121212;
+      color: white;
+      overflow: hidden; /* Remove scrollbars */
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
 
     header {
-      background: #1e1e1e;
+      background-color: #1e1e1e;
       padding: 12px 20px;
       display: flex;
       justify-content: center;
       gap: 20px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      flex-shrink: 0;
     }
 
     nav button {
@@ -39,6 +51,7 @@
       padding: 8px 14px;
       border-radius: 12px;
       transition: background-color 0.3s ease;
+      user-select: none;
     }
 
     nav button:hover {
@@ -47,34 +60,43 @@
     }
 
     main {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       padding: 30px 10px;
     }
 
     .search-container {
       text-align: center;
       max-width: 900px;
-      margin: 0 auto;
+      width: 100%;
       padding: 20px;
       background-color: #1e1e1e;
       border-radius: 20px;
       box-shadow: 0 0 20px #a14eff33;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .search-container h1 {
       font-size: 2rem;
       color: #c084fc;
       margin-bottom: 20px;
+      word-break: break-word;
     }
 
     .video-container {
+      position: relative;
       width: 100%;
       max-width: 800px;
       height: 450px;
-      margin: 0 auto;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 0 12px #a14eff88;
-      position: relative;
+      background-color: black;
     }
 
     .video-container iframe {
@@ -82,6 +104,31 @@
       height: 100%;
       border: none;
       display: block;
+    }
+
+    .fullscreen-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 18px;
+      background: #3a1361;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 6px 10px;
+      z-index: 10;
+      transition: opacity 0.3s ease;
+      user-select: none;
+    }
+
+    .fullscreen-btn:hover {
+      background-color: #a855f7;
+    }
+
+    .fullscreen-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -99,8 +146,15 @@
     <div class="search-container">
       <h1 id="movieTitle">Loading...</h1>
 
-      <div class="video-container">
-        <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+      <div class="video-container" id="videoBox">
+        <iframe
+          id="videoFrame"
+          allowfullscreen
+          allow="autoplay; fullscreen; picture-in-picture"
+          sandbox="allow-scripts allow-same-origin allow-presentation"
+          src=""
+        ></iframe>
+        <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
       </div>
     </div>
   </main>
@@ -108,8 +162,11 @@
   <script>
     const apiKey = "3ade810499876bb5672f40e54960e6a2";
     const id = new URLSearchParams(location.search).get("id");
-    const videoFrame = document.getElementById("videoFrame");
+
     const titleEl = document.getElementById("movieTitle");
+    const videoFrame = document.getElementById("videoFrame");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const videoBox = document.getElementById("videoBox");
 
     if (id) {
       fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
@@ -125,24 +182,77 @@
       titleEl.textContent = "No movie ID provided.";
     }
 
-    // Block popup attempts
-    const blockPopup = () => {
-      const originalOpen = window.open;
-      window.open = function (...args) {
-        console.warn("Blocked popup:", args);
-        return null;
-      };
-
-      document.body.addEventListener('click', (e) => {
-        const el = e.target.closest('a');
-        if (el && el.href && !el.href.includes(location.hostname)) {
-          e.preventDefault();
-          console.warn("Blocked redirect:", el.href);
+    // Fullscreen toggle (works across browsers including mobile Safari)
+    fullscreenBtn.onclick = () => {
+      const elem = videoBox;
+      if (
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+      ) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+          document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
         }
-      }, true);
+      } else {
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+          elem.mozRequestFullScreen();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+        }
+      }
     };
 
-    blockPopup();
+    // Auto-hide fullscreen button after 3.5 seconds inactivity, show on interaction
+    let hideTimeout;
+
+    function showFullscreenButton() {
+      fullscreenBtn.classList.remove("hidden");
+      clearTimeout(hideTimeout);
+      hideTimeout = setTimeout(() => {
+        fullscreenBtn.classList.add("hidden");
+      }, 3500);
+    }
+
+    // Show on user interactions
+    ["mousemove", "touchstart", "click", "keydown"].forEach(evt =>
+      document.addEventListener(evt, showFullscreenButton, { passive: true })
+    );
+
+    // Initial show
+    showFullscreenButton();
+
+    // Prevent new tab popups and redirects
+    (function preventNewTabs() {
+      const noop = () => null;
+      window.open = noop;
+      window.parent.open = noop;
+      document.addEventListener("click", e => {
+        if (e.target?.tagName === "A" && e.target.target === "_blank") {
+          e.preventDefault();
+        }
+      });
+      // Override 'top' so iframe can't redirect the main window
+      Object.defineProperty(window, 'top', {
+        get: () => window,
+      });
+      // Remove target="_blank" from all links repeatedly
+      setInterval(() => {
+        document.querySelectorAll('a[target="_blank"]').forEach(a => {
+          a.removeAttribute('target');
+        });
+      }, 500);
+    })();
   </script>
 
 </body>
