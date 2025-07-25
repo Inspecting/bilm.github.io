@@ -8,21 +8,55 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 
   <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
     html, body {
-      margin: 0;
-      padding: 0;
-      background: #121212;
-      font-family: 'Poppins', sans-serif;
-      color: white;
       height: 100%;
+      background-color: #121212;
+      color: #eee;
+      font-family: 'Poppins', sans-serif;
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
 
+    header {
+      background-color: #1e1e1e;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      padding: 8px 14px;
+      border-radius: 12px;
+      user-select: none;
+    }
+    nav button:hover {
+      color: #fff;
+      background-color: #3a1361;
+    }
+
     main {
       flex: 1;
-      padding: 30px 10px;
+      padding: 20px;
+      box-sizing: border-box;
       max-width: 900px;
       margin: 0 auto;
     }
@@ -36,7 +70,6 @@
       overflow: hidden;
       box-shadow: 0 0 12px #a14eff88;
       background: black;
-      position: relative;
     }
 
     iframe {
@@ -67,6 +100,14 @@
 </head>
 <body>
 
+  <header>
+    <nav>
+      <button data-page="home">Home</button>
+      <button data-page="movies">Movies</button>
+      <button data-page="tv">TV Shows</button>
+    </nav>
+  </header>
+
   <main>
     <h1 id="movieTitle" style="text-align:center; color:#c084fc; margin-bottom: 20px;">Loading...</h1>
 
@@ -74,30 +115,27 @@
       <iframe id="videoPlayer" allowfullscreen allow="fullscreen; autoplay" playsinline></iframe>
     </div>
 
-    <!-- Fullscreen Button -->
-    <button id="fullscreenBtn" aria-label="Go Fullscreen">Fullscreen</button>
+    <button id="fullscreenBtn">Fullscreen</button>
   </main>
 
 <script>
   const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
   const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
-  const urlParams = new URLSearchParams(window.location.search);
-  const movieId = urlParams.get('id');
 
-  const playerWrapper = document.getElementById('player-wrapper');
-  const videoPlayer = document.getElementById('videoPlayer');
+  const movieId = new URLSearchParams(window.location.search).get('id');
   const movieTitle = document.getElementById('movieTitle');
+  const videoPlayer = document.getElementById('videoPlayer');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const playerWrapper = document.getElementById('player-wrapper');
 
   async function fetchMovieDetails() {
     try {
       const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}`);
       const data = await res.json();
       movieTitle.textContent = data.title || 'Unknown Movie';
-
       videoPlayer.src = `https://vidsrc.xyz/embed/movie/${movieId}`;
     } catch {
-      movieTitle.textContent = 'Failed to load movie info.';
+      movieTitle.textContent = 'Failed to load movie.';
     }
   }
 
@@ -110,6 +148,13 @@
       playerWrapper.msRequestFullscreen();
     }
   };
+
+  document.querySelectorAll('nav button').forEach(btn => {
+    btn.onclick = () => {
+      const page = btn.dataset.page;
+      window.location.href = `${BASE_URL}/${page === 'home' ? 'home' : page === 'movies' ? 'movies' : 'tv-shows'}/`;
+    };
+  });
 
   fetchMovieDetails();
 </script>
