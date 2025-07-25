@@ -5,32 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movie Viewer</title>
 
-  <!-- Fonts & CSS -->
+  <!-- Fonts & External CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/bilm.github.io/style.css" />
 
   <style>
-    * {
+    html, body {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-    }
-
-    html, body {
-      height: 100%;
+      background: #121212;
       font-family: 'Poppins', sans-serif;
-      background-color: #121212;
       color: white;
-      overflow: hidden; /* Prevent unwanted scrollbars */
-    }
-
-    body {
-      display: flex;
-      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
     }
 
     header {
-      background-color: #1e1e1e;
+      background: #1e1e1e;
       padding: 12px 20px;
       display: flex;
       justify-content: center;
@@ -56,8 +47,6 @@
     }
 
     main {
-      flex: 1;
-      overflow-y: auto;
       padding: 30px 10px;
     }
 
@@ -78,7 +67,6 @@
     }
 
     .video-container {
-      position: relative;
       width: 100%;
       max-width: 800px;
       height: 450px;
@@ -86,6 +74,7 @@
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 0 12px #a14eff88;
+      position: relative;
     }
 
     .video-container iframe {
@@ -93,24 +82,6 @@
       height: 100%;
       border: none;
       display: block;
-    }
-
-    .fullscreen-btn {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      font-size: 18px;
-      background: #3a1361;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      padding: 6px 10px;
-      z-index: 10;
-    }
-
-    .fullscreen-btn:hover {
-      background-color: #a855f7;
     }
   </style>
 </head>
@@ -128,9 +99,8 @@
     <div class="search-container">
       <h1 id="movieTitle">Loading...</h1>
 
-      <div class="video-container" id="videoBox">
-        <iframe id="videoFrame" allowfullscreen allow="autoplay" allow="fullscreen"></iframe>
-        <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
+      <div class="video-container">
+        <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
       </div>
     </div>
   </main>
@@ -138,34 +108,41 @@
   <script>
     const apiKey = "3ade810499876bb5672f40e54960e6a2";
     const id = new URLSearchParams(location.search).get("id");
+    const videoFrame = document.getElementById("videoFrame");
+    const titleEl = document.getElementById("movieTitle");
 
     if (id) {
       fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
         .then(res => res.json())
         .then(data => {
-          document.getElementById("movieTitle").textContent = data.title || "Unknown Movie";
-          // Use HTTPS vidscr.me embed to avoid mixed content errors:
-          document.getElementById("videoFrame").src = `https://vidscr.me/embed/movie/${id}`;
+          titleEl.textContent = data.title || "Unknown Movie";
+          videoFrame.src = `https://vidsrc.me/embed/movie/${id}`;
         })
         .catch(() => {
-          document.getElementById("movieTitle").textContent = "Failed to load movie info.";
+          titleEl.textContent = "Failed to load movie info.";
         });
     } else {
-      document.getElementById("movieTitle").textContent = "No movie ID provided.";
+      titleEl.textContent = "No movie ID provided.";
     }
 
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const videoBox = document.getElementById('videoBox');
+    // Block popup attempts
+    const blockPopup = () => {
+      const originalOpen = window.open;
+      window.open = function (...args) {
+        console.warn("Blocked popup:", args);
+        return null;
+      };
 
-    fullscreenBtn.onclick = () => {
-      if (!document.fullscreenElement) {
-        videoBox.requestFullscreen?.().catch(err => {
-          alert(`Error attempting fullscreen: ${err.message}`);
-        });
-      } else {
-        document.exitFullscreen?.();
-      }
+      document.body.addEventListener('click', (e) => {
+        const el = e.target.closest('a');
+        if (el && el.href && !el.href.includes(location.hostname)) {
+          e.preventDefault();
+          console.warn("Blocked redirect:", el.href);
+        }
+      }, true);
     };
+
+    blockPopup();
   </script>
 
 </body>
