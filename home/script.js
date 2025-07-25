@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   header.style.opacity = '1';
   main.style.opacity = '1';
-  versionLabel.textContent = 'Bilm v1.0';
+  if (versionLabel) versionLabel.textContent = 'Bilm v1.0';
 
   document.querySelectorAll('nav button').forEach(btn => {
     btn.onclick = () => {
@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'https://inspecting.github.io/bilm.github.io/home/';
       } else if (page === 'movies') {
         window.location.href = 'https://inspecting.github.io/bilm.github.io/movies/';
+      } else if (page === 'tv') {
+        window.location.href = 'https://inspecting.github.io/bilm.github.io/tv-shows/';
       }
     };
   });
