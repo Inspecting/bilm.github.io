@@ -8,6 +8,66 @@
   <!-- Fonts & External CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/bilm.github.io/style.css" />
+a<!-- ...everything the same... -->
+<script>
+  const apiKey = "3ade810499876bb5672f40e54960e6a2";
+  const id = new URLSearchParams(location.search).get("id");
+
+  const titleEl = document.getElementById("movieTitle");
+  const videoFrame = document.getElementById("videoFrame");
+  const fullscreenBtn = document.getElementById("fullscreenBtn");
+  const videoBox = document.getElementById("videoBox");
+
+  if (id) {
+    fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
+      .then(res => res.json())
+      .then(data => {
+        titleEl.textContent = data.title || "Unknown Movie";
+        videoFrame.src = `https://vidsrc.to/embed/movie/${id}`; // ← REVERTED
+      })
+      .catch(() => {
+        titleEl.textContent = "Failed to load movie info.";
+      });
+  } else {
+    titleEl.textContent = "No movie ID provided.";
+  }
+
+  fullscreenBtn.onclick = () => {
+    const elem = videoBox;
+    if (
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement
+    ) {
+      document.exitFullscreen?.();
+      document.webkitExitFullscreen?.();
+      document.mozCancelFullScreen?.();
+      document.msExitFullscreen?.();
+    } else {
+      elem.requestFullscreen?.();
+      elem.webkitRequestFullscreen?.();
+      elem.mozRequestFullScreen?.();
+      elem.msRequestFullscreen?.();
+    }
+  };
+
+  let hideTimeout;
+
+  function showFullscreenButton() {
+    fullscreenBtn.classList.remove("hidden");
+    clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(() => {
+      fullscreenBtn.classList.add("hidden");
+    }, 3500);
+  }
+
+  ["mousemove", "touchstart", "click", "keydown"].forEach(evt =>
+    document.addEventListener(evt, showFullscreenButton, { passive: true })
+  );
+
+  showFullscreenButton();
+</script>
 
   <!-- Viewer-Specific Styling -->
   <style>
