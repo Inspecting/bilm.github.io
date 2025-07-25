@@ -10,129 +10,6 @@
 
   <!-- Local stylesheet -->
   <link rel="stylesheet" href="./style.css" />
-
-  <style>
-    /* Basic reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html, body {
-      height: 100%;
-      width: 100%;
-      background-color: #000; /* black background */
-      font-family: 'Poppins', sans-serif;
-      color: #fff;
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* Particle canvas fixed behind content */
-    #bgCanvas {
-      position: fixed !important;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;              /* behind everything */
-      pointer-events: none;    /* don’t block clicks */
-      background: transparent; /* no background color */
-      opacity: 1;
-      user-select: none;
-    }
-
-    /* Content must be above canvas */
-    header, main {
-      position: relative;
-      z-index: 1;
-    }
-
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      padding: 12px 20px;
-      background: #111;
-      position: sticky;
-      top: 0;
-      z-index: 5;
-    }
-
-    nav button {
-      background: none;
-      border: 1.5px solid #a14eff;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-weight: 600;
-      color: #a14eff;
-      cursor: pointer;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    nav button:hover {
-      background-color: #a14eff;
-      color: #000;
-    }
-
-    .bilm-logo {
-      font-weight: 600;
-      font-size: clamp(2rem, 8vw, 4rem);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin: 24px 0;
-      user-select: none;
-    }
-
-    .bilm-logo img {
-      width: 1.2em;
-      height: 1.2em;
-      vertical-align: middle;
-      pointer-events: none;
-    }
-
-    .search-container {
-      text-align: center;
-      padding: 0 20px 40px;
-    }
-
-    #searchInput {
-      font-size: 1.25rem;
-      padding: 8px 12px;
-      width: 280px;
-      max-width: 90vw;
-      border-radius: 4px;
-      border: 1px solid #666;
-      background-color: #111;
-      color: #eee;
-    }
-
-    #searchInput::placeholder {
-      color: #777;
-    }
-
-    .button-row {
-      margin-top: 12px;
-    }
-
-    .search-btn {
-      font-size: 1rem;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      background-color: #a14eff;
-      color: #fff;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .search-btn:hover {
-      background-color: #c084fc;
-    }
-  </style>
 </head>
 <body>
 
@@ -148,12 +25,7 @@
 
   <main>
     <div class="search-container">
-      <div class="bilm-logo" aria-label="Bilm logo">
-        <img src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Purple Heart" />
-        Bilm
-        <img src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Purple Heart" />
-      </div>
-
+      <h1>💜 Bilm 💜</h1>
       <input id="searchInput" type="search" placeholder="Search movies or TV shows..." autocomplete="off" />
       <div class="button-row">
         <button class="search-btn" id="searchBtn">Search</button>
@@ -164,10 +36,51 @@
   <script>
     const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
+    document.addEventListener('DOMContentLoaded', () => {
+      const header = document.querySelector('header');
+      const main = document.querySelector('main');
+      const searchInput = document.getElementById('searchInput');
+      const searchBtn = document.getElementById('searchBtn');
+
+      header.classList.add('visible');
+      main.classList.add('visible');
+
+      // Navigation buttons
+      document.querySelectorAll('nav button').forEach(btn => {
+        btn.onclick = () => {
+          const page = btn.dataset.page;
+          if (page === 'home') {
+            window.location.href = `${BASE_URL}/home/`;
+          } else if (page === 'movies') {
+            window.location.href = `${BASE_URL}/movies/`;
+          } else if (page === 'tv') {
+            window.location.href = `${BASE_URL}/tv-shows/`;
+          }
+        };
+      });
+
+      // Search button click
+      searchBtn.onclick = () => {
+        const query = searchInput.value.trim();
+        if (!query) return alert('Please enter a search term');
+        window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
+      };
+
+      // Optional: Enter key triggers search
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          searchBtn.click();
+        }
+      });
+    });
+  </script>
+
+  <script>
+    // Particle background script
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
-    let dots = [];
     const dotCount = 80;
+    let dots = [];
 
     function resize() {
       canvas.width = window.innerWidth;
@@ -197,8 +110,10 @@
         ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(193, 132, 252, 0.9)';
         ctx.fill();
+
         dot.x += dot.dx;
         dot.y += dot.dy;
+
         if (dot.x < 0 || dot.x > canvas.width) dot.dx *= -1;
         if (dot.y < 0 || dot.y > canvas.height) dot.dy *= -1;
       }
@@ -212,35 +127,10 @@
       initDots();
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', () => {
       resize();
       initDots();
       animate();
-
-      document.querySelectorAll('nav button').forEach(btn => {
-        btn.onclick = () => {
-          const page = btn.dataset.page;
-          if (page === 'home') {
-            window.location.href = `${BASE_URL}/home/`;
-          } else if (page === 'movies') {
-            window.location.href = `${BASE_URL}/movies/`;
-          } else if (page === 'tv') {
-            window.location.href = `${BASE_URL}/tv-shows/`;
-          }
-        };
-      });
-
-      const searchBtn = document.getElementById('searchBtn');
-      const searchInput = document.getElementById('searchInput');
-      searchBtn.onclick = () => {
-        const query = searchInput.value.trim();
-        if (!query) return alert('Please enter a search term');
-        window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
-      };
-
-      searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') searchBtn.click();
-      });
     });
   </script>
 
