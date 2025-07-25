@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -59,7 +59,16 @@
       background-color: #a855f7;
     }
 
-    header nav button {
+    header {
+      background-color: #1e1e1e;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+
+    nav button {
       background: none;
       border: none;
       color: #ccc;
@@ -71,18 +80,9 @@
       transition: background-color 0.3s ease;
     }
 
-    header nav button:hover {
+    nav button:hover {
       background-color: #3a1361;
       color: #fff;
-    }
-
-    header {
-      background-color: #1e1e1e;
-      padding: 12px 20px;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
     }
   </style>
 </head>
