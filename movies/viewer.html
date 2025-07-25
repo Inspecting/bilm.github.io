@@ -7,7 +7,8 @@
 
   <!-- Fonts & External CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/bilm.github.io/style.css" />
+  <!-- Fixed CSS path relative to this file -->
+  <link rel="stylesheet" href="../style.css" />
 
   <style>
     html, body {
@@ -83,6 +84,25 @@
       border: none;
       display: block;
     }
+
+    .fullscreen-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 18px;
+      background: #3a1361;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 6px 10px;
+      z-index: 10;
+      transition: opacity 0.3s ease;
+    }
+
+    .fullscreen-btn:hover {
+      background-color: #a855f7;
+    }
   </style>
 </head>
 <body>
@@ -99,8 +119,9 @@
     <div class="search-container">
       <h1 id="movieTitle">Loading...</h1>
 
-      <div class="video-container">
-        <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+      <div class="video-container" id="videoBox">
+        <iframe id="videoFrame" allowfullscreen allow="autoplay" allow="fullscreen"></iframe>
+        <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
       </div>
     </div>
   </main>
@@ -110,13 +131,16 @@
     const id = new URLSearchParams(location.search).get("id");
     const videoFrame = document.getElementById("videoFrame");
     const titleEl = document.getElementById("movieTitle");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const videoBox = document.getElementById("videoBox");
 
     if (id) {
-      fetch(https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey})
+      fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
         .then(res => res.json())
         .then(data => {
           titleEl.textContent = data.title || "Unknown Movie";
-          videoFrame.src = https://vidsrc.me/embed/movie/${id};
+          // Use HTTPS vidscr embed to avoid mixed content error
+          videoFrame.src = `https://vidscr.me/embed/movie/${id}`;
         })
         .catch(() => {
           titleEl.textContent = "Failed to load movie info.";
@@ -124,6 +148,26 @@
     } else {
       titleEl.textContent = "No movie ID provided.";
     }
+
+    // Fullscreen toggle supporting all browsers incl. iOS Safari
+    fullscreenBtn.onclick = () => {
+      if (
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+      ) {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+        else if (document.msExitFullscreen) document.msExitFullscreen();
+      } else {
+        if (videoBox.requestFullscreen) videoBox.requestFullscreen();
+        else if (videoBox.webkitRequestFullscreen) videoBox.webkitRequestFullscreen();
+        else if (videoBox.mozRequestFullScreen) videoBox.mozRequestFullScreen();
+        else if (videoBox.msRequestFullscreen) videoBox.msRequestFullscreen();
+      }
+    };
 
     // Block popup attempts
     const blockPopup = () => {
