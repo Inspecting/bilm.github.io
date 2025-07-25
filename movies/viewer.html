@@ -16,7 +16,8 @@
       background-color: #121212;
       color: white;
       margin: 0;
-      overflow: hidden;
+      padding: 0;
+      overflow: hidden; /* ✅ Prevent scroll */
     }
 
     header {
@@ -62,14 +63,18 @@
 
     main {
       flex: 1;
+      height: calc(100vh - 80px);
       overflow: hidden;
-      padding: 30px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
 
     .search-container {
       text-align: center;
+      width: 100%;
       max-width: 900px;
-      margin: 0 auto;
       padding: 20px;
       background-color: #1e1e1e;
       border-radius: 20px;
@@ -86,7 +91,7 @@
       position: relative;
       width: 100%;
       max-width: 800px;
-      height: 450px;
+      aspect-ratio: 16/9;
       margin: 0 auto;
       border-radius: 12px;
       overflow: hidden;
@@ -119,13 +124,6 @@
       opacity: 0;
       pointer-events: none;
     }
-
-    @media (max-width: 768px) {
-      .video-container {
-        height: auto;
-        aspect-ratio: 16/9;
-      }
-    }
   </style>
 </head>
 <body>
@@ -152,7 +150,6 @@
   <script>
     const apiKey = "3ade810499876bb5672f40e54960e6a2";
     const id = new URLSearchParams(location.search).get("id");
-
     const videoFrame = document.getElementById("videoFrame");
     const videoBox = document.getElementById("videoBox");
     const fullscreenBtn = document.getElementById("fullscreenBtn");
@@ -171,7 +168,7 @@
       document.getElementById("movieTitle").textContent = "No movie ID provided.";
     }
 
-    // Handle fullscreen toggle
+    // Fullscreen logic
     fullscreenBtn.onclick = () => {
       if (document.fullscreenElement || document.webkitFullscreenElement) {
         document.exitFullscreen?.() || document.webkitExitFullscreen?.();
@@ -180,7 +177,7 @@
       }
     };
 
-    // Auto-hide fullscreen button after inactivity
+    // Auto-hide fullscreen button
     let hideTimeout;
 
     const resetFullscreenButtonVisibility = () => {
@@ -191,12 +188,8 @@
       }, 3500);
     };
 
-    // Mobile: tap anywhere to show fullscreen button
     document.addEventListener("touchstart", resetFullscreenButtonVisibility);
-
-    // Desktop: mouse move anywhere
     document.addEventListener("mousemove", resetFullscreenButtonVisibility);
-
     resetFullscreenButtonVisibility(); // init
   </script>
 
