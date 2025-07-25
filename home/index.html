@@ -10,6 +10,43 @@
 
   <!-- Local stylesheet -->
   <link rel="stylesheet" href="./style.css" />
+
+  <style>
+    .bilm-logo {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      background: linear-gradient(90deg, #a14eff, #c084fc, #a14eff);
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientSlide 4s infinite linear, pulse 1.2s infinite ease-in-out;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .bilm-logo img {
+      width: 1.2em;
+      height: 1.2em;
+      filter: drop-shadow(0 0 3px #a14eff);
+      animation: pulse 1.5s infinite ease-in-out;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    @keyframes gradientSlide {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.85; }
+    }
+  </style>
 </head>
 <body>
 
@@ -23,7 +60,12 @@
 
 <main>
   <div class="search-container">
-    <h1>💜 Bilm 💜</h1>
+    <div class="bilm-logo">
+      <img src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
+      Bilm
+      <img src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
+    </div>
+
     <input id="searchInput" type="search" placeholder="Search movies or TV shows..." autocomplete="off" />
     <div class="button-row">
       <button class="search-btn" id="searchBtn">Search</button>
@@ -64,7 +106,7 @@
       window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
     };
 
-    // Optional: Enter key triggers search
+    // Enter key triggers search
     searchInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         searchBtn.click();
