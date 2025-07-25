@@ -112,11 +112,11 @@
     const titleEl = document.getElementById("movieTitle");
 
     if (id) {
-      fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
+      fetch(https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey})
         .then(res => res.json())
         .then(data => {
           titleEl.textContent = data.title || "Unknown Movie";
-          videoFrame.src = `https://vidscr.me/embed/movie/${id}`;
+          videoFrame.src = https://vidsrc.me/embed/movie/${id};
         })
         .catch(() => {
           titleEl.textContent = "Failed to load movie info.";
