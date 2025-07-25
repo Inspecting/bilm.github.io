@@ -24,7 +24,7 @@
       position: relative;
     }
 
-    #introOverlayWrapper {
+    #fadeWrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -97,8 +97,8 @@
 <body>
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-  <!-- WRAPPER that will fade out -->
-  <div id="introOverlayWrapper">
+  <!-- Unified wrapper for everything fading -->
+  <div id="fadeWrapper">
     <div id="introOverlay">
       <img class="heart-icon" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
       Bilm
@@ -152,7 +152,7 @@
       requestAnimationFrame(animate);
     }
 
-    window.addEventListener('load', () => {
+    document.addEventListener('DOMContentLoaded', () => {
       resize();
       initDots();
       animate();
@@ -164,7 +164,7 @@
     });
 
     function fadeOutAndRedirect() {
-      document.getElementById('introOverlayWrapper').classList.add('fade-out');
+      document.getElementById('fadeWrapper').classList.add('fade-out');
       document.getElementById('bgCanvas').classList.add('fade-out');
 
       setTimeout(() => {
