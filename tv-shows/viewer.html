@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>TV Show Viewer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+
   <style>
     html, body {
       margin: 0;
@@ -43,56 +43,82 @@
     }
 
     main {
-      padding: 20px 10px;
-      text-align: center;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+      height: calc(100vh - 60px);
+      box-sizing: border-box;
     }
 
-    h1 {
-      color: #c084fc;
+    .title {
       font-size: 1.8rem;
       margin-bottom: 20px;
+      text-align: center;
+      color: #c084fc;
     }
 
     .video-container {
       width: 100%;
-      max-width: 800px;
-      height: 450px;
-      margin: 0 auto;
+      max-width: 960px;
+      aspect-ratio: 16 / 9;
+      background: #000;
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 0 12px #a14eff88;
-      position: relative;
+      box-shadow: 0 0 20px #a14eff88;
+      margin-bottom: 10px;
     }
 
-    iframe {
+    .video-container iframe {
       width: 100%;
       height: 100%;
       border: none;
       display: block;
     }
 
-    .controls {
-      margin-top: 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .controls select, .controls button {
-      font-size: 16px;
-      padding: 8px 14px;
-      border-radius: 8px;
-      background: #2a2a2a;
-      color: white;
-      border: 1px solid #444;
-      outline: none;
-    }
-
-    .controls button:hover {
+    .fullscreen-btn {
       background-color: #3a1361;
       color: #fff;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
+      margin-bottom: 15px;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+
+    .fullscreen-btn:hover {
+      background-color: #7c3aed;
+    }
+
+    .selectors {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    select {
+      background-color: #2a2a2a;
+      color: #eee;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 16px;
+      cursor: pointer;
+      user-select: none;
+      min-width: 150px;
+      transition: background-color 0.3s ease;
+    }
+
+    select:hover {
+      background-color: #3a1361;
     }
   </style>
 </head>
@@ -107,131 +133,139 @@
   </header>
 
   <main>
-    <h1 id="showTitle">Loading...</h1>
+    <div class="title" id="showTitle">Loading...</div>
 
-    <div class="video-container">
-      <iframe id="videoFrame" allowfullscreen allow="fullscreen; autoplay; encrypted-media"></iframe>
+    <div class="video-container" id="videoWrapper">
+      <iframe id="videoFrame" allowfullscreen allow="fullscreen; autoplay; encrypted-media" playsinline></iframe>
     </div>
 
-    <div class="controls">
-      <button id="fullscreenBtn">Fullscreen</button>
+    <button class="fullscreen-btn" onclick="goFullscreen()">⛶ Fullscreen</button>
 
-      <div>
-        <select id="seasonSelect"></select>
-        <select id="episodeSelect"></select>
-      </div>
+    <div class="selectors">
+      <select id="seasonSelect"></select>
+      <select id="episodeSelect"></select>
     </div>
   </main>
 
   <script>
     const apiKey = "3ade810499876bb5672f40e54960e6a2";
     const id = new URLSearchParams(location.search).get("id");
-    const videoFrame = document.getElementById("videoFrame");
+
     const titleEl = document.getElementById("showTitle");
+    const frame = document.getElementById("videoFrame");
     const seasonSelect = document.getElementById("seasonSelect");
     const episodeSelect = document.getElementById("episodeSelect");
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
 
-    let selectedSeason = 1;
-    let selectedEpisode = 1;
+    // Storage key for last watched episode
+    const STORAGE_KEY = `bilm_tv_${id}_lastWatched`;
 
-    async function loadShowInfo() {
+    let tvData = null;
+    let currentSeason = 1;
+    let currentEpisode = 1;
+
+    async function fetchShowData() {
       try {
         const res = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${apiKey}`);
-        const data = await res.json();
+        tvData = await res.json();
+        titleEl.textContent = tvData.name || "TV Show";
 
-        titleEl.textContent = data.name || "Unknown Show";
+        populateSeasonSelect(tvData.seasons);
 
-        for (let s of data.seasons) {
-          if (s.season_number === 0) continue; // skip season 0 (specials)
-          const opt = document.createElement('option');
-          opt.value = s.season_number;
-          opt.textContent = `Season ${s.season_number}`;
-          seasonSelect.appendChild(opt);
-        }
-
-        seasonSelect.value = selectedSeason;
-        loadEpisodes(selectedSeason);
-
-        const saved = localStorage.getItem(`bilm_tv_${id}`);
+        // Try to restore last watched season/episode from localStorage
+        const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
-          const parsed = JSON.parse(saved);
-          selectedSeason = parsed.season;
-          selectedEpisode = parsed.episode;
-          seasonSelect.value = selectedSeason;
-          await loadEpisodes(selectedSeason);
-          episodeSelect.value = selectedEpisode;
+          const { season, episode } = JSON.parse(saved);
+          if (season && episode) {
+            currentSeason = season;
+            currentEpisode = episode;
+          }
         }
 
-        updateVideo();
+        seasonSelect.value = currentSeason;
+        populateEpisodeSelect(currentSeason);
+
+        // Load initial video
+        loadVideo(currentSeason, currentEpisode);
       } catch (err) {
-        titleEl.textContent = "Failed to load show info.";
+        titleEl.textContent = "Failed to load TV show info.";
         console.error(err);
       }
     }
 
-    async function loadEpisodes(seasonNum) {
-      try {
-        episodeSelect.innerHTML = "";
-        const res = await fetch(`https://api.themoviedb.org/3/tv/${id}/season/${seasonNum}?api_key=${apiKey}`);
-        const data = await res.json();
-        data.episodes.forEach(ep => {
-          const opt = document.createElement('option');
-          opt.value = ep.episode_number;
-          opt.textContent = `Episode ${ep.episode_number}`;
-          episodeSelect.appendChild(opt);
+    function populateSeasonSelect(seasons) {
+      seasonSelect.innerHTML = "";
+      seasons.forEach(season => {
+        // Avoid Season 0 (specials)
+        if(season.season_number === 0) return;
+
+        const option = document.createElement("option");
+        option.value = season.season_number;
+        option.textContent = `Season ${season.season_number}`;
+        seasonSelect.appendChild(option);
+      });
+    }
+
+    function populateEpisodeSelect(seasonNumber) {
+      episodeSelect.innerHTML = "";
+      const season = tvData.seasons.find(s => s.season_number == seasonNumber);
+      if (!season) return;
+
+      // Fetch season details to get episode count
+      fetch(`https://api.themoviedb.org/3/tv/${id}/season/${seasonNumber}?api_key=${apiKey}`)
+        .then(res => res.json())
+        .then(seasonData => {
+          const episodes = seasonData.episodes || [];
+          episodes.forEach(ep => {
+            const option = document.createElement("option");
+            option.value = ep.episode_number;
+            option.textContent = `Episode ${ep.episode_number} - ${ep.name}`;
+            episodeSelect.appendChild(option);
+          });
+
+          // Set episode select to currentEpisode or 1 if out of range
+          if (currentEpisode > episodes.length) currentEpisode = 1;
+          episodeSelect.value = currentEpisode;
         });
-      } catch (err) {
-        console.error("Failed to load episodes", err);
-      }
     }
 
-    function updateVideo() {
-      videoFrame.src = `https://vidsrc.xyz/embed/tv/${id}/${selectedSeason}-${selectedEpisode}`;
-      localStorage.setItem(`bilm_tv_${id}`, JSON.stringify({ season: selectedSeason, episode: selectedEpisode }));
+    function loadVideo(season, episode) {
+      frame.src = `https://vidsrc.xyz/embed/tv/${id}/${season}-${episode}`;
+      saveLastWatched(season, episode);
     }
 
-    seasonSelect.onchange = async () => {
-      selectedSeason = parseInt(seasonSelect.value);
-      await loadEpisodes(selectedSeason);
-      selectedEpisode = 1;
-      episodeSelect.value = selectedEpisode;
-      updateVideo();
-    };
+    function saveLastWatched(season, episode) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ season, episode }));
+    }
 
-    episodeSelect.onchange = () => {
-      selectedEpisode = parseInt(episodeSelect.value);
-      updateVideo();
-    };
+    seasonSelect.addEventListener("change", () => {
+      currentSeason = parseInt(seasonSelect.value);
+      currentEpisode = 1; // Reset episode to 1 on season change
+      populateEpisodeSelect(currentSeason);
+      loadVideo(currentSeason, currentEpisode);
+      episodeSelect.value = currentEpisode;
+    });
 
-    fullscreenBtn.onclick = () => {
-      const container = document.querySelector(".video-container");
-      if (container.requestFullscreen) {
-        container.requestFullscreen();
-      } else if (container.webkitRequestFullscreen) {
-        container.webkitRequestFullscreen();
-      } else if (container.msRequestFullscreen) {
-        container.msRequestFullscreen();
+    episodeSelect.addEventListener("change", () => {
+      currentEpisode = parseInt(episodeSelect.value);
+      loadVideo(currentSeason, currentEpisode);
+    });
+
+    function goFullscreen() {
+      const el = document.getElementById("videoWrapper");
+      if (el.requestFullscreen) {
+        el.requestFullscreen();
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      } else if (el.msRequestFullscreen) {
+        el.msRequestFullscreen();
       }
-    };
+    }
 
     if (id) {
-      loadShowInfo();
+      fetchShowData();
     } else {
       titleEl.textContent = "No TV show ID provided.";
     }
-
-    // ✅ Basic ad blocking (non-invasive)
-    const observer = new MutationObserver(() => {
-      document.querySelectorAll("iframe, div").forEach(el => {
-        const idClass = (el.id + el.className).toLowerCase();
-        if (/ad|banner|popup|sponsor/.test(idClass)) {
-          el.style.display = "none";
-        }
-      });
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
   </script>
 
 </body>
