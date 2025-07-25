@@ -37,25 +37,15 @@
       background-size: 300% 100%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      opacity: 1;
-      transition: opacity 1s ease;
       animation: pulse 1.2s infinite ease-in-out, gradientSlide 4s infinite linear;
       z-index: 2;
 
       display: inline-flex;
-      align-items: center;
+      align-items: center; /* perfectly center hearts and text vertically */
       gap: 12px;
     }
 
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.05);
-      }
-    }
-
+    /* Remove previous ::before and ::after hearts */
     #introOverlay::before,
     #introOverlay::after {
       content: none;
@@ -68,7 +58,7 @@
       pointer-events: none;
       filter: drop-shadow(0 0 3px #a14eff);
       animation: pulse 1.5s infinite ease-in-out;
-      align-self: center;
+      align-self: center; /* vertical center inside flex */
       vertical-align: unset;
     }
 
@@ -76,15 +66,25 @@
       margin-top: 16px;
       font-size: clamp(1rem, 2.5vw, 1.5rem);
       color: #ccc;
-      opacity: 1;
-      transition: opacity 1s ease;
+      opacity: 0;
       animation: fadeIn 1.2s ease forwards 0.8s;
       z-index: 2;
     }
 
     .fade-out {
-      opacity: 0 !important;
+      opacity: 0;
       transition: opacity 1s ease;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.05);
+        opacity: 0.85;
+      }
     }
 
     @keyframes fadeIn {
@@ -104,7 +104,7 @@
       width: 100%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.3;
+      opacity: 0.1;
       transition: opacity 1s ease;
     }
   </style>
@@ -131,6 +131,7 @@
       canvas.classList.add('fade-out');
 
       setTimeout(() => {
+        // hide elements to prevent any flicker before redirect
         intro.style.display = 'none';
         subtext.style.display = 'none';
         canvas.style.display = 'none';
@@ -141,15 +142,11 @@
     // Start fade out after 3 seconds
     setTimeout(fadeOutAndRedirect, 3000);
 
-    // Particle background canvas animation with burst splash effect
+    // Particle background canvas animation
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
     let dots = [];
     const dotCount = 80;
-
-    let burstDots = [];
-    const burstCount = 40;
-    const burstDuration = 800; // ms
 
     function resize() {
       canvas.width = window.innerWidth;
@@ -169,78 +166,31 @@
       }
     }
 
-    function initBurst() {
-      burstDots = [];
-      const now = performance.now();
-      for (let i = 0; i < burstCount; i++) {
-        burstDots.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          maxR: Math.random() * 4 + 3,
-          r: 0,
-          createdAt: now,
-        });
-      }
-    }
-
-    function animateBurst(now) {
-      burstDots = burstDots.filter(dot => {
-        const elapsed = now - dot.createdAt;
-        if (elapsed > burstDuration) return false;
-        if (elapsed < burstDuration * 0.3) {
-          dot.r = dot.maxR * (elapsed / (burstDuration * 0.3));
-        } else {
-          dot.r = dot.maxR * (1 - (elapsed - burstDuration * 0.3) / (burstDuration * 0.7));
-        }
-        return true;
-      });
-    }
-
     function animate() {
-      const now = performance.now();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.shadowColor = '#c084fc';
-      ctx.shadowBlur = 8;
-
       for (let dot of dots) {
         ctx.beginPath();
         ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(193, 132, 252, 0.9)';
+        ctx.fillStyle = '#a14eff';
         ctx.fill();
-      }
-
-      for (let dot of burstDots) {
-        ctx.beginPath();
-        ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(193, 132, 252, ${dot.r / dot.maxR * 0.9})`;
-        ctx.fill();
-      }
-
-      ctx.shadowBlur = 0;
-
-      for (let dot of dots) {
         dot.x += dot.dx;
         dot.y += dot.dy;
         if (dot.x < 0 || dot.x > canvas.width) dot.dx *= -1;
         if (dot.y < 0 || dot.y > canvas.height) dot.dy *= -1;
       }
-
-      animateBurst(now);
-
       requestAnimationFrame(animate);
     }
 
+    // Initialize safely after window loads to avoid race conditions
     window.addEventListener('load', () => {
       resize();
       initDots();
-      initBurst();
       animate();
     });
 
     window.addEventListener('resize', () => {
       resize();
       initDots();
-      initBurst();
     });
   </script>
 
