@@ -18,93 +18,32 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 
-  // Check if URL has ?search= query param
-  const urlParams = new URLSearchParams(window.location.search);
-  const searchQuery = urlParams.get('search');
+  // Render default movie sections only (no search)
+  const sections = [
+    { title: 'Trending', endpoint: '/trending/movie/week' },
+    { title: 'Popular', endpoint: '/movie/popular' },
+    { title: 'Top Rated', endpoint: '/movie/top_rated' },
+    { title: 'Now Playing', endpoint: '/movie/now_playing' },
+    { title: 'Action', endpoint: '/discover/movie?with_genres=28' },
+    { title: 'Adventure', endpoint: '/discover/movie?with_genres=12' },
+    { title: 'Animation', endpoint: '/discover/movie?with_genres=16' },
+    { title: 'Comedy', endpoint: '/discover/movie?with_genres=35' },
+    { title: 'Crime', endpoint: '/discover/movie?with_genres=80' },
+    { title: 'Drama', endpoint: '/discover/movie?with_genres=18' },
+    { title: 'Fantasy', endpoint: '/discover/movie?with_genres=14' },
+    { title: 'Horror', endpoint: '/discover/movie?with_genres=27' },
+    { title: 'Mystery', endpoint: '/discover/movie?with_genres=9648' },
+    { title: 'Romance', endpoint: '/discover/movie?with_genres=10749' },
+    { title: 'Science Fiction', endpoint: '/discover/movie?with_genres=878' },
+    { title: 'Thriller', endpoint: '/discover/movie?with_genres=53' }
+  ];
 
-  if (searchQuery) {
-    // Show search results for query
-    renderSearchResults(searchQuery);
-  } else {
-    // No search query, show regular sections
-    const sections = [
-      { title: 'Trending', endpoint: '/trending/movie/week' },
-      { title: 'Popular', endpoint: '/movie/popular' },
-      { title: 'Top Rated', endpoint: '/movie/top_rated' },
-      { title: 'Now Playing', endpoint: '/movie/now_playing' },
-      { title: 'Action', endpoint: '/discover/movie?with_genres=28' },
-      { title: 'Adventure', endpoint: '/discover/movie?with_genres=12' },
-      { title: 'Animation', endpoint: '/discover/movie?with_genres=16' },
-      { title: 'Comedy', endpoint: '/discover/movie?with_genres=35' },
-      { title: 'Crime', endpoint: '/discover/movie?with_genres=80' },
-      { title: 'Drama', endpoint: '/discover/movie?with_genres=18' },
-      { title: 'Fantasy', endpoint: '/discover/movie?with_genres=14' },
-      { title: 'Horror', endpoint: '/discover/movie?with_genres=27' },
-      { title: 'Mystery', endpoint: '/discover/movie?with_genres=9648' },
-      { title: 'Romance', endpoint: '/discover/movie?with_genres=10749' },
-      { title: 'Science Fiction', endpoint: '/discover/movie?with_genres=878' },
-      { title: 'Thriller', endpoint: '/discover/movie?with_genres=53' }
-    ];
-
-    const container = document.getElementById('movieSections');
-    sections.forEach(section => {
-      loadedCounts[section.title] = 0;
-      renderMovieSection(section, container);
-    });
-  }
-});
-
-async function renderSearchResults(query) {
   const container = document.getElementById('movieSections');
-  container.innerHTML = ''; // Clear previous content
-
-  const titleEl = document.createElement('h2');
-  titleEl.className = 'section-title';
-  titleEl.textContent = `Search Results for "${query}"`;
-  container.appendChild(titleEl);
-
-  const rowEl = document.createElement('div');
-  rowEl.className = 'scroll-row';
-  container.appendChild(rowEl);
-
-  try {
-    const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=1`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const movies = data.results || [];
-
-    if (movies.length === 0) {
-      const noResults = document.createElement('p');
-      noResults.textContent = 'No results found.';
-      container.appendChild(noResults);
-      return;
-    }
-
-    movies.forEach(movie => {
-      const card = document.createElement('div');
-      card.className = 'movie-card';
-
-      const poster = document.createElement('img');
-      poster.src = movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : 'https://via.placeholder.com/140x210?text=No+Image';
-
-      const title = document.createElement('p');
-      title.textContent = `${movie.title} (${movie.release_date?.slice(0, 4) || 'N/A'})`;
-
-      card.appendChild(poster);
-      card.appendChild(title);
-
-      card.onclick = () => {
-        window.location.href = `${BASE_URL}/movies/viewer.html?id=${movie.id}`;
-      };
-
-      rowEl.appendChild(card);
-    });
-  } catch (err) {
-    console.error('Failed to load search results', err);
-  }
-}
+  sections.forEach(section => {
+    loadedCounts[section.title] = 0;
+    renderMovieSection(section, container);
+  });
+});
 
 async function renderMovieSection(section, container) {
   let sectionEl = document.getElementById(`section-${section.title.replace(/\s/g, '')}`);
