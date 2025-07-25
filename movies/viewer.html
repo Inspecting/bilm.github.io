@@ -83,7 +83,7 @@
       display: block;
     }
 
-    #fullscreenBtn {
+    .fullscreen-btn {
       position: absolute;
       bottom: 10px;
       right: 10px;
@@ -95,11 +95,16 @@
       cursor: pointer;
       padding: 6px 10px;
       z-index: 10;
-      transition: background-color 0.3s ease;
+      transition: opacity 0.3s ease;
     }
 
-    #fullscreenBtn:hover {
+    .fullscreen-btn:hover {
       background-color: #a855f7;
+    }
+
+    .fullscreen-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -118,8 +123,12 @@
       <h1 id="movieTitle">Loading...</h1>
 
       <div class="video-container" id="videoBox">
-        <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
-        <button id="fullscreenBtn">⛶</button>
+        <iframe
+          id="videoFrame"
+          allowfullscreen
+          allow="fullscreen; autoplay; encrypted-media"
+        ></iframe>
+        <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
       </div>
     </div>
   </main>
@@ -146,41 +155,54 @@
       titleEl.textContent = "No movie ID provided.";
     }
 
-    fullscreenBtn.addEventListener('click', () => {
-      if (
-        document.fullscreenElement ||
-        document.webkitFullscreenElement ||
-        document.mozFullScreenElement ||
-        document.msFullscreenElement
-      ) {
+    // Fullscreen toggle
+    fullscreenBtn.onclick = () => {
+      const el = videoBox;
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
         if (document.exitFullscreen) document.exitFullscreen();
         else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-        else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
-        else if (document.msExitFullscreen) document.msExitFullscreen();
       } else {
-        if (videoBox.requestFullscreen) videoBox.requestFullscreen();
-        else if (videoBox.webkitRequestFullscreen) videoBox.webkitRequestFullscreen();
-        else if (videoBox.mozRequestFullScreen) videoBox.mozRequestFullScreen();
-        else if (videoBox.msRequestFullscreen) videoBox.msRequestFullscreen();
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        else if (el.msRequestFullscreen) el.msRequestFullscreen();
       }
-    });
+    };
 
-    // Light popup/redirect block (non-breaking)
-    (() => {
+    // Show/hide fullscreen button on interaction
+    let hideTimeout;
+
+    function showFullscreenBtn() {
+      fullscreenBtn.classList.remove("hidden");
+      clearTimeout(hideTimeout);
+      hideTimeout = setTimeout(() => {
+        fullscreenBtn.classList.add("hidden");
+      }, 3500);
+    }
+
+    ["mousemove", "touchstart", "click", "keydown"].forEach(event =>
+      document.addEventListener(event, showFullscreenBtn, { passive: true })
+    );
+
+    showFullscreenBtn();
+
+    // Basic popup blocking
+    const blockPopup = () => {
       const originalOpen = window.open;
       window.open = function (...args) {
         console.warn("Blocked popup:", args);
         return null;
       };
 
-      document.body.addEventListener('click', e => {
+      document.body.addEventListener('click', (e) => {
         const el = e.target.closest('a');
         if (el && el.href && !el.href.includes(location.hostname)) {
           e.preventDefault();
           console.warn("Blocked redirect:", el.href);
         }
       }, true);
-    })();
+    };
+
+    blockPopup();
   </script>
 
 </body>
