@@ -88,8 +88,8 @@ main {
   border-radius: 10px;
 }
 
-/* TV Show card */
-.tvshow-card {
+/* Movie card */
+.movie-card {
   flex: 0 0 auto;
   width: 140px;
   height: 210px;
@@ -103,16 +103,16 @@ main {
   user-select: none;
   transition: transform 0.2s ease;
 }
-.tvshow-card:hover {
+.movie-card:hover {
   transform: scale(1.05);
 }
-.tvshow-card img {
+.movie-card img {
   width: 140px;
   height: 180px;
   object-fit: cover;
   border-radius: 12px 12px 0 0;
 }
-.tvshow-card p {
+.movie-card p {
   padding: 6px 8px;
   font-size: 14px;
   font-weight: 600;
