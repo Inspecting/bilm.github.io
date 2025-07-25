@@ -41,8 +41,8 @@
       z-index: 2;
 
       display: inline-flex;
-      align-items: center;
-      gap: 28px;
+      align-items: center; /* perfectly center hearts and text vertically */
+      gap: 12px;
     }
 
     /* Remove previous ::before and ::after hearts */
@@ -52,12 +52,14 @@
     }
 
     .heart-icon {
-      width: 80px;
-      height: 80px;
+      width: 1.2em;
+      height: 1.2em;
       user-select: none;
       pointer-events: none;
       filter: drop-shadow(0 0 3px #a14eff);
       animation: pulse 1.5s infinite ease-in-out;
+      align-self: center; /* vertical center inside flex */
+      vertical-align: unset;
     }
 
     #subtext {
@@ -118,6 +120,7 @@
   <div id="subtext">Loading your experience...</div>
 
   <script>
+    // Fade out hearts, text, and background, then redirect
     function fadeOutAndRedirect() {
       const intro = document.getElementById('introOverlay');
       const subtext = document.getElementById('subtext');
@@ -128,12 +131,18 @@
       canvas.classList.add('fade-out');
 
       setTimeout(() => {
+        // hide elements to prevent any flicker before redirect
+        intro.style.display = 'none';
+        subtext.style.display = 'none';
+        canvas.style.display = 'none';
         window.location.href = '/bilm.github.io/home/';
       }, 1000);
     }
 
+    // Start fade out after 3 seconds
     setTimeout(fadeOutAndRedirect, 3000);
 
+    // Particle background canvas animation
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
     let dots = [];
@@ -172,14 +181,17 @@
       requestAnimationFrame(animate);
     }
 
+    // Initialize safely after window loads to avoid race conditions
+    window.addEventListener('load', () => {
+      resize();
+      initDots();
+      animate();
+    });
+
     window.addEventListener('resize', () => {
       resize();
       initDots();
     });
-
-    resize();
-    initDots();
-    animate();
   </script>
 
   <noscript>
