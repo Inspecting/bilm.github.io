@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movie Viewer</title>
 
-  <!-- Fonts & Base CSS -->
+  <!-- Fonts & Global Styles -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/bilm.github.io/style.css" />
 
@@ -16,6 +16,7 @@
       background-color: #121212;
       color: white;
       margin: 0;
+      overflow: hidden; /* removes scrollbars */
     }
 
     header {
@@ -65,7 +66,7 @@
 
     main {
       flex: 1;
-      overflow-y: auto;
+      overflow: hidden;
       padding: 30px 10px;
     }
 
@@ -117,7 +118,7 @@
   <main>
     <div class="search-container">
       <h1 id="movieTitle">Loading...</h1>
-      <div class="video-container" id="videoBox">
+      <div class="video-container">
         <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
       </div>
     </div>
