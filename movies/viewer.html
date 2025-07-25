@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movie Viewer</title>
 
-  <!-- Fonts & CSS -->
+  <!-- Fonts & External CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/bilm.github.io/style.css" />
 
+  <!-- Inline Overrides -->
   <style>
     * {
       margin: 0;
@@ -21,12 +22,12 @@
       font-family: 'Poppins', sans-serif;
       background-color: #121212;
       color: white;
+      overflow: hidden;
     }
 
     body {
       display: flex;
       flex-direction: column;
-      overflow: hidden;
     }
 
     header {
@@ -132,7 +133,7 @@
         .then(res => res.json())
         .then(data => {
           titleEl.textContent = data.title || "Unknown Movie";
-          videoFrame.src = `https://vidsrc.icu/embed/movie/${id}`;
+          videoFrame.src = `https://vidsrc.me/embed/movie/${id}`;
         })
         .catch(() => {
           titleEl.textContent = "Failed to load movie info.";
