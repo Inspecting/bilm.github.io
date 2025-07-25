@@ -13,6 +13,20 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* Particle background canvas styling */
+#bgCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* clicks pass through */
+  background: transparent;
+  z-index: 0; /* behind everything */
+  user-select: none;
+}
+
 /* Header navigation */
 header {
   background-color: #1e1e1e;
@@ -65,6 +79,7 @@ main {
 main.visible {
   opacity: 1;
 }
+
 /* Search container */
 .search-container {
   text-align: center;
