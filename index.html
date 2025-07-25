@@ -141,12 +141,15 @@
     // Start fade out after 3 seconds
     setTimeout(fadeOutAndRedirect, 3000);
 
-    // Particle background canvas animation with splash effect
+    // Particle background canvas animation with burst splash effect
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
     let dots = [];
     const dotCount = 80;
-    let initialSplash = true;
+
+    let burstDots = [];
+    const burstCount = 40;
+    const burstDuration = 800; // ms
 
     function resize() {
       canvas.width = window.innerWidth;
@@ -160,21 +163,41 @@
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
           r: Math.random() * 2 + 1,
-          dx: (Math.random() - 0.5) * (initialSplash ? 3 : 0.5),
-          dy: (Math.random() - 0.5) * (initialSplash ? 3 : 0.5),
+          dx: (Math.random() - 0.5) * 0.5,
+          dy: (Math.random() - 0.5) * 0.5,
         });
       }
     }
 
-    function slowDownDots() {
-      for (let dot of dots) {
-        dot.dx *= 0.2;
-        dot.dy *= 0.2;
+    function initBurst() {
+      burstDots = [];
+      const now = performance.now();
+      for (let i = 0; i < burstCount; i++) {
+        burstDots.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          maxR: Math.random() * 4 + 3,
+          r: 0,
+          createdAt: now,
+        });
       }
-      initialSplash = false;
+    }
+
+    function animateBurst(now) {
+      burstDots = burstDots.filter(dot => {
+        const elapsed = now - dot.createdAt;
+        if (elapsed > burstDuration) return false;
+        if (elapsed < burstDuration * 0.3) {
+          dot.r = dot.maxR * (elapsed / (burstDuration * 0.3));
+        } else {
+          dot.r = dot.maxR * (1 - (elapsed - burstDuration * 0.3) / (burstDuration * 0.7));
+        }
+        return true;
+      });
     }
 
     function animate() {
+      const now = performance.now();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.shadowColor = '#c084fc';
       ctx.shadowBlur = 8;
@@ -185,6 +208,14 @@
         ctx.fillStyle = 'rgba(193, 132, 252, 0.9)';
         ctx.fill();
       }
+
+      for (let dot of burstDots) {
+        ctx.beginPath();
+        ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(193, 132, 252, ${dot.r / dot.maxR * 0.9})`;
+        ctx.fill();
+      }
+
       ctx.shadowBlur = 0;
 
       for (let dot of dots) {
@@ -192,30 +223,24 @@
         dot.y += dot.dy;
         if (dot.x < 0 || dot.x > canvas.width) dot.dx *= -1;
         if (dot.y < 0 || dot.y > canvas.height) dot.dy *= -1;
-
-        if (!initialSplash) {
-          if (dot.dx > 0.5) dot.dx = 0.5;
-          if (dot.dx < -0.5) dot.dx = -0.5;
-          if (dot.dy > 0.5) dot.dy = 0.5;
-          if (dot.dy < -0.5) dot.dy = -0.5;
-        }
       }
+
+      animateBurst(now);
+
       requestAnimationFrame(animate);
     }
 
     window.addEventListener('load', () => {
       resize();
       initDots();
+      initBurst();
       animate();
-
-      setTimeout(() => {
-        slowDownDots();
-      }, 1500);
     });
 
     window.addEventListener('resize', () => {
       resize();
       initDots();
+      initBurst();
     });
   </script>
 
