@@ -10,7 +10,8 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     html, body {
-      height: 100%; width: 100%;
+      height: 100%;
+      width: 100%;
       background-color: #000;
       font-family: 'Poppins', sans-serif;
       color: #fff;
@@ -46,6 +47,7 @@
       pointer-events: none;
       filter: drop-shadow(0 0 3px #a14eff);
       animation: pulse 1.5s infinite ease-in-out;
+      transition: opacity 1s ease;
     }
 
     #subtext {
@@ -60,7 +62,6 @@
 
     .fade-out {
       opacity: 0 !important;
-      transition: opacity 1s ease;
     }
 
     @keyframes pulse {
@@ -77,8 +78,10 @@
 
     #bgCanvas {
       position: absolute;
-      top: 0; left: 0;
-      height: 100%; width: 100%;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
       z-index: 0;
       pointer-events: none;
       opacity: 0.6;
@@ -89,21 +92,18 @@
 <body>
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-  <div id="introOverlay">
-    <img class="heart-icon" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Purple Heart" />
+  <div id="introOverlay" class="fade-target">
+    <img class="heart-icon fade-target" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Purple Heart" />
     Bilm
-    <img class="heart-icon" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Purple Heart" />
+    <img class="heart-icon fade-target" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Purple Heart" />
   </div>
-  <div id="subtext">Loading your experience...</div>
+  <div id="subtext" class="fade-target">Loading your experience...</div>
 
   <script>
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
     let dots = [];
-    let burstDots = [];
     const dotCount = 80;
-    const burstCount = 50;
-    const burstDuration = 800;
 
     function resize() {
       canvas.width = window.innerWidth;
@@ -117,53 +117,13 @@
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
           r: Math.random() * 2 + 1,
-          dx: (Math.random() - 0.5) * 0.8,
-          dy: (Math.random() - 0.5) * 0.8,
+          dx: (Math.random() - 0.5) * 0.7,
+          dy: (Math.random() - 0.5) * 0.7,
         });
       }
-    }
-
-    function initCenteredBurst() {
-      const now = performance.now();
-      burstDots = [];
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-
-      for (let i = 0; i < burstCount; i++) {
-        const angle = Math.random() * 2 * Math.PI;
-        const speed = Math.random() * 4 + 2;
-        burstDots.push({
-          x: centerX,
-          y: centerY,
-          dx: Math.cos(angle) * speed,
-          dy: Math.sin(angle) * speed,
-          r: 0,
-          maxR: Math.random() * 5 + 3,
-          createdAt: now,
-        });
-      }
-    }
-
-    function animateBurst(now) {
-      burstDots = burstDots.filter(dot => {
-        const elapsed = now - dot.createdAt;
-        if (elapsed > burstDuration) return false;
-
-        if (elapsed < burstDuration * 0.3) {
-          dot.r = dot.maxR * (elapsed / (burstDuration * 0.3));
-        } else {
-          dot.r = dot.maxR * (1 - (elapsed - burstDuration * 0.3) / (burstDuration * 0.7));
-        }
-
-        dot.x += dot.dx;
-        dot.y += dot.dy;
-
-        return true;
-      });
     }
 
     function animate() {
-      const now = performance.now();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.shadowColor = '#c084fc';
       ctx.shadowBlur = 8;
@@ -175,39 +135,31 @@
         ctx.fill();
         dot.x += dot.dx;
         dot.y += dot.dy;
+
         if (dot.x < 0 || dot.x > canvas.width) dot.dx *= -1;
         if (dot.y < 0 || dot.y > canvas.height) dot.dy *= -1;
       }
 
-      for (let dot of burstDots) {
-        ctx.beginPath();
-        ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(193, 132, 252, ${dot.r / dot.maxR * 0.9})`;
-        ctx.fill();
-      }
-
       ctx.shadowBlur = 0;
-      animateBurst(now);
       requestAnimationFrame(animate);
     }
 
     window.addEventListener('load', () => {
       resize();
       initDots();
-      initCenteredBurst();
       animate();
     });
 
     window.addEventListener('resize', () => {
       resize();
       initDots();
-      initCenteredBurst();
     });
 
     function fadeOutAndRedirect() {
-      document.getElementById('introOverlay').classList.add('fade-out');
-      document.getElementById('subtext').classList.add('fade-out');
-      document.getElementById('bgCanvas').classList.add('fade-out');
+      document.querySelectorAll('.fade-target').forEach(el => {
+        el.classList.add('fade-out');
+      });
+      canvas.classList.add('fade-out');
 
       setTimeout(() => {
         window.location.href = '/bilm.github.io/home/';
