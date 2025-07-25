@@ -4,7 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bilm 💜</title>
+
+  <!-- Google Fonts: Poppins -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+
+  <!-- Local stylesheet -->
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -20,10 +24,9 @@
 <main>
   <div class="search-container">
     <h1>💜 Bilm 💜</h1>
-    <input id="searchInput" type="search" placeholder="Search movies..." autocomplete="off" disabled />
+    <input id="searchInput" type="search" placeholder="Search movies or TV shows..." autocomplete="off" />
     <div class="button-row">
-      <button class="search-btn" disabled>Search Movie</button>
-      <button class="search-btn" disabled>Search TV (Coming Soon)</button>
+      <button class="search-btn" id="searchBtn">Search</button>
     </div>
   </div>
 </main>
@@ -32,6 +35,15 @@
   const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
   document.addEventListener('DOMContentLoaded', () => {
+    const header = document.querySelector('header');
+    const main = document.querySelector('main');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+
+    header.classList.add('visible');
+    main.classList.add('visible');
+
+    // Navigation buttons
     document.querySelectorAll('nav button').forEach(btn => {
       btn.onclick = () => {
         const page = btn.dataset.page;
@@ -43,6 +55,20 @@
           window.location.href = `${BASE_URL}/tv-shows/`;
         }
       };
+    });
+
+    // Search button click
+    searchBtn.onclick = () => {
+      const query = searchInput.value.trim();
+      if (!query) return alert('Please enter a search term');
+      window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
+    };
+
+    // Optional: Enter key triggers search
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        searchBtn.click();
+      }
     });
   });
 </script>
