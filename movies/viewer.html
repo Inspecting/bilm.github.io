@@ -3,31 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🎬 Movie Viewer</title>
+  <title>Movie Viewer</title>
 
   <!-- Fonts & CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/bilm.github.io/style.css" />
 
-  <!-- Fallback + Extra Viewer Styles -->
+  <!-- Extra Viewer Styles -->
   <style>
-    /* Base Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     html, body {
       height: 100%;
       font-family: 'Poppins', sans-serif;
       background-color: #121212;
       color: white;
-    }
-
-    body {
-      display: flex;
-      flex-direction: column;
+      margin: 0;
     }
 
     header {
@@ -60,12 +49,14 @@
       flex: 1;
       overflow-y: auto;
       padding: 30px 10px;
+      display: flex;
+      justify-content: center;
     }
 
     .search-container {
       text-align: center;
       max-width: 900px;
-      margin: 0 auto;
+      width: 100%;
       padding: 20px;
       background-color: #1e1e1e;
       border-radius: 20px;
@@ -128,7 +119,6 @@
   <main>
     <div class="search-container">
       <h1 id="movieTitle">Loading...</h1>
-
       <div class="video-container" id="videoBox">
         <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
         <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
@@ -158,12 +148,13 @@
     const videoBox = document.getElementById('videoBox');
 
     fullscreenBtn.onclick = () => {
-      if (!document.fullscreenElement) {
-        videoBox.requestFullscreen().catch(err => {
-          alert(`Error attempting fullscreen: ${err.message}`);
-        });
-      } else {
-        document.exitFullscreen();
+      const video = videoBox;
+      if (video.requestFullscreen) {
+        video.requestFullscreen();
+      } else if (video.webkitRequestFullscreen) {
+        video.webkitRequestFullscreen(); // Safari
+      } else if (video.msRequestFullscreen) {
+        video.msRequestFullscreen(); // IE11
       }
     };
   </script>
