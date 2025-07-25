@@ -183,13 +183,13 @@
   const episodeSelect = document.getElementById('episodeSelect');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-  // Load seasons and episodes
+  // Load seasons
   async function loadSeasons() {
     try {
       const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=3ade810499876bb5672f40e54960e6a2`);
       const data = await res.json();
 
-      // Fill season selector (skip season 0 if exists)
+      // Populate seasons (skip specials with season_number 0)
       seasonSelect.innerHTML = '';
       data.seasons.forEach(season => {
         if (season.season_number === 0) return; // skip specials
@@ -199,15 +199,16 @@
         seasonSelect.appendChild(option);
       });
 
-      // Select last watched or first season
-      const lastSeason = localStorage.getItem(`bilm_tv_${showId}_season`) || data.seasons[0].season_number;
+      // Set selected season (last watched or first available)
+      const lastSeason = localStorage.getItem(`bilm_tv_${showId}_season`) || data.seasons.find(s => s.season_number !== 0).season_number;
       seasonSelect.value = lastSeason;
       await loadEpisodes(lastSeason);
-    } catch(e) {
+    } catch (e) {
       console.error(e);
     }
   }
 
+  // Load episodes with simple numbering only
   async function loadEpisodes(seasonNumber) {
     try {
       const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNumber}?api_key=3ade810499876bb5672f40e54960e6a2`);
@@ -217,27 +218,27 @@
       data.episodes.forEach(ep => {
         const option = document.createElement('option');
         option.value = ep.episode_number;
-        option.textContent = `Episode ${ep.episode_number} - ${ep.name}`;
+        option.textContent = `Episode ${ep.episode_number}`; // simplified label
         episodeSelect.appendChild(option);
       });
 
+      // Set selected episode (last watched or first episode)
       const lastEpisode = localStorage.getItem(`bilm_tv_${showId}_episode`) || 1;
       episodeSelect.value = lastEpisode;
 
       loadVideo(seasonNumber, episodeSelect.value);
-    } catch(e) {
+    } catch (e) {
       console.error(e);
     }
   }
 
   function loadVideo(season, episode) {
     iframe.src = `https://vidsrc.xyz/embed/tv/${showId}/${season}-${episode}`;
-    // Save last watched
     localStorage.setItem(`bilm_tv_${showId}_season`, season);
     localStorage.setItem(`bilm_tv_${showId}_episode`, episode);
   }
 
-  // Event listeners for selectors
+  // Change handlers
   seasonSelect.addEventListener('change', () => {
     loadEpisodes(seasonSelect.value);
   });
@@ -253,7 +254,6 @@
     else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
   };
 
-  // Initialize
   loadSeasons();
 </script>
 
