@@ -5,27 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movie Viewer</title>
 
-  <!-- Fonts & Global Styles -->
+  <!-- Fonts & Global Style -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/bilm.github.io/style.css" />
 
   <style>
-    html, body {
-      height: 100%;
-      font-family: 'Poppins', sans-serif;
-      background-color: #121212;
-      color: white;
+    * {
       margin: 0;
       padding: 0;
-      overflow: hidden; /* ✅ Prevent scroll */
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* ✅ Completely removes scrollbars */
+      background-color: #121212;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
     }
 
     header {
       background-color: #1e1e1e;
       padding: 12px 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-      position: sticky;
-      top: 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
       z-index: 1000;
     }
 
@@ -63,22 +71,23 @@
 
     main {
       flex: 1;
-      height: calc(100vh - 80px);
+      height: 100dvh; /* ✅ Uses device viewport height */
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 10px;
     }
 
     .search-container {
-      text-align: center;
       width: 100%;
       max-width: 900px;
       padding: 20px;
       background-color: #1e1e1e;
       border-radius: 20px;
       box-shadow: 0 0 20px #a14eff33;
+      overflow: hidden;
+      text-align: center;
     }
 
     .search-container h1 {
@@ -91,7 +100,7 @@
       position: relative;
       width: 100%;
       max-width: 800px;
-      aspect-ratio: 16/9;
+      aspect-ratio: 16 / 9;
       margin: 0 auto;
       border-radius: 12px;
       overflow: hidden;
@@ -141,7 +150,7 @@
       <h1 id="movieTitle">Loading...</h1>
 
       <div class="video-container" id="videoBox">
-        <iframe id="videoFrame" allow="autoplay; fullscreen"></iframe>
+        <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
         <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
       </div>
     </div>
@@ -150,8 +159,8 @@
   <script>
     const apiKey = "3ade810499876bb5672f40e54960e6a2";
     const id = new URLSearchParams(location.search).get("id");
-    const videoFrame = document.getElementById("videoFrame");
     const videoBox = document.getElementById("videoBox");
+    const videoFrame = document.getElementById("videoFrame");
     const fullscreenBtn = document.getElementById("fullscreenBtn");
 
     if (id) {
@@ -168,7 +177,6 @@
       document.getElementById("movieTitle").textContent = "No movie ID provided.";
     }
 
-    // Fullscreen logic
     fullscreenBtn.onclick = () => {
       if (document.fullscreenElement || document.webkitFullscreenElement) {
         document.exitFullscreen?.() || document.webkitExitFullscreen?.();
@@ -177,20 +185,16 @@
       }
     };
 
-    // Auto-hide fullscreen button
     let hideTimeout;
-
-    const resetFullscreenButtonVisibility = () => {
+    const resetFullscreenVisibility = () => {
       fullscreenBtn.classList.remove("hidden");
       clearTimeout(hideTimeout);
-      hideTimeout = setTimeout(() => {
-        fullscreenBtn.classList.add("hidden");
-      }, 3500);
+      hideTimeout = setTimeout(() => fullscreenBtn.classList.add("hidden"), 3500);
     };
 
-    document.addEventListener("touchstart", resetFullscreenButtonVisibility);
-    document.addEventListener("mousemove", resetFullscreenButtonVisibility);
-    resetFullscreenButtonVisibility(); // init
+    document.addEventListener("mousemove", resetFullscreenVisibility);
+    document.addEventListener("touchstart", resetFullscreenVisibility);
+    resetFullscreenVisibility();
   </script>
 
 </body>
