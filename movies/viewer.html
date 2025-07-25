@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movie Viewer</title>
 
-  <!-- Fonts & External CSS -->
+  <!-- Fonts & CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/bilm.github.io/style.css" />
 
-  <!-- Viewer-Specific Styling -->
   <style>
     * {
       margin: 0;
@@ -19,7 +18,6 @@
 
     html, body {
       height: 100%;
-      overflow: hidden;
       font-family: 'Poppins', sans-serif;
       background-color: #121212;
       color: white;
@@ -28,6 +26,7 @@
     body {
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     header {
@@ -94,37 +93,7 @@
       height: 100%;
       border: none;
       display: block;
-    }
-
-    .fullscreen-btn {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      font-size: 18px;
-      background: #3a1361;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      padding: 6px 10px;
-      z-index: 10;
-      transition: opacity 0.3s ease;
-    }
-
-    .fullscreen-btn:hover {
-      background-color: #a855f7;
-    }
-
-    .fullscreen-btn.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    @media (max-width: 768px) {
-      .video-container {
-        height: auto;
-        aspect-ratio: 16 / 9;
-      }
+      border-radius: 12px;
     }
   </style>
 </head>
@@ -142,9 +111,12 @@
     <div class="search-container">
       <h1 id="movieTitle">Loading...</h1>
 
-      <div class="video-container" id="videoBox">
-        <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
-        <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
+      <div class="video-container">
+        <iframe
+          id="videoFrame"
+          allow="autoplay; fullscreen"
+          sandbox="allow-same-origin allow-scripts allow-presentation"
+        ></iframe>
       </div>
     </div>
   </main>
@@ -152,18 +124,15 @@
   <script>
     const apiKey = "3ade810499876bb5672f40e54960e6a2";
     const id = new URLSearchParams(location.search).get("id");
-
     const titleEl = document.getElementById("movieTitle");
     const videoFrame = document.getElementById("videoFrame");
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
-    const videoBox = document.getElementById("videoBox");
 
     if (id) {
       fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
         .then(res => res.json())
         .then(data => {
           titleEl.textContent = data.title || "Unknown Movie";
-          videoFrame.src = `https://vidsrc.to/embed/movie/${id}`; // ← REVERTED
+          videoFrame.src = `https://vidsrc.icu/embed/movie/${id}`;
         })
         .catch(() => {
           titleEl.textContent = "Failed to load movie info.";
@@ -171,42 +140,6 @@
     } else {
       titleEl.textContent = "No movie ID provided.";
     }
-
-    fullscreenBtn.onclick = () => {
-      const elem = videoBox;
-      if (
-        document.fullscreenElement ||
-        document.webkitFullscreenElement ||
-        document.mozFullScreenElement ||
-        document.msFullscreenElement
-      ) {
-        document.exitFullscreen?.();
-        document.webkitExitFullscreen?.();
-        document.mozCancelFullScreen?.();
-        document.msExitFullscreen?.();
-      } else {
-        elem.requestFullscreen?.();
-        elem.webkitRequestFullscreen?.();
-        elem.mozRequestFullScreen?.();
-        elem.msRequestFullscreen?.();
-      }
-    };
-
-    let hideTimeout;
-
-    function showFullscreenButton() {
-      fullscreenBtn.classList.remove("hidden");
-      clearTimeout(hideTimeout);
-      hideTimeout = setTimeout(() => {
-        fullscreenBtn.classList.add("hidden");
-      }, 3500);
-    }
-
-    ["mousemove", "touchstart", "click", "keydown"].forEach(evt =>
-      document.addEventListener(evt, showFullscreenButton, { passive: true })
-    );
-
-    showFullscreenButton();
   </script>
 
 </body>
