@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movie Viewer</title>
 
-  <!-- Fonts & External CSS -->
+  <!-- Fonts & CSS -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/bilm.github.io/style.css" />
 
-  <!-- Viewer-Specific Styling -->
   <style>
     * {
       margin: 0;
@@ -22,6 +21,7 @@
       font-family: 'Poppins', sans-serif;
       background-color: #121212;
       color: white;
+      overflow: hidden; /* Prevent unwanted scrollbars */
     }
 
     body {
@@ -107,16 +107,10 @@
       cursor: pointer;
       padding: 6px 10px;
       z-index: 10;
-      transition: opacity 0.3s ease;
     }
 
     .fullscreen-btn:hover {
       background-color: #a855f7;
-    }
-
-    .fullscreen-btn.hidden {
-      opacity: 0;
-      pointer-events: none;
     }
   </style>
 </head>
@@ -135,7 +129,7 @@
       <h1 id="movieTitle">Loading...</h1>
 
       <div class="video-container" id="videoBox">
-        <iframe id="videoFrame" allowfullscreen allow="autoplay; fullscreen"></iframe>
+        <iframe id="videoFrame" allowfullscreen allow="autoplay" allow="fullscreen"></iframe>
         <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
       </div>
     </div>
@@ -145,68 +139,33 @@
     const apiKey = "3ade810499876bb5672f40e54960e6a2";
     const id = new URLSearchParams(location.search).get("id");
 
-    const titleEl = document.getElementById("movieTitle");
-    const videoFrame = document.getElementById("videoFrame");
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
-    const videoBox = document.getElementById("videoBox");
-
     if (id) {
       fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
-        .then(res => {
-          if (!res.ok) throw new Error('Network response was not OK');
-          return res.json();
-        })
+        .then(res => res.json())
         .then(data => {
-          titleEl.textContent = data.title || "Unknown Movie";
-          videoFrame.src = `https://vidscr.me/embed/movie/${id}`;
+          document.getElementById("movieTitle").textContent = data.title || "Unknown Movie";
+          // Use HTTPS vidscr.me embed to avoid mixed content errors:
+          document.getElementById("videoFrame").src = `https://vidscr.me/embed/movie/${id}`;
         })
-        .catch(error => {
-          console.error('Fetching movie info failed:', error);
-          titleEl.textContent = "Failed to load movie info.";
+        .catch(() => {
+          document.getElementById("movieTitle").textContent = "Failed to load movie info.";
         });
     } else {
-      titleEl.textContent = "No movie ID provided.";
+      document.getElementById("movieTitle").textContent = "No movie ID provided.";
     }
 
-    // Toggle fullscreen on all platforms (mobile + desktop)
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const videoBox = document.getElementById('videoBox');
+
     fullscreenBtn.onclick = () => {
-      const elem = videoBox;
-      if (
-        document.fullscreenElement ||
-        document.webkitFullscreenElement ||
-        document.mozFullScreenElement ||
-        document.msFullscreenElement
-      ) {
-        if (document.exitFullscreen) document.exitFullscreen();
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-        else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
-        else if (document.msExitFullscreen) document.msExitFullscreen();
+      if (!document.fullscreenElement) {
+        videoBox.requestFullscreen?.().catch(err => {
+          alert(`Error attempting fullscreen: ${err.message}`);
+        });
       } else {
-        if (elem.requestFullscreen) elem.requestFullscreen();
-        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-        else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen();
-        else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
+        document.exitFullscreen?.();
       }
     };
-
-    // Auto-hide fullscreen button after 3.5s inactivity
-    let hideTimeout;
-
-    function showFullscreenButton() {
-      fullscreenBtn.classList.remove("hidden");
-      clearTimeout(hideTimeout);
-      hideTimeout = setTimeout(() => {
-        fullscreenBtn.classList.add("hidden");
-      }, 3500);
-    }
-
-    // Show on interactions (mouse, tap, key, etc.)
-    ["mousemove", "touchstart", "click", "keydown"].forEach(evt =>
-      document.addEventListener(evt, showFullscreenButton, { passive: true })
-    );
-
-    // Initial show
-    showFullscreenButton();
   </script>
 
 </body>
