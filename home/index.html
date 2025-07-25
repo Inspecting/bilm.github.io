@@ -17,16 +17,11 @@
     html, body {
       height: 100%;
       width: 100%;
-      background-color: #000;
+      background-color: #000; /* solid black behind particles */
       font-family: 'Poppins', sans-serif;
       color: #fff;
       overflow: hidden;
       position: relative;
-    }
-
-    header, main {
-      position: relative;
-      z-index: 2;
     }
 
     #bgCanvas {
@@ -35,9 +30,42 @@
       left: 0;
       height: 100%;
       width: 100%;
-      z-index: 0;
+      z-index: 0; /* behind content */
       pointer-events: none;
-      opacity: 0.6;
+      opacity: 1; /* full opacity — no overlay effect */
+      background: transparent; /* transparent canvas */
+    }
+
+    header, main {
+      position: relative;
+      z-index: 2; /* above canvas */
+    }
+
+    nav {
+      display: flex;
+      gap: 12px;
+      padding: 12px 20px;
+      justify-content: center;
+      background: #111;
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    nav button {
+      background: none;
+      border: 1.5px solid #a14eff;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      color: #a14eff;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    nav button:hover {
+      background-color: #a14eff;
+      color: #000;
     }
 
     .bilm-logo {
@@ -96,149 +124,122 @@
     .search-btn:hover {
       background-color: #c084fc;
     }
-
-    nav {
-      display: flex;
-      gap: 12px;
-      padding: 12px 20px;
-      justify-content: center;
-      background: #111;
-      position: sticky;
-      top: 0;
-      z-index: 5;
-    }
-
-    nav button {
-      background: none;
-      border: 1.5px solid #a14eff;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-weight: 600;
-      color: #a14eff;
-      cursor: pointer;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    nav button:hover {
-      background-color: #a14eff;
-      color: #000;
-    }
   </style>
 </head>
 <body>
 
-<canvas id="bgCanvas" aria-hidden="true"></canvas>
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-<header>
-  <nav>
-    <button data-page="home">Home</button>
-    <button data-page="movies">Movies</button>
-    <button data-page="tv">TV Shows</button>
-  </nav>
-</header>
+  <header>
+    <nav>
+      <button data-page="home">Home</button>
+      <button data-page="movies">Movies</button>
+      <button data-page="tv">TV Shows</button>
+    </nav>
+  </header>
 
-<main>
-  <div class="search-container">
-    <div class="bilm-logo">
-      <img src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
-      Bilm
-      <img src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
+  <main>
+    <div class="search-container">
+      <div class="bilm-logo">
+        <img src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
+        Bilm
+        <img src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
+      </div>
+
+      <input id="searchInput" type="search" placeholder="Search movies or TV shows..." autocomplete="off" />
+      <div class="button-row">
+        <button class="search-btn" id="searchBtn">Search</button>
+      </div>
     </div>
+  </main>
 
-    <input id="searchInput" type="search" placeholder="Search movies or TV shows..." autocomplete="off" />
-    <div class="button-row">
-      <button class="search-btn" id="searchBtn">Search</button>
-    </div>
-  </div>
-</main>
+  <script>
+    const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
-<script>
-  const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
+    // Particle setup
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let dots = [];
+    const dotCount = 80;
 
-  // Particle setup
-  const canvas = document.getElementById('bgCanvas');
-  const ctx = canvas.getContext('2d');
-  let dots = [];
-  const dotCount = 80;
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
 
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
+    function initDots() {
+      dots = [];
+      for (let i = 0; i < dotCount; i++) {
+        dots.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * 2 + 1,
+          dx: (Math.random() - 0.5) * 0.7,
+          dy: (Math.random() - 0.5) * 0.7,
+        });
+      }
+    }
 
-  function initDots() {
-    dots = [];
-    for (let i = 0; i < dotCount; i++) {
-      dots.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2 + 1,
-        dx: (Math.random() - 0.5) * 0.7,
-        dy: (Math.random() - 0.5) * 0.7,
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.shadowColor = '#c084fc';
+      ctx.shadowBlur = 8;
+
+      for (let dot of dots) {
+        ctx.beginPath();
+        ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(193, 132, 252, 0.9)';
+        ctx.fill();
+        dot.x += dot.dx;
+        dot.y += dot.dy;
+        if (dot.x < 0 || dot.x > canvas.width) dot.dx *= -1;
+        if (dot.y < 0 || dot.y > canvas.height) dot.dy *= -1;
+      }
+
+      ctx.shadowBlur = 0;
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', () => {
+      resize();
+      initDots();
+    });
+
+    // Initialize after DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      resize();
+      initDots();
+      animate();
+
+      // Navigation buttons
+      document.querySelectorAll('nav button').forEach(btn => {
+        btn.onclick = () => {
+          const page = btn.dataset.page;
+          if (page === 'home') {
+            window.location.href = `${BASE_URL}/home/`;
+          } else if (page === 'movies') {
+            window.location.href = `${BASE_URL}/movies/`;
+          } else if (page === 'tv') {
+            window.location.href = `${BASE_URL}/tv-shows/`;
+          }
+        };
       });
-    }
-  }
 
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.shadowColor = '#c084fc';
-    ctx.shadowBlur = 8;
-
-    for (let dot of dots) {
-      ctx.beginPath();
-      ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(193, 132, 252, 0.9)';
-      ctx.fill();
-      dot.x += dot.dx;
-      dot.y += dot.dy;
-      if (dot.x < 0 || dot.x > canvas.width) dot.dx *= -1;
-      if (dot.y < 0 || dot.y > canvas.height) dot.dy *= -1;
-    }
-
-    ctx.shadowBlur = 0;
-    requestAnimationFrame(animate);
-  }
-
-  window.addEventListener('resize', () => {
-    resize();
-    initDots();
-  });
-
-  // Initialize everything after DOM is loaded
-  document.addEventListener('DOMContentLoaded', () => {
-    resize();
-    initDots();
-    animate();
-
-    // Navigation buttons
-    document.querySelectorAll('nav button').forEach(btn => {
-      btn.onclick = () => {
-        const page = btn.dataset.page;
-        if (page === 'home') {
-          window.location.href = `${BASE_URL}/home/`;
-        } else if (page === 'movies') {
-          window.location.href = `${BASE_URL}/movies/`;
-        } else if (page === 'tv') {
-          window.location.href = `${BASE_URL}/tv-shows/`;
-        }
+      // Search button click
+      const searchBtn = document.getElementById('searchBtn');
+      const searchInput = document.getElementById('searchInput');
+      searchBtn.onclick = () => {
+        const query = searchInput.value.trim();
+        if (!query) return alert('Please enter a search term');
+        window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
       };
-    });
 
-    // Search button click
-    const searchBtn = document.getElementById('searchBtn');
-    const searchInput = document.getElementById('searchInput');
-    searchBtn.onclick = () => {
-      const query = searchInput.value.trim();
-      if (!query) return alert('Please enter a search term');
-      window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
-    };
-
-    // Enter key triggers search
-    searchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') searchBtn.click();
+      // Enter key triggers search
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') searchBtn.click();
+      });
     });
-  });
-</script>
+  </script>
 
 </body>
 </html>
