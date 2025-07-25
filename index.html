@@ -8,6 +8,7 @@
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     html, body {
       height: 100%; width: 100%;
       background-color: #000;
@@ -35,6 +36,7 @@
       align-items: center;
       gap: 12px;
       transition: opacity 1s ease;
+      opacity: 1;
     }
 
     .heart-icon {
@@ -58,6 +60,7 @@
 
     .fade-out {
       opacity: 0 !important;
+      transition: opacity 1s ease;
     }
 
     @keyframes pulse {
@@ -114,19 +117,26 @@
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
           r: Math.random() * 2 + 1,
-          dx: (Math.random() - 0.5) * 0.8, // faster than before
+          dx: (Math.random() - 0.5) * 0.8,
           dy: (Math.random() - 0.5) * 0.8,
         });
       }
     }
 
-    function initBurst() {
+    function initCenteredBurst() {
       const now = performance.now();
       burstDots = [];
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
       for (let i = 0; i < burstCount; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = Math.random() * 4 + 2;
         burstDots.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
+          x: centerX,
+          y: centerY,
+          dx: Math.cos(angle) * speed,
+          dy: Math.sin(angle) * speed,
           r: 0,
           maxR: Math.random() * 5 + 3,
           createdAt: now,
@@ -138,11 +148,16 @@
       burstDots = burstDots.filter(dot => {
         const elapsed = now - dot.createdAt;
         if (elapsed > burstDuration) return false;
+
         if (elapsed < burstDuration * 0.3) {
           dot.r = dot.maxR * (elapsed / (burstDuration * 0.3));
         } else {
           dot.r = dot.maxR * (1 - (elapsed - burstDuration * 0.3) / (burstDuration * 0.7));
         }
+
+        dot.x += dot.dx;
+        dot.y += dot.dy;
+
         return true;
       });
     }
@@ -176,24 +191,24 @@
       requestAnimationFrame(animate);
     }
 
-    // Load canvas and particles
     window.addEventListener('load', () => {
       resize();
       initDots();
-      initBurst();
+      initCenteredBurst();
       animate();
     });
 
     window.addEventListener('resize', () => {
       resize();
       initDots();
-      initBurst();
+      initCenteredBurst();
     });
 
     function fadeOutAndRedirect() {
       document.getElementById('introOverlay').classList.add('fade-out');
       document.getElementById('subtext').classList.add('fade-out');
       document.getElementById('bgCanvas').classList.add('fade-out');
+
       setTimeout(() => {
         window.location.href = '/bilm.github.io/home/';
       }, 1000);
