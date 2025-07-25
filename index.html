@@ -37,12 +37,24 @@
       background-size: 300% 100%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      opacity: 1; /* explicit opacity */
+      transition: opacity 1s ease;
       animation: pulse 1.2s infinite ease-in-out, gradientSlide 4s infinite linear;
       z-index: 2;
 
       display: inline-flex;
       align-items: center; /* perfectly center hearts and text vertically */
       gap: 12px;
+    }
+
+    /* Remove opacity changes from pulse animation */
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
     }
 
     /* Remove previous ::before and ::after hearts */
@@ -66,25 +78,15 @@
       margin-top: 16px;
       font-size: clamp(1rem, 2.5vw, 1.5rem);
       color: #ccc;
-      opacity: 0;
+      opacity: 1; /* explicit opacity */
+      transition: opacity 1s ease;
       animation: fadeIn 1.2s ease forwards 0.8s;
       z-index: 2;
     }
 
     .fade-out {
-      opacity: 0;
+      opacity: 0 !important;
       transition: opacity 1s ease;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-      50% {
-        transform: scale(1.05);
-        opacity: 0.85;
-      }
     }
 
     @keyframes fadeIn {
@@ -104,7 +106,7 @@
       width: 100%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.1;
+      opacity: 0.3; /* brighter */
       transition: opacity 1s ease;
     }
   </style>
@@ -131,7 +133,7 @@
       canvas.classList.add('fade-out');
 
       setTimeout(() => {
-        // hide elements to prevent any flicker before redirect
+        // hide elements to prevent flicker before redirect
         intro.style.display = 'none';
         subtext.style.display = 'none';
         canvas.style.display = 'none';
@@ -168,11 +170,18 @@
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.shadowColor = '#c084fc'; // lighter purple glow
+      ctx.shadowBlur = 8;           // glow amount
+
       for (let dot of dots) {
         ctx.beginPath();
         ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
-        ctx.fillStyle = '#a14eff';
+        ctx.fillStyle = 'rgba(193, 132, 252, 0.9)'; // bright purple with alpha
         ctx.fill();
+      }
+      ctx.shadowBlur = 0; // reset shadowBlur so it doesn't affect other draws
+
+      for (let dot of dots) {
         dot.x += dot.dx;
         dot.y += dot.dy;
         if (dot.x < 0 || dot.x > canvas.width) dot.dx *= -1;
