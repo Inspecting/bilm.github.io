@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bilm</title>
+  <title>Bilm 💜</title>
 
   <!-- Google Fonts: Poppins -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
@@ -12,8 +12,12 @@
   <link rel="stylesheet" href="./style.css" />
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
+    /* Basic reset and styling */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     html, body {
       height: 100%;
       width: 100%;
@@ -23,29 +27,27 @@
       overflow: hidden;
       position: relative;
     }
-
     #bgCanvas {
       position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
+      top: 0; left: 0;
       width: 100%;
-      z-index: 0; /* behind content */
+      height: 100%;
+      z-index: 0; /* behind all content */
       pointer-events: none;
-      opacity: 1; /* full opacity — no overlay effect */
-      background: transparent; /* transparent canvas */
+      background: transparent;
+      opacity: 1;
     }
 
     header, main {
       position: relative;
-      z-index: 2; /* above canvas */
+      z-index: 1; /* above canvas */
     }
 
     nav {
       display: flex;
+      justify-content: center;
       gap: 12px;
       padding: 12px 20px;
-      justify-content: center;
       background: #111;
       position: sticky;
       top: 0;
@@ -68,27 +70,28 @@
       color: #000;
     }
 
+    /* Logo styling - hearts + Bilm text inline */
     .bilm-logo {
-      font-size: clamp(2.5rem, 8vw, 4.5rem);
       font-weight: 600;
+      font-size: clamp(2rem, 8vw, 4rem);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      margin-bottom: 24px;
+      gap: 10px;
+      margin: 24px 0;
+      user-select: none;
     }
 
     .bilm-logo img {
       width: 1.2em;
       height: 1.2em;
       vertical-align: middle;
-      user-select: none;
       pointer-events: none;
     }
 
     .search-container {
       text-align: center;
-      padding: 40px 20px;
+      padding: 0 20px 40px;
     }
 
     #searchInput {
@@ -140,10 +143,10 @@
 
   <main>
     <div class="search-container">
-      <div class="bilm-logo">
-        <img src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
+      <div class="bilm-logo" aria-label="Bilm logo">
+        <img src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Purple Heart" />
         Bilm
-        <img src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
+        <img src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Purple Heart" />
       </div>
 
       <input id="searchInput" type="search" placeholder="Search movies or TV shows..." autocomplete="off" />
@@ -205,7 +208,7 @@
       initDots();
     });
 
-    // Initialize after DOM is loaded
+    // Initialize everything after DOM is ready
     document.addEventListener('DOMContentLoaded', () => {
       resize();
       initDots();
