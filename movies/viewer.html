@@ -5,11 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movie Viewer</title>
 
-  <!-- Fonts & External CSS -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-  <!-- Fixed CSS path relative to this file -->
-  <link rel="stylesheet" href="../style.css" />
-
   <style>
     html, body {
       margin: 0;
@@ -139,8 +134,7 @@
         .then(res => res.json())
         .then(data => {
           titleEl.textContent = data.title || "Unknown Movie";
-          // Use HTTPS vidscr embed to avoid mixed content error
-          videoFrame.src = `https://vidscr.me/embed/movie/${id}`;
+          videoFrame.src = `https://vidsrc.xyz/embed/movie/${id}`;
         })
         .catch(() => {
           titleEl.textContent = "Failed to load movie info.";
@@ -149,7 +143,6 @@
       titleEl.textContent = "No movie ID provided.";
     }
 
-    // Fullscreen toggle supporting all browsers incl. iOS Safari
     fullscreenBtn.onclick = () => {
       if (
         document.fullscreenElement ||
@@ -168,25 +161,6 @@
         else if (videoBox.msRequestFullscreen) videoBox.msRequestFullscreen();
       }
     };
-
-    // Block popup attempts
-    const blockPopup = () => {
-      const originalOpen = window.open;
-      window.open = function (...args) {
-        console.warn("Blocked popup:", args);
-        return null;
-      };
-
-      document.body.addEventListener('click', (e) => {
-        const el = e.target.closest('a');
-        if (el && el.href && !el.href.includes(location.hostname)) {
-          e.preventDefault();
-          console.warn("Blocked redirect:", el.href);
-        }
-      }, true);
-    };
-
-    blockPopup();
   </script>
 
 </body>
