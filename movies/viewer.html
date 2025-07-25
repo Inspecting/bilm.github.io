@@ -76,16 +76,11 @@
       position: relative;
     }
 
-    .video-container iframe,
-    .video-container video {
+    .video-container iframe {
       width: 100%;
       height: 100%;
       border: none;
       display: block;
-    }
-
-    #nativeVideo {
-      display: none; /* hidden by default */
     }
 
     #fullscreenBtn {
@@ -124,7 +119,6 @@
 
       <div class="video-container" id="videoBox">
         <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
-        <video id="nativeVideo" playsinline controls></video>
         <button id="fullscreenBtn">⛶</button>
       </div>
     </div>
@@ -134,7 +128,6 @@
     const apiKey = "3ade810499876bb5672f40e54960e6a2";
     const id = new URLSearchParams(location.search).get("id");
     const videoFrame = document.getElementById("videoFrame");
-    const nativeVideo = document.getElementById("nativeVideo");
     const titleEl = document.getElementById("movieTitle");
     const fullscreenBtn = document.getElementById("fullscreenBtn");
     const videoBox = document.getElementById("videoBox");
@@ -144,15 +137,7 @@
         .then(res => res.json())
         .then(data => {
           titleEl.textContent = data.title || "Unknown Movie";
-
-          // Use vidsrc.xyz iframe embed:
           videoFrame.src = `https://vidsrc.xyz/embed/movie/${id}`;
-
-          // If you get a direct video URL, you could set it here and show native video:
-          // nativeVideo.src = 'DIRECT_VIDEO_URL.mp4';
-          // nativeVideo.style.display = 'block';
-          // videoFrame.style.display = 'none';
-
         })
         .catch(() => {
           titleEl.textContent = "Failed to load movie info.";
@@ -162,13 +147,6 @@
     }
 
     fullscreenBtn.addEventListener('click', () => {
-      // If native video visible (for iOS fullscreen), try webkitEnterFullscreen
-      if (nativeVideo.style.display !== 'none' && nativeVideo.webkitEnterFullscreen) {
-        nativeVideo.webkitEnterFullscreen();
-        return;
-      }
-
-      // Otherwise toggle fullscreen on container for desktop/mobile
       if (
         document.fullscreenElement ||
         document.webkitFullscreenElement ||
@@ -187,7 +165,7 @@
       }
     });
 
-    // Simple popup blocking - won't interfere with iframe loading
+    // Light popup/redirect block (non-breaking)
     (() => {
       const originalOpen = window.open;
       window.open = function (...args) {
