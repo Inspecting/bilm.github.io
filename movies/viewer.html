@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Movie Viewer</title>
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 
   <style>
@@ -16,57 +15,19 @@
       font-family: 'Poppins', sans-serif;
       color: white;
       height: 100%;
-      overflow-y: auto; /* Allow scrolling */
-    }
-
-    header {
-      background: #1e1e1e;
-      padding: 12px 20px;
+      overflow: hidden;
       display: flex;
-      justify-content: center;
-      gap: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-    }
-
-    nav button {
-      background: none;
-      border: none;
-      color: #ccc;
-      font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 8px 14px;
-      border-radius: 12px;
-      transition: background-color 0.3s ease;
-    }
-
-    nav button:hover {
-      background-color: #3a1361;
-      color: #fff;
+      flex-direction: column;
     }
 
     main {
+      flex: 1;
       padding: 30px 10px;
-      min-height: 100vh;
-    }
-
-    .search-container {
-      text-align: center;
       max-width: 900px;
       margin: 0 auto;
-      padding: 20px;
-      background-color: #1e1e1e;
-      border-radius: 20px;
-      box-shadow: 0 0 20px #a14eff33;
     }
 
-    .search-container h1 {
-      font-size: 2rem;
-      color: #c084fc;
-      margin-bottom: 20px;
-    }
-
-    .video-container {
+    #player-wrapper {
       width: 100%;
       max-width: 800px;
       height: 450px;
@@ -74,162 +35,84 @@
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 0 12px #a14eff88;
+      background: black;
       position: relative;
     }
 
-    .video-container iframe {
+    iframe {
       width: 100%;
       height: 100%;
       border: none;
       display: block;
     }
 
-    .fullscreen-btn {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      font-size: 18px;
-      background: #3a1361;
-      color: white;
+    #fullscreenBtn {
+      display: block;
+      margin: 15px auto 20px auto;
+      padding: 10px 30px;
+      background-color: #3a1361;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      padding: 6px 10px;
-      z-index: 10;
-      transition: opacity 0.3s ease;
-    }
-
-    .fullscreen-btn:hover {
-      background-color: #a855f7;
-    }
-
-    .fullscreen-btn.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .scroll-btn {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      background-color: #7c3aed;
+      border-radius: 12px;
       color: white;
-      border: none;
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
-      font-size: 24px;
-      font-weight: bold;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      z-index: 100;
-      transition: background 0.3s ease;
+      transition: background-color 0.3s ease;
+      user-select: none;
     }
-
-    .scroll-btn:hover {
+    #fullscreenBtn:hover {
       background-color: #a855f7;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <nav>
-      <button onclick="location.href='https://inspecting.github.io/bilm.github.io/home/'">Home</button>
-      <button onclick="location.href='https://inspecting.github.io/bilm.github.io/movies/'">Movies</button>
-      <button onclick="location.href='https://inspecting.github.io/bilm.github.io/tv-shows/'">TV Shows</button>
-    </nav>
-  </header>
-
   <main>
-    <div class="search-container">
-      <h1 id="movieTitle">Loading...</h1>
+    <h1 id="movieTitle" style="text-align:center; color:#c084fc; margin-bottom: 20px;">Loading...</h1>
 
-      <div class="video-container" id="videoBox">
-        <iframe
-          id="videoFrame"
-          allowfullscreen
-          allow="fullscreen; autoplay; encrypted-media"
-        ></iframe>
-        <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
-      </div>
+    <div id="player-wrapper">
+      <iframe id="videoPlayer" allowfullscreen allow="fullscreen; autoplay" playsinline></iframe>
     </div>
+
+    <!-- Fullscreen Button -->
+    <button id="fullscreenBtn" aria-label="Go Fullscreen">Fullscreen</button>
   </main>
 
-  <!-- Custom scroll button -->
-  <button class="scroll-btn" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">↑</button>
+<script>
+  const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
+  const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
+  const urlParams = new URLSearchParams(window.location.search);
+  const movieId = urlParams.get('id');
 
-  <script>
-    const apiKey = "3ade810499876bb5672f40e54960e6a2";
-    const id = new URLSearchParams(location.search).get("id");
-    const videoFrame = document.getElementById("videoFrame");
-    const titleEl = document.getElementById("movieTitle");
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
-    const videoBox = document.getElementById("videoBox");
+  const playerWrapper = document.getElementById('player-wrapper');
+  const videoPlayer = document.getElementById('videoPlayer');
+  const movieTitle = document.getElementById('movieTitle');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-    if (id) {
-      fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
-        .then(res => res.json())
-        .then(data => {
-          titleEl.textContent = data.title || "Unknown Movie";
-          videoFrame.src = `https://vidsrc.xyz/embed/movie/${id}`;
-        })
-        .catch(() => {
-          titleEl.textContent = "Failed to load movie info.";
-        });
-    } else {
-      titleEl.textContent = "No movie ID provided.";
+  async function fetchMovieDetails() {
+    try {
+      const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}`);
+      const data = await res.json();
+      movieTitle.textContent = data.title || 'Unknown Movie';
+
+      videoPlayer.src = `https://vidsrc.xyz/embed/movie/${movieId}`;
+    } catch {
+      movieTitle.textContent = 'Failed to load movie info.';
     }
+  }
 
-    // Fullscreen toggle
-    fullscreenBtn.onclick = () => {
-      const el = videoBox;
-      if (document.fullscreenElement || document.webkitFullscreenElement) {
-        if (document.exitFullscreen) document.exitFullscreen();
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-      } else {
-        if (el.requestFullscreen) el.requestFullscreen();
-        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-        else if (el.msRequestFullscreen) el.msRequestFullscreen();
-      }
-    };
-
-    // Show/hide fullscreen button on interaction
-    let hideTimeout;
-
-    function showFullscreenBtn() {
-      fullscreenBtn.classList.remove("hidden");
-      clearTimeout(hideTimeout);
-      hideTimeout = setTimeout(() => {
-        fullscreenBtn.classList.add("hidden");
-      }, 3500);
+  fullscreenBtn.onclick = () => {
+    if (playerWrapper.requestFullscreen) {
+      playerWrapper.requestFullscreen();
+    } else if (playerWrapper.webkitRequestFullscreen) {
+      playerWrapper.webkitRequestFullscreen();
+    } else if (playerWrapper.msRequestFullscreen) {
+      playerWrapper.msRequestFullscreen();
     }
+  };
 
-    ["mousemove", "touchstart", "click", "keydown"].forEach(event =>
-      document.addEventListener(event, showFullscreenBtn, { passive: true })
-    );
-
-    showFullscreenBtn();
-
-    // Basic popup blocking
-    const blockPopup = () => {
-      const originalOpen = window.open;
-      window.open = function (...args) {
-        console.warn("Blocked popup:", args);
-        return null;
-      };
-
-      document.body.addEventListener('click', (e) => {
-        const el = e.target.closest('a');
-        if (el && el.href && !el.href.includes(location.hostname)) {
-          e.preventDefault();
-          console.warn("Blocked redirect:", el.href);
-        }
-      }, true);
-    };
-
-    blockPopup();
-  </script>
+  fetchMovieDetails();
+</script>
 
 </body>
 </html>
