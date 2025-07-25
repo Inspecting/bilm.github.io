@@ -1,8 +1,6 @@
 /* Reset and base */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  margin: 0; padding: 0; box-sizing: border-box;
 }
 html, body {
   height: 100%;
@@ -90,7 +88,7 @@ main {
   border-radius: 10px;
 }
 
-/* TV show card */
+/* TV Show card */
 .tvshow-card {
   flex: 0 0 auto;
   width: 140px;
