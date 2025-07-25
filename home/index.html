@@ -10,6 +10,73 @@
 
   <!-- Local stylesheet -->
   <link rel="stylesheet" href="./style.css" />
+  <style>
+    /* Search results container */
+    #resultsContainer {
+      margin-top: 20px;
+      max-width: 800px;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      user-select: none;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-bottom: 10px;
+    }
+    .result-card {
+      width: 140px;
+      background-color: #2a2a2a;
+      border-radius: 12px;
+      box-shadow: 0 0 8px #a14eff66;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+    .result-card:hover {
+      transform: scale(1.05);
+    }
+    .result-poster {
+      width: 140px;
+      height: 210px;
+      object-fit: cover;
+      border-radius: 12px 12px 0 0;
+      background: #444;
+    }
+    .result-title {
+      padding: 6px 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #eee;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-grow: 1;
+    }
+    .result-year {
+      padding: 0 8px 6px 8px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #ccc;
+      text-align: center;
+    }
+    #loadingMessage {
+      margin-top: 20px;
+      color: #a14eff;
+      font-weight: 600;
+      font-size: 18px;
+    }
+    #noResultsMessage {
+      margin-top: 20px;
+      color: #ccc;
+      font-weight: 600;
+      font-size: 18px;
+    }
+  </style>
 </head>
 <body>
 
@@ -24,40 +91,34 @@
 <main>
   <div class="search-container">
     <h1>💜 Bilm 💜</h1>
-    <input id="searchInput" type="search" placeholder="Search movies..." autocomplete="off" />
+    <input id="searchInput" type="search" placeholder="Search movies or TV shows..." autocomplete="off" />
     <div class="button-row">
       <button class="search-btn" id="searchMovie">Search Movie</button>
-      <button class="search-btn" id="searchTV">Search TV (Coming Soon)</button>
+      <button class="search-btn" id="searchTV">Search TV</button>
     </div>
+
+    <div id="loadingMessage" style="display:none;">Loading...</div>
+    <div id="noResultsMessage" style="display:none;">No results found.</div>
+
+    <div id="resultsContainer"></div>
   </div>
 </main>
 
-<div id="overlay">
-  <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
-  <button id="closeOverlay">×</button>
-</div>
-
 <script>
+  const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
   const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
   document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('header');
     const main = document.querySelector('main');
-    const overlay = document.getElementById('overlay');
-    const closeOverlay = document.getElementById('closeOverlay');
-    const videoFrame = document.getElementById('videoFrame');
     const searchInput = document.getElementById('searchInput');
     const searchMovieBtn = document.getElementById('searchMovie');
     const searchTVBtn = document.getElementById('searchTV');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const noResultsMessage = document.getElementById('noResultsMessage');
 
-    header.classList.add('visible');
-    main.classList.add('visible');
-
-    closeOverlay.onclick = () => {
-      videoFrame.src = '';
-      overlay.style.display = 'none';
-    };
-
+    // Navigation buttons
     document.querySelectorAll('nav button').forEach(btn => {
       btn.onclick = () => {
         const page = btn.dataset.page;
@@ -71,15 +132,74 @@
       };
     });
 
-    searchMovieBtn.onclick = () => {
+    async function searchTMDB(type) {
       const query = searchInput.value.trim();
-      if (!query) return alert('Please enter a search term');
-      window.location.href = `${BASE_URL}/movies/?search=${encodeURIComponent(query)}`;
-    };
+      if (!query) {
+        alert('Please enter a search term');
+        return;
+      }
 
-    searchTVBtn.onclick = () => {
-      alert('TV search not implemented yet.');
-    };
+      resultsContainer.innerHTML = '';
+      noResultsMessage.style.display = 'none';
+      loadingMessage.style.display = 'block';
+
+      try {
+        const url = `https://api.themoviedb.org/3/search/${type}?api_key=${TMDB_API_KEY}&language=en-US&query=${encodeURIComponent(query)}&page=1&include_adult=false`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        loadingMessage.style.display = 'none';
+
+        if (!data.results || data.results.length === 0) {
+          noResultsMessage.style.display = 'block';
+          return;
+        }
+
+        data.results.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'result-card';
+
+          const img = document.createElement('img');
+          img.className = 'result-poster';
+          img.src = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/140x210?text=No+Image';
+          img.alt = item.title || item.name;
+
+          const title = document.createElement('div');
+          title.className = 'result-title';
+          title.textContent = item.title || item.name;
+
+          const year = document.createElement('div');
+          year.className = 'result-year';
+
+          // Get year from release_date or first_air_date
+          const dateStr = item.release_date || item.first_air_date || '';
+          year.textContent = dateStr ? `(${dateStr.slice(0,4)})` : '';
+
+          card.appendChild(img);
+          card.appendChild(title);
+          card.appendChild(year);
+
+          // On click: open viewer page
+          card.onclick = () => {
+            if (type === 'movie') {
+              window.location.href = `${BASE_URL}/movies/viewer.html?id=${item.id}`;
+            } else if (type === 'tv') {
+              window.location.href = `${BASE_URL}/tv-shows/viewer.html?id=${item.id}`;
+            }
+          };
+
+          resultsContainer.appendChild(card);
+        });
+
+      } catch (error) {
+        loadingMessage.style.display = 'none';
+        alert('Error fetching search results. Please try again.');
+        console.error(error);
+      }
+    }
+
+    searchMovieBtn.onclick = () => searchTMDB('movie');
+    searchTVBtn.onclick = () => searchTMDB('tv');
   });
 </script>
 
