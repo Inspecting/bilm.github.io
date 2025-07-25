@@ -22,13 +22,12 @@
       font-family: 'Poppins', sans-serif;
       background-color: #121212;
       color: white;
-      overflow: hidden; /* Remove scrollbars */
+      overflow: hidden; /* prevent scrollbars */
     }
 
     body {
       display: flex;
       flex-direction: column;
-      height: 100vh;
     }
 
     header {
@@ -51,7 +50,6 @@
       padding: 8px 14px;
       border-radius: 12px;
       transition: background-color 0.3s ease;
-      user-select: none;
     }
 
     nav button:hover {
@@ -62,10 +60,10 @@
     main {
       flex: 1;
       overflow: hidden;
+      padding: 30px 10px;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 30px 10px;
     }
 
     .search-container {
@@ -76,16 +74,12 @@
       background-color: #1e1e1e;
       border-radius: 20px;
       box-shadow: 0 0 20px #a14eff33;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
     }
 
     .search-container h1 {
       font-size: 2rem;
       color: #c084fc;
       margin-bottom: 20px;
-      word-break: break-word;
     }
 
     .video-container {
@@ -93,10 +87,10 @@
       width: 100%;
       max-width: 800px;
       height: 450px;
+      margin: 0 auto;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 0 12px #a14eff88;
-      background-color: black;
     }
 
     .video-container iframe {
@@ -119,7 +113,6 @@
       padding: 6px 10px;
       z-index: 10;
       transition: opacity 0.3s ease;
-      user-select: none;
     }
 
     .fullscreen-btn:hover {
@@ -150,9 +143,9 @@
         <iframe
           id="videoFrame"
           allowfullscreen
-          allow="autoplay; fullscreen; picture-in-picture"
-          sandbox="allow-scripts allow-same-origin allow-presentation"
+          allow="autoplay; fullscreen"
           src=""
+          sandbox=""
         ></iframe>
         <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
       </div>
@@ -173,7 +166,7 @@
         .then(res => res.json())
         .then(data => {
           titleEl.textContent = data.title || "Unknown Movie";
-          videoFrame.src = `https://vidsrc.me/embed/movie/${id}`;
+          videoFrame.src = `https://vidscr.me/embed/movie/${id}`;
         })
         .catch(() => {
           titleEl.textContent = "Failed to load movie info.";
@@ -182,7 +175,24 @@
       titleEl.textContent = "No movie ID provided.";
     }
 
-    // Fullscreen toggle (works across browsers including mobile Safari)
+    // Block trivial redirect popup attempts (only if no URL passed)
+    const originalWindowOpen = window.open;
+    window.open = function(url, name, specs) {
+      if (!url) {
+        return null; // block no-arg calls, common popup spam
+      }
+      return originalWindowOpen.apply(window, arguments);
+    };
+
+    // Prevent <a target="_blank"> clicks on page (not iframe)
+    document.addEventListener('click', e => {
+      const tgt = e.target;
+      if (tgt.tagName === 'A' && tgt.target === '_blank') {
+        e.preventDefault();
+      }
+    });
+
+    // Fullscreen toggle (all platforms)
     fullscreenBtn.onclick = () => {
       const elem = videoBox;
       if (
@@ -191,29 +201,19 @@
         document.mozFullScreenElement ||
         document.msFullscreenElement
       ) {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-          document.mozCancelFullScreen();
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen();
-        }
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+        else if (document.msExitFullscreen) document.msExitFullscreen();
       } else {
-        if (elem.requestFullscreen) {
-          elem.requestFullscreen();
-        } else if (elem.webkitRequestFullscreen) {
-          elem.webkitRequestFullscreen();
-        } else if (elem.mozRequestFullScreen) {
-          elem.mozRequestFullScreen();
-        } else if (elem.msRequestFullscreen) {
-          elem.msRequestFullscreen();
-        }
+        if (elem.requestFullscreen) elem.requestFullscreen();
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+        else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen();
+        else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
       }
     };
 
-    // Auto-hide fullscreen button after 3.5 seconds inactivity, show on interaction
+    // Auto-hide fullscreen button after 3.5s inactivity
     let hideTimeout;
 
     function showFullscreenButton() {
@@ -224,35 +224,11 @@
       }, 3500);
     }
 
-    // Show on user interactions
     ["mousemove", "touchstart", "click", "keydown"].forEach(evt =>
       document.addEventListener(evt, showFullscreenButton, { passive: true })
     );
 
-    // Initial show
     showFullscreenButton();
-
-    // Prevent new tab popups and redirects
-    (function preventNewTabs() {
-      const noop = () => null;
-      window.open = noop;
-      window.parent.open = noop;
-      document.addEventListener("click", e => {
-        if (e.target?.tagName === "A" && e.target.target === "_blank") {
-          e.preventDefault();
-        }
-      });
-      // Override 'top' so iframe can't redirect the main window
-      Object.defineProperty(window, 'top', {
-        get: () => window,
-      });
-      // Remove target="_blank" from all links repeatedly
-      setInterval(() => {
-        document.querySelectorAll('a[target="_blank"]').forEach(a => {
-          a.removeAttribute('target');
-        });
-      }, 500);
-    })();
   </script>
 
 </body>
