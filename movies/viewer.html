@@ -115,7 +115,7 @@
       <h1 id="movieTitle">Loading...</h1>
 
       <div class="video-container" id="videoBox">
-        <iframe id="videoFrame" allowfullscreen allow="autoplay" allow="fullscreen"></iframe>
+        <iframe id="videoFrame" allowfullscreen allow="autoplay fullscreen"></iframe>
         <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
       </div>
     </div>
@@ -143,6 +143,25 @@
       titleEl.textContent = "No movie ID provided.";
     }
 
+    // Simple popup and external link blocking without breaking iframe or API
+    const blockPopup = () => {
+      window.open = function(...args) {
+        console.warn("Blocked popup attempt:", args);
+        return null;
+      };
+
+      document.body.addEventListener('click', (e) => {
+        const el = e.target.closest('a');
+        if (el && el.href && !el.href.includes(location.hostname)) {
+          e.preventDefault();
+          console.warn("Blocked external redirect:", el.href);
+        }
+      }, true);
+    };
+
+    blockPopup();
+
+    // Fullscreen toggle supporting all major browsers incl. iOS Safari
     fullscreenBtn.onclick = () => {
       if (
         document.fullscreenElement ||
