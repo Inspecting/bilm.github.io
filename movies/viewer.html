@@ -152,12 +152,16 @@
 
     if (id) {
       fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error('Network response was not OK');
+          return res.json();
+        })
         .then(data => {
           titleEl.textContent = data.title || "Unknown Movie";
           videoFrame.src = `https://vidscr.me/embed/movie/${id}`;
         })
-        .catch(() => {
+        .catch(error => {
+          console.error('Fetching movie info failed:', error);
           titleEl.textContent = "Failed to load movie info.";
         });
     } else {
