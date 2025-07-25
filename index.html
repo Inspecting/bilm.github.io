@@ -37,17 +37,16 @@
       background-size: 300% 100%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      opacity: 1; /* explicit opacity */
+      opacity: 1;
       transition: opacity 1s ease;
       animation: pulse 1.2s infinite ease-in-out, gradientSlide 4s infinite linear;
       z-index: 2;
 
       display: inline-flex;
-      align-items: center; /* perfectly center hearts and text vertically */
+      align-items: center;
       gap: 12px;
     }
 
-    /* Remove opacity changes from pulse animation */
     @keyframes pulse {
       0%, 100% {
         transform: scale(1);
@@ -57,7 +56,6 @@
       }
     }
 
-    /* Remove previous ::before and ::after hearts */
     #introOverlay::before,
     #introOverlay::after {
       content: none;
@@ -70,7 +68,7 @@
       pointer-events: none;
       filter: drop-shadow(0 0 3px #a14eff);
       animation: pulse 1.5s infinite ease-in-out;
-      align-self: center; /* vertical center inside flex */
+      align-self: center;
       vertical-align: unset;
     }
 
@@ -78,7 +76,7 @@
       margin-top: 16px;
       font-size: clamp(1rem, 2.5vw, 1.5rem);
       color: #ccc;
-      opacity: 1; /* explicit opacity */
+      opacity: 1;
       transition: opacity 1s ease;
       animation: fadeIn 1.2s ease forwards 0.8s;
       z-index: 2;
@@ -106,7 +104,7 @@
       width: 100%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.3; /* brighter */
+      opacity: 0.3;
       transition: opacity 1s ease;
     }
   </style>
@@ -133,7 +131,6 @@
       canvas.classList.add('fade-out');
 
       setTimeout(() => {
-        // hide elements to prevent flicker before redirect
         intro.style.display = 'none';
         subtext.style.display = 'none';
         canvas.style.display = 'none';
@@ -144,11 +141,12 @@
     // Start fade out after 3 seconds
     setTimeout(fadeOutAndRedirect, 3000);
 
-    // Particle background canvas animation
+    // Particle background canvas animation with splash effect
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
     let dots = [];
     const dotCount = 80;
+    let initialSplash = true;
 
     function resize() {
       canvas.width = window.innerWidth;
@@ -162,39 +160,57 @@
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
           r: Math.random() * 2 + 1,
-          dx: (Math.random() - 0.5) * 0.5,
-          dy: (Math.random() - 0.5) * 0.5,
+          dx: (Math.random() - 0.5) * (initialSplash ? 3 : 0.5),
+          dy: (Math.random() - 0.5) * (initialSplash ? 3 : 0.5),
         });
       }
     }
 
+    function slowDownDots() {
+      for (let dot of dots) {
+        dot.dx *= 0.2;
+        dot.dy *= 0.2;
+      }
+      initialSplash = false;
+    }
+
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.shadowColor = '#c084fc'; // lighter purple glow
-      ctx.shadowBlur = 8;           // glow amount
+      ctx.shadowColor = '#c084fc';
+      ctx.shadowBlur = 8;
 
       for (let dot of dots) {
         ctx.beginPath();
         ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(193, 132, 252, 0.9)'; // bright purple with alpha
+        ctx.fillStyle = 'rgba(193, 132, 252, 0.9)';
         ctx.fill();
       }
-      ctx.shadowBlur = 0; // reset shadowBlur so it doesn't affect other draws
+      ctx.shadowBlur = 0;
 
       for (let dot of dots) {
         dot.x += dot.dx;
         dot.y += dot.dy;
         if (dot.x < 0 || dot.x > canvas.width) dot.dx *= -1;
         if (dot.y < 0 || dot.y > canvas.height) dot.dy *= -1;
+
+        if (!initialSplash) {
+          if (dot.dx > 0.5) dot.dx = 0.5;
+          if (dot.dx < -0.5) dot.dx = -0.5;
+          if (dot.dy > 0.5) dot.dy = 0.5;
+          if (dot.dy < -0.5) dot.dy = -0.5;
+        }
       }
       requestAnimationFrame(animate);
     }
 
-    // Initialize safely after window loads to avoid race conditions
     window.addEventListener('load', () => {
       resize();
       initDots();
       animate();
+
+      setTimeout(() => {
+        slowDownDots();
+      }, 1500);
     });
 
     window.addEventListener('resize', () => {
