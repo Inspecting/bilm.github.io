@@ -1,49 +1,161 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bilm 💜</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bilm 💜</title>
 
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 
-<style>
-  /* Full-screen intro overlay */
-  body, html {
-    margin: 0; padding: 0; height: 100%; width: 100%;
-    background: #000;
-    color: #a14eff;
-    font-family: 'Poppins', sans-serif;
-    user-select: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-  }
-  #introOverlay {
-    font-size: 96px;
-    font-weight: 600;
-    opacity: 1;
-    transition: opacity 1s ease;
-  }
-</style>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      background-color: #000;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    #introOverlay {
+      font-weight: 600;
+      font-size: clamp(2.5rem, 8vw, 6rem);
+      background: linear-gradient(90deg, #a14eff, #c084fc, #a14eff);
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: pulse 1.2s infinite ease-in-out, gradientSlide 4s infinite linear;
+      z-index: 2;
+    }
+
+    #subtext {
+      margin-top: 16px;
+      font-size: clamp(1rem, 2.5vw, 1.5rem);
+      color: #ccc;
+      opacity: 0;
+      animation: fadeIn 1.2s ease forwards 0.8s;
+      z-index: 2;
+    }
+
+    .fade-out {
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.05);
+        opacity: 0.85;
+      }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    @keyframes gradientSlide {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    #bgCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.1;
+    }
+  </style>
 </head>
 <body>
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-<div id="introOverlay">💜 Bilm 💜</div>
+  <div id="introOverlay" aria-label="Bilm">💜 Bilm 💜</div>
+  <div id="subtext">Loading your experience...</div>
 
-<script>
-  // After 1.5s fade out then redirect to /home/
-  setTimeout(() => {
-    const intro = document.getElementById('introOverlay');
-    intro.style.opacity = '0';
-
+  <script>
     setTimeout(() => {
-      window.location.href = '/bilm.github.io/home/';
-    }, 1000);
-  }, 1500);
-</script>
+      document.getElementById('introOverlay').classList.add('fade-out');
+      document.getElementById('subtext').classList.add('fade-out');
+      setTimeout(() => {
+        window.location.href = '/bilm.github.io/home/';
+      }, 1000);
+    }, 3000);
 
+    // Background particles (simple animated dots)
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let dots = [];
+    const dotCount = 80;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function initDots() {
+      dots = [];
+      for (let i = 0; i < dotCount; i++) {
+        dots.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * 2 + 1,
+          dx: (Math.random() - 0.5) * 0.5,
+          dy: (Math.random() - 0.5) * 0.5,
+        });
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let dot of dots) {
+        ctx.beginPath();
+        ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
+        ctx.fillStyle = '#a14eff';
+        ctx.fill();
+        dot.x += dot.dx;
+        dot.y += dot.dy;
+        if (dot.x < 0 || dot.x > canvas.width) dot.dx *= -1;
+        if (dot.y < 0 || dot.y > canvas.height) dot.dy *= -1;
+      }
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('resize', () => {
+      resize();
+      initDots();
+    });
+
+    resize();
+    initDots();
+    animate();
+  </script>
+
+  <noscript>
+    <style>
+      #subtext { opacity: 1; color: #f44; margin-top: 20px; }
+    </style>
+    <div id="subtext">Please enable JavaScript to continue.</div>
+  </noscript>
 </body>
 </html>
