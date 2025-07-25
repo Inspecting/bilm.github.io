@@ -5,7 +5,6 @@ const moviesPerLoad = 15;
 const loadedCounts = {};
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Navigation buttons
   document.querySelectorAll('nav button').forEach(btn => {
     btn.onclick = () => {
       const page = btn.dataset.page;
@@ -13,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = `${BASE_URL}/home/`;
       } else if (page === 'movies') {
         window.location.href = `${BASE_URL}/movies/`;
+      } else if (page === 'tv') {
+        window.location.href = `${BASE_URL}/tv-shows/`;
       }
     };
   });
@@ -78,7 +79,6 @@ async function renderMovieSection(section, container) {
     const res = await fetch(url);
     const data = await res.json();
 
-    // Remove old Show More button if present
     const oldShowMore = rowEl.querySelector('.show-more-card');
     if (oldShowMore) oldShowMore.remove();
 
@@ -94,17 +94,21 @@ async function renderMovieSection(section, container) {
         : 'https://via.placeholder.com/140x210?text=No+Image';
 
       const title = document.createElement('p');
-      title.textContent = `${movie.title} (${movie.release_date?.slice(0,4) || 'N/A'})`;
+      title.textContent = `${movie.title} (${movie.release_date?.slice(0, 4) || 'N/A'})`;
 
       card.appendChild(poster);
       card.appendChild(title);
+
+      // ▶ Make movie card open viewer.html?id={id}
+      card.onclick = () => {
+        window.location.href = `${BASE_URL}/movies/viewer.html?id=${movie.id}`;
+      };
 
       rowEl.appendChild(card);
     });
 
     loadedCounts[section.title] = alreadyLoaded + moviesPerLoad;
 
-    // Add show more arrow button if more movies remain
     if (loadedCounts[section.title] < data.total_results) {
       const moreCard = document.createElement('div');
       moreCard.className = 'show-more-card';
