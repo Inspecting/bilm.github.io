@@ -83,24 +83,6 @@
       border: none;
       display: block;
     }
-
-    .fullscreen-btn {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      font-size: 18px;
-      background: #3a1361;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      padding: 6px 10px;
-      z-index: 10;
-    }
-
-    .fullscreen-btn:hover {
-      background-color: #a855f7;
-    }
   </style>
 </head>
 <body>
@@ -117,9 +99,8 @@
     <div class="search-container">
       <h1 id="movieTitle">Loading...</h1>
 
-      <div class="video-container" id="videoBox">
-        <iframe id="videoFrame" allowfullscreen allow="autoplay" allow="fullscreen"></iframe>
-        <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
+      <div class="video-container">
+        <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
       </div>
     </div>
   </main>
@@ -129,8 +110,6 @@
     const id = new URLSearchParams(location.search).get("id");
     const videoFrame = document.getElementById("videoFrame");
     const titleEl = document.getElementById("movieTitle");
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
-    const videoBox = document.getElementById("videoBox");
 
     if (id) {
       fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
@@ -146,27 +125,7 @@
       titleEl.textContent = "No movie ID provided.";
     }
 
-    // Simple fullscreen toggle for all browsers
-    fullscreenBtn.onclick = () => {
-      if (
-        document.fullscreenElement ||
-        document.webkitFullscreenElement ||
-        document.mozFullScreenElement ||
-        document.msFullscreenElement
-      ) {
-        if (document.exitFullscreen) document.exitFullscreen();
-        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-        else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
-        else if (document.msExitFullscreen) document.msExitFullscreen();
-      } else {
-        if (videoBox.requestFullscreen) videoBox.requestFullscreen();
-        else if (videoBox.webkitRequestFullscreen) videoBox.webkitRequestFullscreen();
-        else if (videoBox.mozRequestFullScreen) videoBox.mozRequestFullScreen();
-        else if (videoBox.msRequestFullscreen) videoBox.msRequestFullscreen();
-      }
-    };
-
-    // Basic popup and redirect blocking
+    // Block popup attempts
     const blockPopup = () => {
       const originalOpen = window.open;
       window.open = function (...args) {
