@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bilm 💜</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bilm 💜</title>
 
-<!-- Google Fonts: Poppins -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+  <!-- Google Fonts: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 
-<!-- Local stylesheet -->
-<link rel="stylesheet" href="./style.css" />
+  <!-- Local stylesheet -->
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
 
@@ -17,6 +17,7 @@
   <nav>
     <button data-page="home">Home</button>
     <button data-page="movies">Movies</button>
+    <button data-page="tv">TV Shows</button>
   </nav>
 </header>
 
@@ -49,17 +50,14 @@
     const searchMovieBtn = document.getElementById('searchMovie');
     const searchTVBtn = document.getElementById('searchTV');
 
-    // Show header and main immediately (fade in)
     header.classList.add('visible');
     main.classList.add('visible');
 
-    // Close overlay button
     closeOverlay.onclick = () => {
       videoFrame.src = '';
       overlay.style.display = 'none';
     };
 
-    // Navigation buttons
     document.querySelectorAll('nav button').forEach(btn => {
       btn.onclick = () => {
         const page = btn.dataset.page;
@@ -67,11 +65,12 @@
           window.location.href = `${BASE_URL}/home/`;
         } else if (page === 'movies') {
           window.location.href = `${BASE_URL}/movies/`;
+        } else if (page === 'tv') {
+          window.location.href = `${BASE_URL}/tv-shows/`;
         }
       };
     });
 
-    // Search buttons logic
     searchMovieBtn.onclick = () => {
       const query = searchInput.value.trim();
       if (!query) return alert('Please enter a search term');
