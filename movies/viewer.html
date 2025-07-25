@@ -96,16 +96,10 @@
       cursor: pointer;
       padding: 6px 10px;
       z-index: 10;
-      transition: opacity 0.3s ease;
     }
 
     .fullscreen-btn:hover {
       background-color: #a855f7;
-    }
-
-    .fullscreen-btn.hidden {
-      opacity: 0;
-      pointer-events: none;
     }
   </style>
 </head>
@@ -152,7 +146,7 @@
       titleEl.textContent = "No movie ID provided.";
     }
 
-    // Fullscreen toggle supporting all browsers incl. iOS Safari
+    // Simple fullscreen toggle for all browsers
     fullscreenBtn.onclick = () => {
       if (
         document.fullscreenElement ||
@@ -171,24 +165,6 @@
         else if (videoBox.msRequestFullscreen) videoBox.msRequestFullscreen();
       }
     };
-
-    // Auto-hide fullscreen button after 3.5s inactivity, show on interaction
-    let hideTimeout;
-
-    function showFullscreenBtn() {
-      fullscreenBtn.classList.remove("hidden");
-      clearTimeout(hideTimeout);
-      hideTimeout = setTimeout(() => {
-        fullscreenBtn.classList.add("hidden");
-      }, 3500);
-    }
-
-    ["mousemove", "touchstart", "click", "keydown"].forEach(event =>
-      document.addEventListener(event, showFullscreenBtn, { passive: true })
-    );
-
-    // Initial show
-    showFullscreenBtn();
 
     // Basic popup and redirect blocking
     const blockPopup = () => {
