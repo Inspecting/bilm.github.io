@@ -5,6 +5,7 @@ const moviesPerLoad = 15;
 const loadedCounts = {};
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Navigation buttons
   document.querySelectorAll('nav button').forEach(btn => {
     btn.onclick = () => {
       const page = btn.dataset.page;
@@ -18,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 
-  // Render default movie sections only (no search)
+  // Load default movie sections on page load
   const sections = [
     { title: 'Trending', endpoint: '/trending/movie/week' },
     { title: 'Popular', endpoint: '/movie/popular' },
