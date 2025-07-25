@@ -3,161 +3,148 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bilm 💜</title>
-
-  <!-- Google Fonts: Poppins -->
+  <title>Search | Bilm 💜</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="../style.css" />
   <style>
-    /* Add the custom styles directly for the title and hearts */
-    .search-container h1 {
-      font-size: 3.5rem;
+    .results-container {
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .results-title {
+      font-size: 1.5rem;
+      margin-bottom: 16px;
       color: #c084fc;
-      margin-bottom: 24px;
-      font-weight: 600;
+      text-align: center;
+    }
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+      justify-items: center;
+    }
+    .result-card {
+      text-align: center;
+      color: #eee;
+      text-decoration: none;
+    }
+    .result-card img {
+      width: 140px;
+      height: 210px;
+      border-radius: 10px;
+      object-fit: cover;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 10px #0006;
+    }
+    .search-bar-top {
       display: flex;
-      align-items: center;
       justify-content: center;
-      gap: 12px;
-      opacity: 0;
-      transition: opacity 1.5s ease-in-out;
+      gap: 10px;
+      margin: 20px auto;
+      max-width: 500px;
     }
-
-    main.visible .search-container h1 {
-      opacity: 1;
+    .search-bar-top input {
+      flex: 1;
+      padding: 10px 16px;
+      font-size: 1rem;
+      border-radius: 12px;
+      border: none;
+      background-color: #222;
+      color: #eee;
+      box-shadow: 0 0 6px #a14eff44;
     }
-
-    .heart-icon {
-      height: 1.2em;
-      vertical-align: middle;
-      filter: drop-shadow(0 0 4px #c084fc88);
+    .search-bar-top button {
+      padding: 10px 18px;
+      border-radius: 12px;
+      background-color: #c084fc;
+      color: white;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+    .search-bar-top button:hover {
+      background-color: #a855f7;
     }
   </style>
 </head>
 <body>
 
-  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+  <div class="search-bar-top">
+    <input id="searchInput" type="search" placeholder="Search movies or TV shows..." />
+    <button id="searchBtn">Search</button>
+  </div>
 
-  <header>
-    <nav>
-      <button data-page="home">Home</button>
-      <button data-page="movies">Movies</button>
-      <button data-page="tv">TV Shows</button>
-    </nav>
-  </header>
-
-  <main>
-    <div class="search-container">
-      <h1>
-        <img class="heart-icon" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
-        Bilm
-        <img class="heart-icon" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
-      </h1>
-      <input id="searchInput" type="search" placeholder="Search movies or TV shows..." autocomplete="off" />
-      <div class="button-row">
-        <button class="search-btn" id="searchBtn">Search</button>
-      </div>
-    </div>
-  </main>
+  <div class="results-container">
+    <div id="resultsTitle" class="results-title"></div>
+    <div id="resultsGrid" class="results-grid"></div>
+  </div>
 
   <script>
     const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const header = document.querySelector('header');
-      const main = document.querySelector('main');
-      const searchInput = document.getElementById('searchInput');
-      const searchBtn = document.getElementById('searchBtn');
+    const queryParam = new URLSearchParams(window.location.search).get('q') || '';
+    const title = document.getElementById('resultsTitle');
+    const grid = document.getElementById('resultsGrid');
 
-      header.classList.add('visible');
-      main.classList.add('visible');
+    document.getElementById('searchInput').value = queryParam;
 
-      // Navigation buttons
-      document.querySelectorAll('nav button').forEach(btn => {
-        btn.onclick = () => {
-          const page = btn.dataset.page;
-          if (page === 'home') {
-            window.location.href = `${BASE_URL}/home/`;
-          } else if (page === 'movies') {
-            window.location.href = `${BASE_URL}/movies/`;
-          } else if (page === 'tv') {
-            window.location.href = `${BASE_URL}/tv-shows/`;
-          }
-        };
+    async function fetchResults(query) {
+      title.textContent = `Search Results for "${query}"`;
+      grid.innerHTML = '';
+
+      const [movieRes, tvRes] = await Promise.all([
+        fetch(`https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&api_key=3ade810499876bb5672f40e54960e6a2`),
+        fetch(`https://api.themoviedb.org/3/search/tv?query=${encodeURIComponent(query)}&api_key=3ade810499876bb5672f40e54960e6a2`)
+      ]);
+
+      const movieData = await movieRes.json();
+      const tvData = await tvRes.json();
+
+      const results = [
+        ...(movieData.results || []).map(item => ({
+          id: item.id,
+          title: item.title || '',
+          image: item.poster_path,
+          type: 'movie'
+        })),
+        ...(tvData.results || []).map(item => ({
+          id: item.id,
+          title: item.name || '',
+          image: item.poster_path,
+          type: 'tv'
+        }))
+      ];
+
+      if (results.length === 0) {
+        grid.innerHTML = `<p style="color: gray;">No results found.</p>`;
+        return;
+      }
+
+      results.forEach(item => {
+        const card = document.createElement('a');
+        card.className = 'result-card';
+        card.href = `${BASE_URL}/${item.type === 'movie' ? 'movies' : 'tv-shows'}/viewer.html?id=${item.id}`;
+        card.innerHTML = `
+          <img src="https://image.tmdb.org/t/p/w500${item.image}" alt="${item.title}" />
+          <div>${item.title}</div>
+        `;
+        grid.appendChild(card);
       });
+    }
 
-      // Search button click
-      searchBtn.onclick = () => {
-        const query = searchInput.value.trim();
-        if (!query) return alert('Please enter a search term');
+    fetchResults(queryParam);
+
+    document.getElementById('searchBtn').onclick = () => {
+      const query = document.getElementById('searchInput').value.trim();
+      if (query) {
         window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
-      };
-
-      // Optional: Enter key triggers search
-      searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          searchBtn.click();
-        }
-      });
-    });
-  </script>
-
-  <script>
-    // Particle background script
-    const canvas = document.getElementById('bgCanvas');
-    const ctx = canvas.getContext('2d');
-    const dotCount = 80;
-    let dots = [];
-
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-
-    function initDots() {
-      dots = [];
-      for (let i = 0; i < dotCount; i++) {
-        dots.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          r: Math.random() * 2 + 1,
-          dx: (Math.random() - 0.5) * 0.7,
-          dy: (Math.random() - 0.5) * 0.7,
-        });
       }
-    }
+    };
 
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.shadowColor = '#c084fc';
-      ctx.shadowBlur = 8;
-
-      for (let dot of dots) {
-        ctx.beginPath();
-        ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(193, 132, 252, 0.9)';
-        ctx.fill();
-
-        dot.x += dot.dx;
-        dot.y += dot.dy;
-
-        if (dot.x < 0 || dot.x > canvas.width) dot.dx *= -1;
-        if (dot.y < 0 || dot.y > canvas.height) dot.dy *= -1;
+    document.getElementById('searchInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('searchBtn').click();
       }
-
-      ctx.shadowBlur = 0;
-      requestAnimationFrame(animate);
-    }
-
-    window.addEventListener('resize', () => {
-      resize();
-      initDots();
-    });
-
-    window.addEventListener('DOMContentLoaded', () => {
-      resize();
-      initDots();
-      animate();
     });
   </script>
 
