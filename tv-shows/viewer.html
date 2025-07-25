@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 
   <style>
-    /* Basic Reset */
     * {
       margin: 0; padding: 0; box-sizing: border-box;
     }
@@ -21,6 +20,39 @@
       display: flex;
       flex-direction: column;
     }
+
+    header {
+      background-color: #1e1e1e;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+    nav button {
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      padding: 8px 14px;
+      border-radius: 12px;
+      user-select: none;
+    }
+    nav button:hover {
+      color: #fff;
+      background-color: #3a1361;
+    }
+
     main {
       flex: 1;
       overflow-y: auto;
@@ -85,10 +117,17 @@
       user-select: none;
       min-width: 120px;
     }
-
   </style>
 </head>
 <body>
+
+  <header>
+    <nav>
+      <button data-page="home">Home</button>
+      <button data-page="movies">Movies</button>
+      <button data-page="tv">TV Shows</button>
+    </nav>
+  </header>
 
   <main>
     <h1 id="showTitle" style="text-align:center; color:#c084fc; margin-bottom: 20px;">Loading...</h1>
@@ -97,12 +136,11 @@
       <iframe id="videoPlayer" allowfullscreen allow="fullscreen; autoplay" playsinline></iframe>
     </div>
 
-    <!-- Fullscreen Button -->
-    <button id="fullscreenBtn" aria-label="Go Fullscreen">Fullscreen</button>
+    <button id="fullscreenBtn">Fullscreen</button>
 
-    <div id="controls" aria-label="Select Season and Episode">
-      <select id="seasonSelect" aria-label="Select Season"></select>
-      <select id="episodeSelect" aria-label="Select Episode"></select>
+    <div id="controls">
+      <select id="seasonSelect"></select>
+      <select id="episodeSelect"></select>
     </div>
   </main>
 
@@ -110,113 +148,84 @@
   const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
   const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const showId = urlParams.get('id');
-
-  const playerWrapper = document.getElementById('player-wrapper');
+  const showId = new URLSearchParams(window.location.search).get('id');
   const videoPlayer = document.getElementById('videoPlayer');
   const showTitle = document.getElementById('showTitle');
   const seasonSelect = document.getElementById('seasonSelect');
   const episodeSelect = document.getElementById('episodeSelect');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const playerWrapper = document.getElementById('player-wrapper');
 
-  let seasons = [];
-  let episodes = [];
   let currentSeason = 1;
   let currentEpisode = 1;
 
-  // Load last watched from localStorage
   function loadLastWatched() {
     const saved = localStorage.getItem(`tvshow-${showId}-lastWatched`);
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        if (data.season) currentSeason = data.season;
-        if (data.episode) currentEpisode = data.episode;
+        currentSeason = data.season || 1;
+        currentEpisode = data.episode || 1;
       } catch {}
     }
   }
 
-  // Save last watched to localStorage
   function saveLastWatched(season, episode) {
-    localStorage.setItem(`tvshow-${showId}-lastWatched`, JSON.stringify({season, episode}));
+    localStorage.setItem(`tvshow-${showId}-lastWatched`, JSON.stringify({ season, episode }));
   }
 
-  // Fetch TV show details and seasons
   async function fetchShowDetails() {
     const url = `https://api.themoviedb.org/3/tv/${showId}?api_key=${TMDB_API_KEY}`;
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-      showTitle.textContent = data.name || 'Unknown Show';
-      seasons = data.seasons || [];
-      populateSeasons();
-    } catch {
-      showTitle.textContent = 'Failed to load show info.';
-    }
-  }
+    const res = await fetch(url);
+    const data = await res.json();
+    showTitle.textContent = data.name || 'Unknown Show';
 
-  // Populate seasons dropdown
-  function populateSeasons() {
     seasonSelect.innerHTML = '';
-    seasons.forEach(season => {
-      const option = document.createElement('option');
-      option.value = season.season_number;
-      option.textContent = `Season ${season.season_number}`;
-      seasonSelect.appendChild(option);
-    });
+    for (let s of data.seasons) {
+      const opt = document.createElement('option');
+      opt.value = s.season_number;
+      opt.textContent = `Season ${s.season_number}`;
+      seasonSelect.appendChild(opt);
+    }
+
     seasonSelect.value = currentSeason;
     fetchEpisodes(currentSeason);
   }
 
-  // Fetch episodes for selected season
-  async function fetchEpisodes(seasonNumber) {
-    const url = `https://api.themoviedb.org/3/tv/${showId}/season/${seasonNumber}?api_key=${TMDB_API_KEY}`;
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-      episodes = data.episodes || [];
-      populateEpisodes();
-    } catch {
-      episodeSelect.innerHTML = '';
-      const option = document.createElement('option');
-      option.textContent = 'Failed to load episodes';
-      episodeSelect.appendChild(option);
-    }
-  }
+  async function fetchEpisodes(seasonNum) {
+    const url = `https://api.themoviedb.org/3/tv/${showId}/season/${seasonNum}?api_key=${TMDB_API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
 
-  // Populate episodes dropdown
-  function populateEpisodes() {
     episodeSelect.innerHTML = '';
-    episodes.forEach(ep => {
-      const option = document.createElement('option');
-      option.value = ep.episode_number;
-      option.textContent = `Ep ${ep.episode_number}: ${ep.name}`;
-      episodeSelect.appendChild(option);
-    });
+    for (let ep of data.episodes) {
+      const opt = document.createElement('option');
+      opt.value = ep.episode_number;
+      opt.textContent = `Ep ${ep.episode_number}: ${ep.name}`;
+      episodeSelect.appendChild(opt);
+    }
+
     episodeSelect.value = currentEpisode;
-    loadVideo(currentSeason, currentEpisode);
+    loadVideo(seasonNum, currentEpisode);
   }
 
-  // Load video player with embed url
   function loadVideo(season, episode) {
     currentSeason = season;
     currentEpisode = episode;
     saveLastWatched(season, episode);
-    // Using vidsrc.xyz embed url format
     videoPlayer.src = `https://vidsrc.xyz/embed/tv/${showId}/${season}-${episode}`;
   }
 
-  seasonSelect.addEventListener('change', () => {
-    const selectedSeason = parseInt(seasonSelect.value);
-    currentEpisode = 1; // reset episode to 1 on season change
-    fetchEpisodes(selectedSeason);
-  });
+  seasonSelect.onchange = () => {
+    currentSeason = parseInt(seasonSelect.value);
+    currentEpisode = 1;
+    fetchEpisodes(currentSeason);
+  };
 
-  episodeSelect.addEventListener('change', () => {
-    const selectedEpisode = parseInt(episodeSelect.value);
-    loadVideo(currentSeason, selectedEpisode);
-  });
+  episodeSelect.onchange = () => {
+    currentEpisode = parseInt(episodeSelect.value);
+    loadVideo(currentSeason, currentEpisode);
+  };
 
   fullscreenBtn.onclick = () => {
     if (playerWrapper.requestFullscreen) {
@@ -228,10 +237,15 @@
     }
   };
 
-  // Initialize
+  document.querySelectorAll('nav button').forEach(btn => {
+    btn.onclick = () => {
+      const page = btn.dataset.page;
+      window.location.href = `${BASE_URL}/${page === 'home' ? 'home' : page === 'movies' ? 'movies' : 'tv-shows'}/`;
+    };
+  });
+
   loadLastWatched();
   fetchShowDetails();
-
 </script>
 
 </body>
