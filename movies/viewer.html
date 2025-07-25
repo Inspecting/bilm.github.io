@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>🎬 Movie Viewer</title>
-  <link rel="stylesheet" href="/bilm.github.io/style.css" />
+  <link rel="stylesheet" href="../style.css" /> <!-- fixed -->
   <style>
     .video-container {
       position: relative;
@@ -55,49 +55,8 @@
 
 <header>
   <nav>
-    <button onclick="location.href='/bilm.github.io/home/'">🏠 Home</button>
-    <button onclick="location.href='/bilm.github.io/movies/'">🎬 Movies</button>
-    <button onclick="location.href='/bilm.github.io/tv-shows/'">📺 TV Shows</button>
+    <button onclick="location.href='https://inspecting.github.io/bilm.github.io/home/'">🏠 Home</button>
+    <button onclick="location.href='https://inspecting.github.io/bilm.github.io/movies/'">🎬 Movies</button>
+    <button onclick="location.href='https://inspecting.github.io/bilm.github.io/tv-shows/'">📺 TV Shows</button>
   </nav>
 </header>
-
-<main>
-  <div class="search-container">
-    <h1 id="movieTitle">Loading...</h1>
-
-    <div class="video-container" id="videoBox">
-      <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
-      <button class="fullscreen-btn" id="fullscreenToggle">⛶</button>
-    </div>
-  </div>
-</main>
-
-<script>
-  const apiKey = "3ade810499876bb5672f40e54960e6a2";
-  const id = new URLSearchParams(location.search).get("id");
-
-  const videoFrame = document.getElementById("videoFrame");
-  const videoBox = document.getElementById("videoBox");
-  const fullscreenToggle = document.getElementById("fullscreenToggle");
-
-  if (id) {
-    fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("movieTitle").textContent = data.title || "Unknown Movie";
-        videoFrame.src = `https://vidsrc.to/embed/movie/${id}`;
-      })
-      .catch(() => {
-        document.getElementById("movieTitle").textContent = "Failed to load movie info.";
-      });
-  } else {
-    document.getElementById("movieTitle").textContent = "No movie ID provided.";
-  }
-
-  fullscreenToggle.onclick = () => {
-    videoBox.classList.toggle("fullscreen");
-  };
-</script>
-
-</body>
-</html>
