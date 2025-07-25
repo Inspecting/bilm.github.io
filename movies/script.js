@@ -18,24 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 
+  // Check if URL has ?search= query param
   const urlParams = new URLSearchParams(window.location.search);
   const searchQuery = urlParams.get('search');
 
   if (searchQuery) {
-    // We have a search query - show search results
-    document.getElementById('movieSections').style.display = 'none';
-    const resultsContainer = document.getElementById('searchResults');
-    resultsContainer.style.display = 'flex';
-    resultsContainer.style.flexWrap = 'wrap';
-    resultsContainer.style.justifyContent = 'center';
-    resultsContainer.style.gap = '12px';
-
-    searchMovies(searchQuery, resultsContainer);
+    // Show search results for query
+    renderSearchResults(searchQuery);
   } else {
-    // No search query - show normal movie sections
-    document.getElementById('searchResults').style.display = 'none';
-    document.getElementById('movieSections').style.display = 'block';
-
+    // No search query, show regular sections
     const sections = [
       { title: 'Trending', endpoint: '/trending/movie/week' },
       { title: 'Popular', endpoint: '/movie/popular' },
@@ -55,29 +46,41 @@ document.addEventListener('DOMContentLoaded', () => {
       { title: 'Thriller', endpoint: '/discover/movie?with_genres=53' }
     ];
 
+    const container = document.getElementById('movieSections');
     sections.forEach(section => {
       loadedCounts[section.title] = 0;
-      renderMovieSection(section, document.getElementById('movieSections'));
+      renderMovieSection(section, container);
     });
   }
 });
 
-// Search function for movies
-async function searchMovies(query, container) {
-  container.innerHTML = '<p style="color:#c084fc; font-weight:600;">Loading results...</p>';
+async function renderSearchResults(query) {
+  const container = document.getElementById('movieSections');
+  container.innerHTML = ''; // Clear previous content
+
+  const titleEl = document.createElement('h2');
+  titleEl.className = 'section-title';
+  titleEl.textContent = `Search Results for "${query}"`;
+  container.appendChild(titleEl);
+
+  const rowEl = document.createElement('div');
+  rowEl.className = 'scroll-row';
+  container.appendChild(rowEl);
 
   try {
-    const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&language=en-US&query=${encodeURIComponent(query)}&page=1&include_adult=false`;
+    const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=1`;
     const res = await fetch(url);
     const data = await res.json();
+    const movies = data.results || [];
 
-    if (!data.results || data.results.length === 0) {
-      container.innerHTML = '<p style="color:#ccc; font-weight:600;">No results found.</p>';
+    if (movies.length === 0) {
+      const noResults = document.createElement('p');
+      noResults.textContent = 'No results found.';
+      container.appendChild(noResults);
       return;
     }
 
-    container.innerHTML = '';
-    data.results.forEach(movie => {
+    movies.forEach(movie => {
       const card = document.createElement('div');
       card.className = 'movie-card';
 
@@ -96,15 +99,13 @@ async function searchMovies(query, container) {
         window.location.href = `${BASE_URL}/movies/viewer.html?id=${movie.id}`;
       };
 
-      container.appendChild(card);
+      rowEl.appendChild(card);
     });
   } catch (err) {
-    container.innerHTML = '<p style="color:#f00; font-weight:600;">Failed to load search results.</p>';
-    console.error(err);
+    console.error('Failed to load search results', err);
   }
 }
 
-// Your existing renderMovieSection() function stays as is
 async function renderMovieSection(section, container) {
   let sectionEl = document.getElementById(`section-${section.title.replace(/\s/g, '')}`);
   let rowEl;
