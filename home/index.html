@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bilm 💜</title>
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Poppins -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 
-  <!-- Local + shared styles -->
+  <!-- Local stylesheet -->
   <link rel="stylesheet" href="./style.css" />
   <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
 </head>
@@ -16,8 +16,9 @@
 
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-  <!-- Navbar placeholder -->
+  <!-- Shared Navbar -->
   <div id="navbar-placeholder"></div>
+  <script src="/bilm.github.io/shared/navbar.js"></script>
 
   <main>
     <div class="search-container">
@@ -33,19 +34,12 @@
     </div>
   </main>
 
-  <!-- Navbar script -->
-  <script src="/bilm.github.io/shared/navbar.js"></script>
-
-  <!-- Search + page logic -->
   <script>
     const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
     document.addEventListener('DOMContentLoaded', () => {
-      const main = document.querySelector('main');
       const searchInput = document.getElementById('searchInput');
       const searchBtn = document.getElementById('searchBtn');
-
-      main.classList.add('visible');
 
       searchBtn.onclick = () => {
         const query = searchInput.value.trim();
@@ -59,7 +53,6 @@
     });
   </script>
 
-  <!-- Particle background script -->
   <script>
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
