@@ -1,4 +1,4 @@
-/* Complete Navbar Styles - Use for ALL pages */
+/* NAVBAR - Shared Across All Pages */
 header {
   background-color: #1e1e1e;
   padding: 12px 20px;
@@ -9,7 +9,7 @@ header {
   position: sticky;
   top: 0;
   z-index: 1000;
-  opacity: 0; /* Fade-in controlled per-page */
+  opacity: 0;
   transition: opacity 0.5s ease;
 }
 
