@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bilm 💜 - TV Show Viewer</title>
+<title>Bilm 💜 - Movie Viewer</title>
 
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
@@ -106,30 +106,6 @@
   #fullscreenBtn:hover {
     background-color: #a855f7;
   }
-
-  /* Season & episode selectors container */
-  #selectors {
-    width: 800px;
-    max-width: 95vw;
-    display: flex;
-    gap: 16px;
-    justify-content: center;
-  }
-  select {
-    background-color: #2a2a2a;
-    border: none;
-    border-radius: 8px;
-    color: #eee;
-    padding: 8px 12px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-  }
-  select:hover {
-    background-color: #3a1361;
-  }
 </style>
 </head>
 <body>
@@ -155,11 +131,6 @@
   </div>
 
   <button id="fullscreenBtn">Fullscreen</button>
-
-  <div id="selectors">
-    <select id="seasonSelect"></select>
-    <select id="episodeSelect"></select>
-  </div>
 </main>
 
 <script>
@@ -176,85 +147,27 @@
   });
 
   const params = new URLSearchParams(window.location.search);
-  const showId = params.get('id');
+  const movieId = params.get('id');
 
   const iframe = document.getElementById('videoPlayer');
-  const seasonSelect = document.getElementById('seasonSelect');
-  const episodeSelect = document.getElementById('episodeSelect');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-  // Load seasons
-  async function loadSeasons() {
-    try {
-      const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=3ade810499876bb5672f40e54960e6a2`);
-      const data = await res.json();
-
-      // Populate seasons (skip specials with season_number 0)
-      seasonSelect.innerHTML = '';
-      data.seasons.forEach(season => {
-        if (season.season_number === 0) return; // skip specials
-        const option = document.createElement('option');
-        option.value = season.season_number;
-        option.textContent = `Season ${season.season_number}`;
-        seasonSelect.appendChild(option);
-      });
-
-      // Set selected season (last watched or first available)
-      const lastSeason = localStorage.getItem(`bilm_tv_${showId}_season`) || data.seasons.find(s => s.season_number !== 0).season_number;
-      seasonSelect.value = lastSeason;
-      await loadEpisodes(lastSeason);
-    } catch (e) {
-      console.error(e);
+  function loadVideo() {
+    if (!movieId) {
+      iframe.src = '';
+      alert('No movie ID provided.');
+      return;
     }
+    iframe.src = `https://vidsrc.xyz/embed/movie/${movieId}`;
   }
 
-  // Load episodes with simple numbering only
-  async function loadEpisodes(seasonNumber) {
-    try {
-      const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNumber}?api_key=3ade810499876bb5672f40e54960e6a2`);
-      const data = await res.json();
-
-      episodeSelect.innerHTML = '';
-      data.episodes.forEach(ep => {
-        const option = document.createElement('option');
-        option.value = ep.episode_number;
-        option.textContent = `Episode ${ep.episode_number}`; // simplified label
-        episodeSelect.appendChild(option);
-      });
-
-      // Set selected episode (last watched or first episode)
-      const lastEpisode = localStorage.getItem(`bilm_tv_${showId}_episode`) || 1;
-      episodeSelect.value = lastEpisode;
-
-      loadVideo(seasonNumber, episodeSelect.value);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  function loadVideo(season, episode) {
-    iframe.src = `https://vidsrc.xyz/embed/tv/${showId}/${season}-${episode}`;
-    localStorage.setItem(`bilm_tv_${showId}_season`, season);
-    localStorage.setItem(`bilm_tv_${showId}_episode`, episode);
-  }
-
-  // Change handlers
-  seasonSelect.addEventListener('change', () => {
-    loadEpisodes(seasonSelect.value);
-  });
-
-  episodeSelect.addEventListener('change', () => {
-    loadVideo(seasonSelect.value, episodeSelect.value);
-  });
-
-  // Fullscreen button
   fullscreenBtn.onclick = () => {
     if (iframe.requestFullscreen) iframe.requestFullscreen();
     else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
     else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
   };
 
-  loadSeasons();
+  loadVideo();
 </script>
 
 </body>
