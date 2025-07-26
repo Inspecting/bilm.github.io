@@ -7,7 +7,7 @@ html, body {
   font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #121212;
   color: #f0f0f0;
-  overflow: hidden;
+  overflow: hidden; /* prevent double scroll, main will scroll */
 }
 body {
   display: flex;
@@ -47,12 +47,12 @@ nav button:hover {
   background-color: #3a1361;
 }
 
-/* Main area */
+/* Main content area */
 main {
   flex: 1;
   overflow-y: auto;
   width: 100vw;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 60px); /* header height assumed ~60px */
   padding: 20px 10px;
   box-sizing: border-box;
 }
@@ -65,7 +65,7 @@ main {
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 12px;
-  color: #c084fc;
+  color: #c084fc; /* matches purple accent */
 }
 
 /* Horizontal scroll row */
@@ -88,7 +88,7 @@ main {
   border-radius: 10px;
 }
 
-/* Movie card */
+/* Movie/TV card */
 .movie-card {
   flex: 0 0 auto;
   width: 140px;
