@@ -16,12 +16,13 @@
   <div id="movieSections"></div>
 </main>
 
-<!-- Load shared navbar then page logic -->
 <script>
+  // Load shared navbar, then load movie scripts
   fetch('/bilm.github.io/shared/navbar.html')
     .then(res => res.text())
     .then(html => {
       document.getElementById('navbar-placeholder').innerHTML = html;
+      // After navbar is loaded, load movie script
       const script = document.createElement('script');
       script.src = './script.js';
       document.body.appendChild(script);
