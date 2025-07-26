@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Settings - In Progress</title>
+  <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
+  <style>
+    /* Full height black background */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #000;
+      color: #ccc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    /* Navbar container stays at top */
+    #navbar-placeholder {
+      z-index: 1000;
+    }
+    /* Main content fills remaining space and centers text */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      text-align: center;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar will be injected here -->
+  <div id="navbar-placeholder"></div>
+
+  <!-- Centered in progress message -->
+  <main>
+    Page In Progress - Stay Tuned!
+  </main>
+
+  <script>
+    fetch('/bilm.github.io/shared/navbar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('navbar-placeholder').innerHTML = html;
+        const navbarScript = document.createElement('script');
+        navbarScript.src = '/bilm.github.io/shared/navbar.js';
+        document.body.appendChild(navbarScript);
+      });
+  </script>
+
+</body>
+</html>
