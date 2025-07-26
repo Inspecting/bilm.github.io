@@ -20,10 +20,10 @@ nav button {
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
+  transition: color 0.3s ease;
   padding: 8px 14px;
   border-radius: 12px;
   user-select: none;
-  transition: color 0.3s ease;
 }
 nav button:hover {
   color: #fff;
