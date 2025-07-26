@@ -4,31 +4,29 @@ const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 const moviesPerLoad = 15;
 const loadedCounts = {};
 
-document.addEventListener('DOMContentLoaded', () => {
-  const sections = [
-    { title: 'Trending', endpoint: '/trending/movie/week' },
-    { title: 'Popular', endpoint: '/movie/popular' },
-    { title: 'Top Rated', endpoint: '/movie/top_rated' },
-    { title: 'Now Playing', endpoint: '/movie/now_playing' },
-    { title: 'Action', endpoint: '/discover/movie?with_genres=28' },
-    { title: 'Adventure', endpoint: '/discover/movie?with_genres=12' },
-    { title: 'Animation', endpoint: '/discover/movie?with_genres=16' },
-    { title: 'Comedy', endpoint: '/discover/movie?with_genres=35' },
-    { title: 'Crime', endpoint: '/discover/movie?with_genres=80' },
-    { title: 'Drama', endpoint: '/discover/movie?with_genres=18' },
-    { title: 'Fantasy', endpoint: '/discover/movie?with_genres=14' },
-    { title: 'Horror', endpoint: '/discover/movie?with_genres=27' },
-    { title: 'Mystery', endpoint: '/discover/movie?with_genres=9648' },
-    { title: 'Romance', endpoint: '/discover/movie?with_genres=10749' },
-    { title: 'Science Fiction', endpoint: '/discover/movie?with_genres=878' },
-    { title: 'Thriller', endpoint: '/discover/movie?with_genres=53' }
-  ];
+const sections = [
+  { title: 'Trending', endpoint: '/trending/movie/week' },
+  { title: 'Popular', endpoint: '/movie/popular' },
+  { title: 'Top Rated', endpoint: '/movie/top_rated' },
+  { title: 'Now Playing', endpoint: '/movie/now_playing' },
+  { title: 'Action', endpoint: '/discover/movie?with_genres=28' },
+  { title: 'Adventure', endpoint: '/discover/movie?with_genres=12' },
+  { title: 'Animation', endpoint: '/discover/movie?with_genres=16' },
+  { title: 'Comedy', endpoint: '/discover/movie?with_genres=35' },
+  { title: 'Crime', endpoint: '/discover/movie?with_genres=80' },
+  { title: 'Drama', endpoint: '/discover/movie?with_genres=18' },
+  { title: 'Fantasy', endpoint: '/discover/movie?with_genres=14' },
+  { title: 'Horror', endpoint: '/discover/movie?with_genres=27' },
+  { title: 'Mystery', endpoint: '/discover/movie?with_genres=9648' },
+  { title: 'Romance', endpoint: '/discover/movie?with_genres=10749' },
+  { title: 'Science Fiction', endpoint: '/discover/movie?with_genres=878' },
+  { title: 'Thriller', endpoint: '/discover/movie?with_genres=53' }
+];
 
-  const container = document.getElementById('movieSections');
-  sections.forEach(section => {
-    loadedCounts[section.title] = 0;
-    renderMovieSection(section, container);
-  });
+const container = document.getElementById('movieSections');
+sections.forEach(section => {
+  loadedCounts[section.title] = 0;
+  renderMovieSection(section, container);
 });
 
 async function renderMovieSection(section, container) {
