@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bilm 💜 - Movies</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./style.css" />
   <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
@@ -16,19 +17,20 @@
   <div id="movieSections"></div>
 </main>
 
+<!-- Load navbar, then movie logic -->
 <script>
-  console.log('Loading shared navbar...');
   fetch('/bilm.github.io/shared/navbar.html')
     .then(res => res.text())
     .then(html => {
       document.getElementById('navbar-placeholder').innerHTML = html;
-      const navScript = document.createElement('script');
-      navScript.src = '/bilm.github.io/shared/navbar.js';
-      document.body.appendChild(navScript);
 
-      const mainScript = document.createElement('script');
-      mainScript.src = './script.js';
-      document.body.appendChild(mainScript);
+      const navbarScript = document.createElement('script');
+      navbarScript.src = '/bilm.github.io/shared/navbar.js';
+      document.body.appendChild(navbarScript);
+
+      const pageScript = document.createElement('script');
+      pageScript.src = './script.js';
+      document.body.appendChild(pageScript);
     });
 </script>
 
