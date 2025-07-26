@@ -5,21 +5,6 @@ const moviesPerLoad = 15;
 const loadedCounts = {};
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Navigation buttons
-  document.querySelectorAll('nav button').forEach(btn => {
-    btn.onclick = () => {
-      const page = btn.dataset.page;
-      if (page === 'home') {
-        window.location.href = `${BASE_URL}/home/`;
-      } else if (page === 'movies') {
-        window.location.href = `${BASE_URL}/movies/`;
-      } else if (page === 'tv') {
-        window.location.href = `${BASE_URL}/tv-shows/`;
-      }
-    };
-  });
-
-  // Load default movie sections on page load
   const sections = [
     { title: 'Trending', endpoint: '/trending/movie/week' },
     { title: 'Popular', endpoint: '/movie/popular' },
