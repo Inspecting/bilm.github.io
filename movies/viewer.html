@@ -7,74 +7,116 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/navbar.css" />
   <style>
-    /* Your existing viewer styles */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: 'Poppins', sans-serif;
+    /* Reset and base */
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #121212;
       color: #f0f0f0;
+    }
+    body {
       display: flex;
       flex-direction: column;
       height: 100vh;
     }
+
+    /* Main content */
     main {
       flex: 1;
       padding: 20px;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
+
+    /* Player container */
     #playerContainer {
       width: 800px;
       max-width: 95vw;
-      aspect-ratio: 16/9;
-      background: black;
+      aspect-ratio: 16 / 9;
+      background-color: black;
+      position: relative;
       border-radius: 12px;
       box-shadow: 0 0 15px #a14effaa;
+      margin-bottom: 12px;
     }
+
     iframe {
       width: 100%;
       height: 100%;
       border: none;
       border-radius: 12px;
     }
+
+    /* Fullscreen button */
     #fullscreenBtn {
-      margin: 16px auto;
-      padding: 8px 14px;
-      background: #3a1361;
+      position: relative;
+      margin: 8px auto 16px auto;
+      display: block;
+      background-color: #3a1361;
       color: white;
       border: none;
+      padding: 8px 14px;
       border-radius: 8px;
       cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+      max-width: 120px;
+      text-align: center;
+    }
+    #fullscreenBtn:hover {
+      background-color: #a855f7;
     }
   </style>
 </head>
 <body>
   <header><!-- Navbar injected here --></header>
+
   <main>
     <div id="playerContainer">
-      <iframe id="videoPlayer" allowfullscreen playsinline></iframe>
+      <iframe
+        id="videoPlayer"
+        src=""
+        allowfullscreen
+        allow="fullscreen; encrypted-media"
+        playsinline
+        scrolling="no"
+      ></iframe>
     </div>
+
     <button id="fullscreenBtn">Fullscreen</button>
   </main>
+
   <script type="module">
     import { navbarHTML, setupNavbar } from '../shared/navbar.js';
     document.querySelector('header').innerHTML = navbarHTML;
     setupNavbar();
 
-    // Your existing viewer logic
     const params = new URLSearchParams(window.location.search);
     const movieId = params.get('id');
     const iframe = document.getElementById('videoPlayer');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-    if (movieId) {
+    function loadVideo() {
+      if (!movieId) {
+        iframe.src = '';
+        alert('No movie ID provided.');
+        return;
+      }
       iframe.src = `https://vidsrc.xyz/embed/movie/${movieId}`;
     }
 
     fullscreenBtn.onclick = () => {
       if (iframe.requestFullscreen) iframe.requestFullscreen();
+      else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+      else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
     };
+
+    loadVideo();
   </script>
 </body>
 </html>
