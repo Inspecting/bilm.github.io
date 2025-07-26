@@ -4,42 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bilm 💜</title>
+
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../shared/navbar.css" />
+
+  <!-- Local + shared styles -->
   <link rel="stylesheet" href="./style.css" />
-  <style>
-    .search-container h1 {
-      font-size: 3.5rem;
-      color: #c084fc;
-      margin-bottom: 24px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      opacity: 0;
-      transition: opacity 1.5s ease-in-out;
-    }
-    main.visible .search-container h1 {
-      opacity: 1;
-    }
-    .heart-icon {
-      height: 1.2em;
-      vertical-align: middle;
-      filter: drop-shadow(0 0 4px #c084fc88);
-    }
-  </style>
+  <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
 </head>
 <body>
+
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
-  <header></header>
+
+  <!-- Navbar placeholder -->
+  <div id="navbar-placeholder"></div>
 
   <main>
     <div class="search-container">
       <h1>
-        <img class="heart-icon" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
+        <img class="heart-icon" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" style="height: 1em; vertical-align: middle; margin-right: 8px;" />
         Bilm
-        <img class="heart-icon" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" />
+        <img class="heart-icon" src="https://icons.iconarchive.com/icons/microsoft/fluentui-emoji-3d/128/Purple-Heart-3d-icon.png" alt="Heart" style="height: 1em; vertical-align: middle; margin-left: 8px;" />
       </h1>
       <input id="searchInput" type="search" placeholder="Search movies or TV shows..." autocomplete="off" />
       <div class="button-row">
@@ -48,27 +33,34 @@
     </div>
   </main>
 
-  <script type="module">
-    import { navbarHTML, setupNavbar } from '../shared/navbar.js';
-    document.querySelector('header').innerHTML = navbarHTML;
-    setupNavbar();
+  <!-- Navbar script -->
+  <script src="/bilm.github.io/shared/navbar.js"></script>
+
+  <!-- Search + page logic -->
+  <script>
+    const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
     document.addEventListener('DOMContentLoaded', () => {
-      const header = document.querySelector('header');
       const main = document.querySelector('main');
-      header.classList.add('visible');
+      const searchInput = document.getElementById('searchInput');
+      const searchBtn = document.getElementById('searchBtn');
+
       main.classList.add('visible');
 
-      document.getElementById('searchBtn').onclick = () => {
-        const query = document.getElementById('searchInput').value.trim();
+      searchBtn.onclick = () => {
+        const query = searchInput.value.trim();
         if (!query) return alert('Please enter a search term');
-        window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+        window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
       };
+
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') searchBtn.click();
+      });
     });
   </script>
 
+  <!-- Particle background script -->
   <script>
-    // Particle background script (unchanged)
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
     const dotCount = 80;
@@ -119,9 +111,12 @@
       initDots();
     });
 
-    resize();
-    initDots();
-    animate();
+    window.addEventListener('DOMContentLoaded', () => {
+      resize();
+      initDots();
+      animate();
+    });
   </script>
+
 </body>
 </html>
