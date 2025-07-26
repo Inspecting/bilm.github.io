@@ -4,8 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bilm 💜 - Search Results</title>
+
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+
+  <!-- Navbar CSS -->
   <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
+
   <style>
     * {
       margin: 0; 
@@ -143,7 +148,7 @@
 </head>
 <body>
 
-  <!-- Shared navbar -->
+  <!-- Navbar placeholder -->
   <div id="navbar-placeholder"></div>
 
   <!-- Search bar -->
@@ -153,6 +158,7 @@
       type="search" 
       placeholder="Search movies or TV shows..."
       value=""
+      autocomplete="off"
     />
     <button id="searchBtn">Search</button>
   </div>
@@ -171,34 +177,68 @@
     </section>
   </main>
 
-  <!-- Load navbar -->
-  <script src="/bilm.github.io/shared/navbar.html"></script>
+  <!-- Load shared navbar dynamically -->
+  <script>
+    fetch('/bilm.github.io/shared/navbar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('navbar-placeholder').innerHTML = html;
+      });
+  </script>
 
   <script>
     const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
     const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
-    // Get current search query
+    // Parse query from URL
     const urlParams = new URLSearchParams(window.location.search);
     const currentQuery = urlParams.get('q') || '';
-    document.getElementById('searchInput').value = currentQuery;
-    document.getElementById('resultsTitle').textContent = `Search Results for "${currentQuery}"`;
+    const searchInput = document.getElementById('searchInput');
+    const resultsTitle = document.getElementById('resultsTitle');
+    searchInput.value = currentQuery;
+    resultsTitle.textContent = `Search Results for "${currentQuery}"`;
 
-    // Search functionality
+    // Search button + Enter key
     document.getElementById('searchBtn').addEventListener('click', () => {
-      const query = document.getElementById('searchInput').value.trim();
+      const query = searchInput.value.trim();
       if (query) {
         window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
       }
     });
-
-    document.getElementById('searchInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        document.getElementById('searchBtn').click();
-      }
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('searchBtn').click();
     });
 
-    // Load results if query exists
+    function renderResults(containerId, items, type) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const img = document.createElement('img');
+        img.src = item.poster_path
+          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+          : 'https://via.placeholder.com/140x210?text=No+Image';
+        img.alt = type === 'movie' ? item.title : item.name;
+
+        const title = document.createElement('p');
+        title.textContent = type === 'movie'
+          ? `${item.title} (${item.release_date?.slice(0,4) || 'N/A'})`
+          : `${item.name} (${item.first_air_date?.slice(0,4) || 'N/A'})`;
+
+        card.appendChild(img);
+        card.appendChild(title);
+
+        card.onclick = () => {
+          window.location.href = `${BASE_URL}/${type === 'movie' ? 'movies' : 'tv-shows'}/viewer.html?id=${item.id}`;
+        };
+
+        container.appendChild(card);
+      });
+    }
+
     if (currentQuery) {
       Promise.all([
         fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`),
@@ -227,36 +267,7 @@
       document.getElementById('moviesSection').innerHTML = '<p class="no-results">Please enter a search term.</p>';
       document.getElementById('tvSection').innerHTML = '';
     }
-
-    function renderResults(containerId, items, type) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
-      
-      items.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'card';
-
-        const img = document.createElement('img');
-        img.src = item.poster_path
-          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-          : 'https://via.placeholder.com/140x210?text=No+Image';
-        img.alt = type === 'movie' ? item.title : item.name;
-
-        const title = document.createElement('p');
-        title.textContent = type === 'movie'
-          ? `${item.title} (${item.release_date?.slice(0,4) || 'N/A'})`
-          : `${item.name} (${item.first_air_date?.slice(0,4) || 'N/A'})`;
-
-        card.appendChild(img);
-        card.appendChild(title);
-
-        card.onclick = () => {
-          window.location.href = `${BASE_URL}/${type === 'movie' ? 'movies' : 'tv-shows'}/viewer.html?id=${item.id}`;
-        };
-
-        container.appendChild(card);
-      });
-    }
   </script>
+
 </body>
 </html>
