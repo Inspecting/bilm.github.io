@@ -7,43 +7,172 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/navbar.css" />
   <style>
-    /* Your existing search page styles */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: 'Poppins', sans-serif;
+    /* Reset and base */
+    * {
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #121212;
       color: #f0f0f0;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
+
+    /* Search bar container */
+    .search-bar-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      width: 100%;
+    }
+
+    #searchInput {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 1rem;
+      border-radius: 12px;
+      border: none;
+      background-color: #222;
+      color: #eee;
+      box-shadow: 0 0 8px #a14eff44;
+    }
+
+    #searchBtn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      background-color: #c084fc;
+      color: white;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #searchBtn:hover {
+      background-color: #a855f7;
+    }
+
+    /* Main content */
     main {
       flex: 1;
       padding: 20px;
     }
-    /* ... keep all other existing styles ... */
+
+    h1 {
+      color: #c084fc;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    section {
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      color: #c084fc;
+      margin-bottom: 12px;
+      font-size: 1.5rem;
+    }
+
+    /* Results row */
+    .results-row {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .results-row::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .results-row::-webkit-scrollbar-track {
+      background: #1e1e1e;
+    }
+
+    .results-row::-webkit-scrollbar-thumb {
+      background-color: #a14eff;
+      border-radius: 10px;
+    }
+
+    /* Card styles */
+    .card {
+      flex: 0 0 auto;
+      width: 140px;
+      cursor: pointer;
+      border-radius: 12px;
+      overflow: hidden;
+      background-color: #2a2a2a;
+      box-shadow: 0 0 8px #a14eff66;
+      transition: transform 0.2s ease;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card img {
+      width: 140px;
+      height: 210px;
+      object-fit: cover;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .card p {
+      padding: 6px 8px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #eee;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-grow: 1;
+    }
+
+    /* No results message */
+    .no-results {
+      text-align: center;
+      color: #888;
+      font-size: 16px;
+      margin-top: 40px;
+    }
   </style>
 </head>
 <body>
-  <header><!-- Navbar injected here --></header>
-  
-  <div style="display: flex; justify-content: center; gap: 12px; padding: 20px; max-width: 600px; margin: auto;">
-    <input id="searchInput" type="search" placeholder="Search movies or TV shows..." 
-           style="flex: 1; padding: 12px 16px; font-size: 1rem; border-radius: 12px; border: none; background-color: #222; color: #eee; box-shadow: 0 0 8px #a14eff44;" />
-    <button id="searchBtn"
-            style="padding: 12px 24px; border-radius: 12px; background-color: #c084fc; color: white; font-weight: 600; border: none; cursor: pointer;">
-      Search
-    </button>
+  <header><!-- Navbar will be injected here --></header>
+
+  <div class="search-bar-container">
+    <input 
+      id="searchInput" 
+      type="search" 
+      placeholder="Search movies or TV shows..."
+    />
+    <button id="searchBtn">Search</button>
   </div>
 
   <main>
     <h1 id="resultsTitle">Search Results for ""</h1>
+    
     <section id="moviesSection">
-      <h2 style="color:#c084fc; margin-bottom:12px;">Movies</h2>
+      <h2>Movies</h2>
       <div class="results-row" id="moviesResults"></div>
     </section>
+
     <section id="tvSection">
-      <h2 style="color:#c084fc; margin-bottom:12px;">TV Shows</h2>
+      <h2>TV Shows</h2>
       <div class="results-row" id="tvResults"></div>
     </section>
   </main>
@@ -53,36 +182,96 @@
     document.querySelector('header').innerHTML = navbarHTML;
     setupNavbar();
 
-    // Existing search logic
     const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
     const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
+    // Helper to get query param
     function getQueryParam(param) {
-      return new URLSearchParams(window.location.search).get(param) || '';
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param) || '';
     }
 
+    // Search functionality
     document.getElementById('searchBtn').onclick = () => {
       const query = document.getElementById('searchInput').value.trim();
-      if (query) window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+      if (query) {
+        window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
+      }
     };
 
     document.getElementById('searchInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') document.getElementById('searchBtn').click();
+      if (e.key === 'Enter') {
+        document.getElementById('searchBtn').click();
+      }
     });
 
     const query = getQueryParam('q').trim();
     document.getElementById('resultsTitle').textContent = `Search Results for "${query}"`;
 
-    if (query) {
+    if (!query) {
+      document.getElementById('moviesSection').innerHTML = '<p class="no-results">Please enter a search term.</p>';
+      document.getElementById('tvSection').innerHTML = '';
+    } else {
+      // Search movies and tv shows in parallel
       Promise.all([
         fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`),
         fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`)
-      ]).then(async ([movieRes, tvRes]) => {
+      ])
+      .then(async ([movieRes, tvRes]) => {
         const movies = (await movieRes.json()).results || [];
         const tvs = (await tvRes.json()).results || [];
-        
-        // Render results (keep your existing renderResults function)
-      }).catch(console.error);
+
+        renderResults('moviesResults', movies, 'movie');
+        renderResults('tvResults', tvs, 'tv');
+
+        if (movies.length === 0) {
+          document.getElementById('moviesSection').innerHTML = '<p class="no-results">No movies found.</p>';
+        }
+        if (tvs.length === 0) {
+          document.getElementById('tvSection').innerHTML = '<p class="no-results">No TV shows found.</p>';
+        }
+      })
+      .catch(err => {
+        console.error('Search failed', err);
+        document.getElementById('moviesSection').innerHTML = '<p class="no-results">Failed to load results.</p>';
+        document.getElementById('tvSection').innerHTML = '';
+      });
+    }
+
+    function renderResults(containerId, items, type) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const img = document.createElement('img');
+        img.src = item.poster_path
+          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+          : 'https://via.placeholder.com/140x210?text=No+Image';
+        img.alt = item.title || item.name;
+
+        const title = document.createElement('p');
+        if (type === 'movie') {
+          title.textContent = `${item.title} (${item.release_date?.slice(0,4) || 'N/A'})`;
+        } else {
+          title.textContent = `${item.name} (${item.first_air_date?.slice(0,4) || 'N/A'})`;
+        }
+
+        card.appendChild(img);
+        card.appendChild(title);
+
+        card.onclick = () => {
+          if (type === 'movie') {
+            window.location.href = `${BASE_URL}/movies/viewer.html?id=${item.id}`;
+          } else {
+            window.location.href = `${BASE_URL}/tv-shows/viewer.html?id=${item.id}`;
+          }
+        };
+
+        container.appendChild(card);
+      });
     }
   </script>
 </body>
