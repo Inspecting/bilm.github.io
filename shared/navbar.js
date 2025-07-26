@@ -1,28 +1,26 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
+const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
-  // Handle navigation
-  document.querySelectorAll('[data-page]').forEach(btn => {
-    btn.onclick = () => {
-      const page = btn.dataset.page;
-      const pagePath = page === 'tv' ? 'tv-shows' : page;
-      window.location.href = `${BASE_URL}/${pagePath}/`;
-    };
-  });
+// Nav button clicks (logo too)
+document.querySelectorAll('[data-page]').forEach(btn => {
+  btn.onclick = () => {
+    const page = btn.dataset.page;
+    if (page === 'home') window.location.href = `${BASE_URL}/home/`;
+    else if (page === 'movies') window.location.href = `${BASE_URL}/movies/`;
+    else if (page === 'tv') window.location.href = `${BASE_URL}/tv-shows/`;
+    else if (page === 'settings') window.location.href = `${BASE_URL}/settings/`;
+  };
+});
 
-  // Handle search
-  const searchInput = document.getElementById('navbarSearch');
-  const searchBtn = document.getElementById('navbarSearchBtn');
-
-  function doSearch() {
-    const query = searchInput.value.trim();
-    if (query) {
-      window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
-    }
+// Search functionality
+document.getElementById('searchBtn')?.addEventListener('click', () => {
+  const query = document.getElementById('searchInput')?.value?.trim();
+  if (query) {
+    window.location.href = `${BASE_URL}/home/search.html?query=${encodeURIComponent(query)}`;
   }
+});
 
-  searchBtn.onclick = doSearch;
-  searchInput.addEventListener('keypress', e => {
-    if (e.key === 'Enter') doSearch();
-  });
+document.getElementById('searchInput')?.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    document.getElementById('searchBtn')?.click();
+  }
 });
