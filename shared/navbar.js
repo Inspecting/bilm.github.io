@@ -1,6 +1,5 @@
 const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
-// Call this once after navbar is loaded
 function setupNavbarListeners() {
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
