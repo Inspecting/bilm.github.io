@@ -4,7 +4,6 @@ const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
 const showsPerLoad = 15;
 const loadedCounts = {};
-const addedShowsBySection = {};
 
 document.addEventListener('DOMContentLoaded', () => {
   const sections = [
@@ -31,10 +30,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('tvSections');
   sections.forEach(section => {
     loadedCounts[section.title] = 0;
-    addedShowsBySection[section.title] = new Set();
     renderTVSection(section, container);
   });
 });
+
+async function fetchOMDBByImdbId(imdbID) {
+  try {
+    const res = await fetch(`https://www.omdbapi.com/?i=${imdbID}&apikey=${OMDB_API_KEY}`);
+    const data = await res.json();
+    if (data.Response === 'True') return data;
+  } catch (e) {
+    // ignore errors
+  }
+  return null;
+}
 
 async function renderTVSection(section, container) {
   let sectionEl = document.getElementById(`section-${section.title.replace(/\s/g, '')}`);
@@ -70,51 +79,88 @@ async function renderTVSection(section, container) {
 
     const res = await fetch(url);
     const data = await res.json();
+    const tmdbShows = data.results || [];
 
+    const uniqueShowsMap = new Map();
+
+    // Add TMDB shows first
+    tmdbShows.forEach(s => uniqueShowsMap.set(s.id, { source: 'TMDB', data: s }));
+
+    // For each TMDB show, fetch external IDs to get imdb_id and fetch OMDB if available
+    const imdbFetches = tmdbShows.map(async (show) => {
+      if (!show.id) return null;
+      try {
+        const extRes = await fetch(`https://api.themoviedb.org/3/tv/${show.id}/external_ids?api_key=${TMDB_API_KEY}`);
+        const extData = await extRes.json();
+        const imdbID = extData.imdb_id;
+        if (imdbID) {
+          const omdbData = await fetchOMDBByImdbId(imdbID);
+          if (omdbData && !uniqueShowsMap.has(omdbData.imdbID)) {
+            uniqueShowsMap.set(`omdb_${omdbData.imdbID}`, { source: 'OMDB', data: omdbData });
+          }
+        }
+      } catch {
+        // ignore errors
+      }
+    });
+
+    await Promise.all(imdbFetches);
+
+    // Clear old show-more card if exists
     const oldShowMore = rowEl.querySelector('.show-more-card');
     if (oldShowMore) oldShowMore.remove();
 
-    const shows = data.results || [];
+    const uniqueShowsArray = Array.from(uniqueShowsMap.values());
 
-    for (const show of shows.slice(0, showsPerLoad)) {
-      const uniqueKey = `${show.name}-${show.first_air_date?.slice(0, 4)}`;
-      if (addedShowsBySection[section.title].has(uniqueKey)) continue;
+    const showsToShow = uniqueShowsArray.slice(alreadyLoaded, alreadyLoaded + showsPerLoad);
 
-      let poster = show.poster_path
-        ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
-        : null;
-
-      const imdbId = await getImdbIdFromTmdbTV(show.id);
-      if (imdbId) {
-        const omdbData = await fetchOmdbData(imdbId);
-        if (omdbData?.Poster && omdbData.Poster !== 'N/A') {
-          poster = omdbData.Poster;
-        }
-      }
-
+    showsToShow.forEach(({ source, data }) => {
       const card = document.createElement('div');
       card.className = 'movie-card';
+      card.setAttribute('data-source', source);
 
-      const posterImg = document.createElement('img');
-      posterImg.src = poster || 'https://via.placeholder.com/140x210?text=No+Image';
+      let posterSrc = 'https://via.placeholder.com/140x210?text=No+Image';
+      let titleText = '';
+      let clickId = '';
+      if (source === 'TMDB') {
+        posterSrc = data.poster_path
+          ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
+          : posterSrc;
+        titleText = `${data.name} (${data.first_air_date?.slice(0, 4) || 'N/A'})`;
+        clickId = data.id;
+      } else if (source === 'OMDB') {
+        posterSrc = (data.Poster && data.Poster !== 'N/A')
+          ? data.Poster
+          : posterSrc;
+        titleText = `${data.Title} (${data.Year || 'N/A'})`;
+        clickId = data.imdbID;
+      }
+
+      const poster = document.createElement('img');
+      poster.src = posterSrc;
 
       const title = document.createElement('p');
-      title.textContent = `${show.name} (${show.first_air_date?.slice(0, 4) || 'N/A'})`;
+      title.textContent = titleText;
 
-      card.appendChild(posterImg);
+      card.appendChild(poster);
       card.appendChild(title);
 
       card.onclick = () => {
-        window.location.href = `${BASE_URL}/tv-shows/viewer.html?id=${show.id}`;
+        console.log(`Clicked TV show "${titleText}" from API: ${source}`);
+        if (source === 'TMDB') {
+          window.location.href = `${BASE_URL}/tv-shows/viewer.html?id=${clickId}`;
+        } else {
+          // OMDB fallback
+          window.open(`https://www.imdb.com/title/${clickId}/`, '_blank');
+        }
       };
 
       rowEl.appendChild(card);
-      addedShowsBySection[section.title].add(uniqueKey);
-    }
+    });
 
     loadedCounts[section.title] = alreadyLoaded + showsPerLoad;
 
-    if (loadedCounts[section.title] < data.total_results) {
+    if (loadedCounts[section.title] < uniqueShowsArray.length) {
       const moreCard = document.createElement('div');
       moreCard.className = 'show-more-card';
       moreCard.textContent = '→';
@@ -124,27 +170,8 @@ async function renderTVSection(section, container) {
       };
       rowEl.appendChild(moreCard);
     }
+
   } catch (err) {
-    console.error('❌ Failed loading', section.title, err);
-  }
-}
-
-async function getImdbIdFromTmdbTV(tmdbId) {
-  try {
-    const res = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}/external_ids?api_key=${TMDB_API_KEY}`);
-    const data = await res.json();
-    return data.imdb_id;
-  } catch (e) {
-    return null;
-  }
-}
-
-async function fetchOmdbData(imdbId) {
-  try {
-    const res = await fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDB_API_KEY}`);
-    const data = await res.json();
-    return data;
-  } catch (e) {
-    return null;
+    console.error('Failed loading', section.title, err);
   }
 }
