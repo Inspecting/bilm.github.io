@@ -5,15 +5,14 @@ const moviesPerLoad = 15;
 const loadedCounts = {};
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOMContentLoaded fired - script loaded');
-
-  // Check if movieSections container exists
+  console.log('Movie script loaded and running');
+  
   const container = document.getElementById('movieSections');
+  console.log('movieSections container:', container);
+
   if (!container) {
-    console.error('Container #movieSections NOT found in DOM!');
+    console.error('Container #movieSections not found! Cannot render movies.');
     return;
-  } else {
-    console.log('#movieSections container found');
   }
 
   const sections = [
@@ -43,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function renderMovieSection(section, container) {
   console.log(`Loading section: ${section.title}`);
-
   let sectionEl = document.getElementById(`section-${section.title.replace(/\s/g, '')}`);
   let rowEl;
 
@@ -75,21 +73,21 @@ async function renderMovieSection(section, container) {
       ? `https://api.themoviedb.org/3${section.endpoint}&api_key=${TMDB_API_KEY}&page=${page}`
       : `https://api.themoviedb.org/3${section.endpoint}?api_key=${TMDB_API_KEY}&page=${page}`;
 
-    console.log(`Fetching: ${url}`);
-    const res = await fetch(url);
+    console.log(`Fetching URL: ${url}`);
 
+    const res = await fetch(url);
     if (!res.ok) {
-      console.error(`Failed to fetch ${section.title}: HTTP ${res.status}`);
+      console.error(`HTTP error fetching ${section.title}: ${res.status} ${res.statusText}`);
       return;
     }
 
     const data = await res.json();
+    console.log(`Received data for ${section.title}`, data);
 
     const oldShowMore = rowEl.querySelector('.show-more-card');
     if (oldShowMore) oldShowMore.remove();
 
     const movies = data.results || [];
-    console.log(`Loaded ${movies.length} movies for ${section.title}`);
 
     movies.slice(0, moviesPerLoad).forEach(movie => {
       const card = document.createElement('div');
@@ -114,6 +112,8 @@ async function renderMovieSection(section, container) {
       rowEl.appendChild(card);
     });
 
+    console.log(`Appended ${movies.length} movies to ${section.title}`);
+
     loadedCounts[section.title] = alreadyLoaded + moviesPerLoad;
 
     if (loadedCounts[section.title] < data.total_results) {
@@ -127,6 +127,6 @@ async function renderMovieSection(section, container) {
       rowEl.appendChild(moreCard);
     }
   } catch (err) {
-    console.error(`Failed loading ${section.title}`, err);
+    console.error('Failed loading', section.title, err);
   }
 }
