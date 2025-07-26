@@ -6,10 +6,10 @@
   <title>Bilm 💜 - Movies</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./style.css" />
-  <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
 </head>
 <body>
 
+<!-- Shared navbar placeholder -->
 <div id="navbar-placeholder"></div>
 
 <main>
@@ -17,27 +17,15 @@
 </main>
 
 <script>
-  // Load shared navbar HTML
+  // Load shared navbar, then load movie scripts
   fetch('/bilm.github.io/shared/navbar.html')
     .then(res => res.text())
     .then(html => {
       document.getElementById('navbar-placeholder').innerHTML = html;
-    })
-    .then(() => {
-      // After navbar inserted, load its JS
-      return import('/bilm.github.io/shared/navbar.js');
-    })
-    .then(() => {
-      console.log('Navbar loaded');
-      // Now load movie page script after navbar setup
+      // After navbar is loaded, load movie script
       const script = document.createElement('script');
       script.src = './script.js';
-      script.onload = () => console.log('Movie script loaded and running');
-      script.onerror = () => console.error('Failed to load movie script');
       document.body.appendChild(script);
-    })
-    .catch(err => {
-      console.error('Error loading navbar or scripts:', err);
     });
 </script>
 
