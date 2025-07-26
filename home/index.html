@@ -7,18 +7,22 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-  
+
   <!-- Shared Navbar CSS -->
   <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
-  <!-- Local Home Page CSS -->
+
+  <!-- Page-specific CSS -->
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
 
-  <!-- Navigation bar will load here -->
+  <!-- Shared navbar container -->
   <div id="navbar-placeholder"></div>
+
+  <!-- Background particles -->
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
+  <!-- Main content -->
   <main>
     <div class="search-container">
       <h1>
@@ -33,10 +37,9 @@
     </div>
   </main>
 
-  <!-- Navbar logic -->
-  <script src="/bilm.github.io/shared/navbar.js"></script>
+  <!-- Load shared navbar JS -->
+  <script src="/bilm.github.io/shared/navbar.js" defer></script>
 
-  <!-- Page Logic -->
   <script>
     const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
@@ -44,12 +47,14 @@
       const searchInput = document.getElementById('searchInput');
       const searchBtn = document.getElementById('searchBtn');
 
+      // Handle search button
       searchBtn.onclick = () => {
         const query = searchInput.value.trim();
         if (!query) return alert('Please enter a search term');
         window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
       };
 
+      // Handle Enter key
       searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           searchBtn.click();
@@ -58,7 +63,7 @@
     });
   </script>
 
-  <!-- Particle Background -->
+  <!-- Particle background animation -->
   <script>
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
