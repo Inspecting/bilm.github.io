@@ -6,21 +6,31 @@
   <title>Bilm 💜 - TV Shows</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
 </head>
 <body>
 
-<header>
-  <nav>
-    <button data-page="home">Home</button>
-    <button data-page="movies">Movies</button>
-    <button data-page="tv">TV Shows</button>
-  </nav>
-</header>
+<!-- Navbar placeholder -->
+<div id="navbar-placeholder"></div>
 
 <main>
   <div id="tvSections"></div>
 </main>
 
+<!-- Load shared navbar -->
+<script>
+  fetch('/bilm.github.io/shared/navbar.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('navbar-placeholder').innerHTML = html;
+
+      const navbarScript = document.createElement('script');
+      navbarScript.src = '/bilm.github.io/shared/navbar.js';
+      document.body.appendChild(navbarScript);
+    });
+</script>
+
+<!-- Load TV shows logic -->
 <script src="./script.js"></script>
 
 </body>
