@@ -5,15 +5,7 @@ const moviesPerLoad = 15;
 const loadedCounts = {};
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Movie script loaded and running');
-  
-  const container = document.getElementById('movieSections');
-  console.log('movieSections container:', container);
-
-  if (!container) {
-    console.error('Container #movieSections not found! Cannot render movies.');
-    return;
-  }
+  // No navbar button logic here; navbar handles that.
 
   const sections = [
     { title: 'Trending', endpoint: '/trending/movie/week' },
@@ -34,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { title: 'Thriller', endpoint: '/discover/movie?with_genres=53' }
   ];
 
+  const container = document.getElementById('movieSections');
   sections.forEach(section => {
     loadedCounts[section.title] = 0;
     renderMovieSection(section, container);
@@ -41,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function renderMovieSection(section, container) {
-  console.log(`Loading section: ${section.title}`);
   let sectionEl = document.getElementById(`section-${section.title.replace(/\s/g, '')}`);
   let rowEl;
 
@@ -73,16 +65,8 @@ async function renderMovieSection(section, container) {
       ? `https://api.themoviedb.org/3${section.endpoint}&api_key=${TMDB_API_KEY}&page=${page}`
       : `https://api.themoviedb.org/3${section.endpoint}?api_key=${TMDB_API_KEY}&page=${page}`;
 
-    console.log(`Fetching URL: ${url}`);
-
     const res = await fetch(url);
-    if (!res.ok) {
-      console.error(`HTTP error fetching ${section.title}: ${res.status} ${res.statusText}`);
-      return;
-    }
-
     const data = await res.json();
-    console.log(`Received data for ${section.title}`, data);
 
     const oldShowMore = rowEl.querySelector('.show-more-card');
     if (oldShowMore) oldShowMore.remove();
@@ -111,8 +95,6 @@ async function renderMovieSection(section, container) {
 
       rowEl.appendChild(card);
     });
-
-    console.log(`Appended ${movies.length} movies to ${section.title}`);
 
     loadedCounts[section.title] = alreadyLoaded + moviesPerLoad;
 
