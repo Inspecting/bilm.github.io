@@ -28,9 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const container = document.getElementById('movieSections');
-  sections.forEach(section => {
+
+  // Stagger section loading for smoother UX
+  sections.forEach((section, index) => {
     loadedCounts[section.title] = 0;
-    renderMovieSection(section, container);
+    setTimeout(() => {
+      renderMovieSection(section, container);
+    }, index * 200); // 200ms delay per section
   });
 });
 
@@ -71,11 +75,11 @@ async function renderMovieSection(section, container) {
 
     const movies = data.results || [];
 
-    // Remove old show more
     const oldShowMore = rowEl.querySelector('.show-more-card');
     if (oldShowMore) oldShowMore.remove();
 
-    // Render movie cards
+    let renderedCount = 0;
+
     movies.slice(0, moviesPerLoad).forEach(movie => {
       const card = document.createElement('div');
       card.className = 'movie-card';
@@ -98,11 +102,12 @@ async function renderMovieSection(section, container) {
       };
 
       rowEl.appendChild(card);
+      renderedCount++;
     });
 
-    loadedCounts[section.title] = alreadyLoaded + movies.length;
+    loadedCounts[section.title] += renderedCount;
 
-    // Show more only if more pages remain
+    // Show more button if more pages exist
     if (page < data.total_pages) {
       const moreCard = document.createElement('div');
       moreCard.className = 'show-more-card';
@@ -114,6 +119,6 @@ async function renderMovieSection(section, container) {
       rowEl.appendChild(moreCard);
     }
   } catch (err) {
-    console.error('❌ Failed loading', section.title, err);
+    console.error(`❌ Failed to load section "${section.title}":`, err);
   }
 }
