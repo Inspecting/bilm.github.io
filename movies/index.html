@@ -17,11 +17,14 @@
 </main>
 
 <script>
-  // Load shared navbar, then load movie scripts
   fetch('/bilm.github.io/shared/navbar.html')
     .then(res => res.text())
     .then(html => {
       document.getElementById('navbar-placeholder').innerHTML = html;
+      const script = document.createElement('script');
+      script.src = '/bilm.github.io/shared/navbar.js';
+      document.body.appendChild(script);
+    });
       // After navbar is loaded, load movie script
       const script = document.createElement('script');
       script.src = './script.js';
