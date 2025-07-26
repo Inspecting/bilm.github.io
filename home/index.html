@@ -33,10 +33,16 @@
     </div>
   </main>
 
-  <!-- Navbar script -->
-  <script src="/bilm.github.io/shared/navbar.html"></script>
+  <!-- Load shared navbar dynamically -->
+  <script>
+    fetch('/bilm.github.io/shared/navbar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('navbar-placeholder').innerHTML = html;
+      });
+  </script>
 
-  <!-- Search + page logic -->
+  <!-- Search + fade logic -->
   <script>
     const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
