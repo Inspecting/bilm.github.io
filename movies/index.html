@@ -4,40 +4,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bilm 💜 - Movies</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./style.css" />
-  <!-- Add shared navbar styles -->
   <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
 </head>
 <body>
 
-  <!-- Navbar placeholder -->
-  <div id="navbar-placeholder"></div>
+<div id="navbar-placeholder"></div>
 
-  <main>
-    <div id="movieSections"></div>
-  </main>
+<main>
+  <div id="movieSections"></div>
+</main>
 
-  <!-- Load navbar HTML and its JS -->
-  <script>
-    fetch('/bilm.github.io/shared/navbar.html')
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById('navbar-placeholder').innerHTML = html;
-        // Load navbar.js (shared navbar logic)
-        const navScript = document.createElement('script');
-        navScript.src = '/bilm.github.io/shared/navbar.js';
-        document.body.appendChild(navScript);
-
-        // After navbar loads, load the movie page script.js
-        navScript.onload = () => {
-          const movieScript = document.createElement('script');
-          movieScript.src = './script.js';
-          document.body.appendChild(movieScript);
-        };
-      });
-  </script>
+<script>
+  // Load shared navbar HTML
+  fetch('/bilm.github.io/shared/navbar.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('navbar-placeholder').innerHTML = html;
+    })
+    .then(() => {
+      // After navbar inserted, load its JS
+      return import('/bilm.github.io/shared/navbar.js');
+    })
+    .then(() => {
+      console.log('Navbar loaded');
+      // Now load movie page script after navbar setup
+      const script = document.createElement('script');
+      script.src = './script.js';
+      script.onload = () => console.log('Movie script loaded and running');
+      script.onerror = () => console.error('Failed to load movie script');
+      document.body.appendChild(script);
+    })
+    .catch(err => {
+      console.error('Error loading navbar or scripts:', err);
+    });
+</script>
 
 </body>
 </html>
