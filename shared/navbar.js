@@ -1,18 +1,23 @@
-const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
+// /shared/navbar.js
+document.addEventListener('DOMContentLoaded', () => {
+  const placeholder = document.getElementById('navbar-placeholder');
 
-export const navbarHTML = `
-  <nav>
-    <button data-page="home">Home</button>
-    <button data-page="movies">Movies</button>
-    <button data-page="tv">TV Shows</button>
-  </nav>
-`;
+  if (!placeholder) return;
 
-export function setupNavbar() {
-  document.querySelectorAll('nav button').forEach(btn => {
-    btn.onclick = () => {
-      const page = btn.dataset.page;
-      window.location.href = `${BASE_URL}/${page === 'home' ? 'home' : page}/`;
-    };
-  });
-}
+  fetch('/bilm.github.io/shared/navbar.html')
+    .then(res => res.text())
+    .then(html => {
+      placeholder.innerHTML = html;
+
+      // Navigation behavior
+      const base = 'https://inspecting.github.io/bilm.github.io';
+      document.querySelectorAll('nav button').forEach(btn => {
+        const page = btn.dataset.page;
+        btn.onclick = () => {
+          if (page === 'home') window.location.href = `${base}/home/`;
+          else if (page === 'movies') window.location.href = `${base}/movies/`;
+          else if (page === 'tv') window.location.href = `${base}/tv-shows/`;
+        };
+      });
+    });
+});
