@@ -80,6 +80,8 @@ async function renderMovieSection(section, container) {
         ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
         : 'https://via.placeholder.com/140x210?text=No+Image';
 
+      poster.alt = movie.title;
+
       const title = document.createElement('p');
       title.textContent = `${movie.title} (${movie.release_date?.slice(0, 4) || 'N/A'})`;
 
