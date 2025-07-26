@@ -8,8 +8,10 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 
-  <!-- Local + shared styles -->
+  <!-- Local style -->
   <link rel="stylesheet" href="./style.css" />
+
+  <!-- Shared navbar CSS -->
   <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
 </head>
 <body>
@@ -33,16 +35,21 @@
     </div>
   </main>
 
-  <!-- Load shared navbar dynamically -->
+  <!-- Load navbar and navbar.js -->
   <script>
     fetch('/bilm.github.io/shared/navbar.html')
       .then(res => res.text())
       .then(html => {
         document.getElementById('navbar-placeholder').innerHTML = html;
+
+        // Load the navbar JS after injecting the navbar HTML
+        const script = document.createElement('script');
+        script.src = '/bilm.github.io/shared/navbar.js';
+        document.body.appendChild(script);
       });
   </script>
 
-  <!-- Search + fade logic -->
+  <!-- Search + page logic -->
   <script>
     const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
