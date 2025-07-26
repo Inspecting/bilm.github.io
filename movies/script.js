@@ -4,37 +4,9 @@ const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 const moviesPerLoad = 15;
 const loadedCounts = {};
 
-// Wait until navbar buttons exist, then attach nav button listeners
-function waitForNavbarButtons() {
-  return new Promise((resolve) => {
-    const interval = setInterval(() => {
-      const navButtons = document.querySelectorAll('nav button[data-page]');
-      if (navButtons.length > 0) {
-        clearInterval(interval);
-        resolve(navButtons);
-      }
-    }, 50);
-  });
-}
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('✅ Movie script loaded and DOM ready');
 
-document.addEventListener('DOMContentLoaded', async () => {
-  // Wait for navbar buttons to be in DOM (because navbar loads async)
-  const navButtons = await waitForNavbarButtons();
-
-  navButtons.forEach(btn => {
-    btn.onclick = () => {
-      const page = btn.dataset.page;
-      if (page === 'home') {
-        window.location.href = `${BASE_URL}/home/`;
-      } else if (page === 'movies') {
-        window.location.href = `${BASE_URL}/movies/`;
-      } else if (page === 'tv') {
-        window.location.href = `${BASE_URL}/tv-shows/`;
-      }
-    };
-  });
-
-  // Now load movie sections as before
   const sections = [
     { title: 'Trending', endpoint: '/trending/movie/week' },
     { title: 'Popular', endpoint: '/movie/popular' },
@@ -109,7 +81,6 @@ async function renderMovieSection(section, container) {
       poster.src = movie.poster_path
         ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
         : 'https://via.placeholder.com/140x210?text=No+Image';
-      poster.alt = movie.title;
 
       const title = document.createElement('p');
       title.textContent = `${movie.title} (${movie.release_date?.slice(0, 4) || 'N/A'})`;
@@ -137,6 +108,6 @@ async function renderMovieSection(section, container) {
       rowEl.appendChild(moreCard);
     }
   } catch (err) {
-    console.error('Failed loading', section.title, err);
+    console.error('❌ Failed loading', section.title, err);
   }
 }
