@@ -4,12 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bilm 💜</title>
-
-  <!-- Google Fonts: Poppins -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../shared/navbar.css" />
   <link rel="stylesheet" href="./style.css" />
   <style>
-    /* Add the custom styles directly for the title and hearts */
     .search-container h1 {
       font-size: 3.5rem;
       color: #c084fc;
@@ -35,17 +33,8 @@
   </style>
 </head>
 <body>
-
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
-
-  <header>
-    <nav>
-      <button data-page="home">Home</button>
-      <button data-page="movies">Movies</button>
-      <button data-page="tv">TV Shows</button>
-    </nav>
-  </header>
-
+  <header><!-- Navbar will be injected here --></header>
   <main>
     <div class="search-container">
       <h1>
@@ -60,9 +49,14 @@
     </div>
   </main>
 
-  <script>
-    const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
+  <script type="module">
+    import { navbarHTML, setupNavbar } from '../shared/navbar.js';
+    
+    // Inject navbar
+    document.querySelector('header').innerHTML = navbarHTML;
+    setupNavbar();
 
+    // Existing home page logic
     document.addEventListener('DOMContentLoaded', () => {
       const header = document.querySelector('header');
       const main = document.querySelector('main');
@@ -72,38 +66,22 @@
       header.classList.add('visible');
       main.classList.add('visible');
 
-      // Navigation buttons
-      document.querySelectorAll('nav button').forEach(btn => {
-        btn.onclick = () => {
-          const page = btn.dataset.page;
-          if (page === 'home') {
-            window.location.href = `${BASE_URL}/home/`;
-          } else if (page === 'movies') {
-            window.location.href = `${BASE_URL}/movies/`;
-          } else if (page === 'tv') {
-            window.location.href = `${BASE_URL}/tv-shows/`;
-          }
-        };
-      });
-
       // Search button click
       searchBtn.onclick = () => {
         const query = searchInput.value.trim();
         if (!query) return alert('Please enter a search term');
-        window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
+        window.location.href = `../home/search.html?q=${encodeURIComponent(query)}`;
       };
 
-      // Optional: Enter key triggers search
+      // Enter key triggers search
       searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          searchBtn.click();
-        }
+        if (e.key === 'Enter') searchBtn.click();
       });
     });
   </script>
 
   <script>
-    // Particle background script
+    // Particle background script (keep as-is)
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
     const dotCount = 80;
@@ -160,6 +138,5 @@
       animate();
     });
   </script>
-
 </body>
 </html>
