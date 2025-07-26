@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bilm 💜 - Search Results</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+
+  <!-- Shared navbar CSS -->
+  <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
+
+  <style>
+    * {
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212;
+      color: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    /* Search bar container */
+    .search-bar-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding: 20px;
+      background-color: #1a1a1a;
+      position: sticky;
+      top: 60px; /* below navbar */
+      z-index: 900;
+    }
+
+    #searchInput {
+      flex: 1;
+      max-width: 600px;
+      padding: 12px 16px;
+      font-size: 1rem;
+      border-radius: 12px;
+      border: none;
+      background-color: #222;
+      color: #eee;
+      box-shadow: 0 0 8px #a14eff44;
+      font-weight: 500;
+    }
+
+    #searchBtn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      background-color: #c084fc;
+      color: white;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #searchBtn:hover {
+      background-color: #a855f7;
+    }
+
+    main {
+      flex: 1;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #c084fc;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    section {
+      margin-bottom: 30px;
+    }
+
+    .results-row {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .results-row::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .results-row::-webkit-scrollbar-track {
+      background: #1e1e1e;
+    }
+
+    .results-row::-webkit-scrollbar-thumb {
+      background-color: #a14eff;
+      border-radius: 10px;
+    }
+
+    .card {
+      flex: 0 0 auto;
+      width: 140px;
+      cursor: pointer;
+      border-radius: 12px;
+      overflow: hidden;
+      background-color: #2a2a2a;
+      box-shadow: 0 0 8px #a14eff66;
+      transition: transform 0.2s ease;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card img {
+      width: 140px;
+      height: 210px;
+      object-fit: cover;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .card p {
+      padding: 6px 8px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #eee;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-grow: 1;
+    }
+
+    .no-results {
+      text-align: center;
+      color: #888;
+      font-size: 16px;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Shared navbar placeholder -->
+  <div id="navbar-placeholder"></div>
+
+  <!-- Search bar -->
+  <div class="search-bar-container">
+    <input 
+      id="searchInput" 
+      type="search" 
+      placeholder="Search movies or TV shows..."
+      value=""
+      autocomplete="off"
+    />
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <main>
+    <h1 id="resultsTitle">Search Results for ""</h1>
+    
+    <section id="moviesSection">
+      <h2 style="color:#c084fc; margin-bottom:12px;">Movies</h2>
+      <div class="results-row" id="moviesResults"></div>
+    </section>
+
+    <section id="tvSection">
+      <h2 style="color:#c084fc; margin-bottom:12px;">TV Shows</h2>
+      <div class="results-row" id="tvResults"></div>
+    </section>
+  </main>
+
+  <!-- Load navbar and navbar.js -->
+  <script>
+    fetch('/bilm.github.io/shared/navbar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('navbar-placeholder').innerHTML = html;
+
+        const script = document.createElement('script');
+        script.src = '/bilm.github.io/shared/navbar.js';
+        document.body.appendChild(script);
+      });
+  </script>
+
+  <script>
+    const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
+    const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentQuery = urlParams.get('q') || '';
+
+    const searchInput = document.getElementById('searchInput');
+    const resultsTitle = document.getElementById('resultsTitle');
+    const moviesSection = document.getElementById('moviesSection');
+    const tvSection = document.getElementById('tvSection');
+    const moviesResults = document.getElementById('moviesResults');
+    const tvResults = document.getElementById('tvResults');
+
+    searchInput.value = currentQuery;
+    resultsTitle.textContent = `Search Results for "${currentQuery}"`;
+
+    document.getElementById('searchBtn').addEventListener('click', () => {
+      const query = searchInput.value.trim();
+      if (query) {
+        window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
+      }
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('searchBtn').click();
+      }
+    });
+
+    if (currentQuery) {
+      Promise.all([
+        fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`),
+        fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`)
+      ])
+      .then(async ([movieRes, tvRes]) => {
+        const movies = (await movieRes.json()).results || [];
+        const tvs = (await tvRes.json()).results || [];
+
+        renderResults(moviesResults, movies, 'movie');
+        renderResults(tvResults, tvs, 'tv');
+
+        if (movies.length === 0) {
+          moviesSection.innerHTML = '<p class="no-results">No movies found.</p>';
+        }
+        if (tvs.length === 0) {
+          tvSection.innerHTML = '<p class="no-results">No TV shows found.</p>';
+        }
+      })
+      .catch(err => {
+        console.error('Search failed', err);
+        moviesSection.innerHTML = '<p class="no-results">Failed to load results.</p>';
+        tvSection.innerHTML = '';
+      });
+    } else {
+      moviesSection.innerHTML = '<p class="no-results">Please enter a search term.</p>';
+      tvSection.innerHTML = '';
+    }
+
+    function renderResults(container, items, type) {
+      container.innerHTML = '';
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const img = document.createElement('img');
+        img.src = item.poster_path
+          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+          : 'https://via.placeholder.com/140x210?text=No+Image';
+        img.alt = type === 'movie' ? item.title : item.name;
+
+        const title = document.createElement('p');
+        title.textContent = type === 'movie'
+          ? `${item.title} (${item.release_date?.slice(0,4) || 'N/A'})`
+          : `${item.name} (${item.first_air_date?.slice(0,4) || 'N/A'})`;
+
+        card.appendChild(img);
+        card.appendChild(title);
+
+        card.onclick = () => {
+          window.location.href = `${BASE_URL}/${type === 'movie' ? 'movies' : 'tv-shows'}/viewer.html?id=${item.id}`;
+        };
+
+        container.appendChild(card);
+      });
+    }
+  </script>
+
+</body>
+</html>
