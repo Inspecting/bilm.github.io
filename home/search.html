@@ -1,152 +1,278 @@
-<script>
-const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
-const OMDB_API_KEY = '9bf8cd26';
-const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bilm 💜 - Search Results</title>
 
-const urlParams = new URLSearchParams(window.location.search);
-const currentQuery = urlParams.get('q') || '';
-
-const searchInput = document.getElementById('searchInput');
-const resultsTitle = document.getElementById('resultsTitle');
-const moviesSection = document.getElementById('moviesSection');
-const tvSection = document.getElementById('tvSection');
-const moviesResults = document.getElementById('moviesResults');
-const tvResults = document.getElementById('tvResults');
-
-searchInput.value = currentQuery;
-resultsTitle.textContent = `Search Results for "${currentQuery}"`;
-
-// Handle search button
-document.getElementById('searchBtn').addEventListener('click', () => {
-  const query = searchInput.value.trim();
-  if (query) {
-    window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
-  }
-});
-
-searchInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    document.getElementById('searchBtn').click();
-  }
-});
-
-// Perform search
-if (currentQuery) {
-  Promise.all([
-    fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`).then(r => r.json()),
-    fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`).then(r => r.json()),
-    fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(currentQuery)}&apikey=${OMDB_API_KEY}&type=movie`).then(r => r.json()),
-    fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(currentQuery)}&apikey=${OMDB_API_KEY}&type=series`).then(r => r.json())
-  ])
-  .then(([tmdbMovies, tmdbTV, omdbMovies, omdbTV]) => {
-    const movieMap = new Map();
-    const tvMap = new Map();
-
-    // TMDB Movies
-    (tmdbMovies.results || []).forEach(item => {
-      const key = `${item.title}-${item.release_date?.slice(0, 4)}`;
-      if (!movieMap.has(key)) {
-        movieMap.set(key, {
-          title: item.title,
-          year: item.release_date?.slice(0, 4) || 'N/A',
-          img: item.poster_path
-            ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-            : 'https://via.placeholder.com/140x210?text=No+Image',
-          link: `${BASE_URL}/movies/viewer.html?id=${item.id}`,
-          source: 'TMDB'
-        });
-      }
-    });
-
-    // TMDB TV Shows
-    (tmdbTV.results || []).forEach(item => {
-      const key = `${item.name}-${item.first_air_date?.slice(0, 4)}`;
-      if (!tvMap.has(key)) {
-        tvMap.set(key, {
-          title: item.name,
-          year: item.first_air_date?.slice(0, 4) || 'N/A',
-          img: item.poster_path
-            ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-            : 'https://via.placeholder.com/140x210?text=No+Image',
-          link: `${BASE_URL}/tv-shows/viewer.html?id=${item.id}`,
-          source: 'TMDB'
-        });
-      }
-    });
-
-    // OMDB Movies
-    (omdbMovies.Search || []).forEach(item => {
-      const key = `${item.Title}-${item.Year}`;
-      if (!movieMap.has(key)) {
-        movieMap.set(key, {
-          title: item.Title,
-          year: item.Year,
-          img: item.Poster !== 'N/A' ? item.Poster : 'https://via.placeholder.com/140x210?text=No+Image',
-          link: `https://www.imdb.com/title/${item.imdbID}`,
-          source: 'OMDB'
-        });
-      }
-    });
-
-    // OMDB TV Shows
-    (omdbTV.Search || []).forEach(item => {
-      const key = `${item.Title}-${item.Year}`;
-      if (!tvMap.has(key)) {
-        tvMap.set(key, {
-          title: item.Title,
-          year: item.Year,
-          img: item.Poster !== 'N/A' ? item.Poster : 'https://via.placeholder.com/140x210?text=No+Image',
-          link: `https://www.imdb.com/title/${item.imdbID}`,
-          source: 'OMDB'
-        });
-      }
-    });
-
-    // Render results
-    renderResults(moviesResults, Array.from(movieMap.values()));
-    renderResults(tvResults, Array.from(tvMap.values()));
-
-    if (movieMap.size === 0) {
-      moviesSection.innerHTML = '<p class="no-results">No movies found.</p>';
+  <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #121212;
+      color: #eee;
+      margin: 0;
+      padding: 0;
     }
-    if (tvMap.size === 0) {
-      tvSection.innerHTML = '<p class="no-results">No TV shows found.</p>';
+
+    .search-bar-container {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      background-color: #1a1a1a;
+      gap: 12px;
+      position: sticky;
+      top: 60px;
+      z-index: 1000;
     }
-  })
-  .catch(err => {
-    console.error('Search failed', err);
-    moviesSection.innerHTML = '<p class="no-results">Failed to load results.</p>';
-    tvSection.innerHTML = '';
-  });
-} else {
-  moviesSection.innerHTML = '<p class="no-results">Please enter a search term.</p>';
-  tvSection.innerHTML = '';
-}
 
-// Render result cards
-function renderResults(container, items) {
-  container.innerHTML = '';
-  items.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'card';
+    #searchInput {
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #222;
+      color: #eee;
+      width: 60%;
+    }
 
-    const img = document.createElement('img');
-    img.src = item.img;
-    img.alt = item.title;
+    #searchBtn {
+      padding: 12px 24px;
+      background: #a14eff;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
 
-    const title = document.createElement('p');
-    title.textContent = `${item.title} (${item.year})`;
+    main {
+      padding: 20px;
+    }
 
-    card.appendChild(img);
-    card.appendChild(title);
-    card.dataset.source = item.source;
+    h1 {
+      color: #c084fc;
+      text-align: center;
+    }
 
-    card.onclick = () => {
-      console.log(`🟣 Clicked on "${item.title}" from API: ${item.source}`);
-      window.location.href = item.link;
-    };
+    section {
+      margin-top: 30px;
+    }
 
-    container.appendChild(card);
-  });
-}
-</script>
+    .results-row {
+      display: flex;
+      overflow-x: auto;
+      gap: 12px;
+    }
+
+    .card {
+      width: 140px;
+      background: #2a2a2a;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 0 8px #a14eff66;
+      transition: transform 0.2s;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card img {
+      width: 100%;
+      height: 210px;
+      object-fit: cover;
+    }
+
+    .card p {
+      padding: 10px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .no-results {
+      text-align: center;
+      color: #888;
+      font-size: 16px;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar-placeholder"></div>
+
+  <div class="search-bar-container">
+    <input id="searchInput" type="search" placeholder="Search movies or TV shows..." />
+    <button id="searchBtn">Search</button>
+  </div>
+
+  <main>
+    <h1 id="resultsTitle">Search Results for ""</h1>
+
+    <section id="moviesSection">
+      <h2>Movies</h2>
+      <div class="results-row" id="moviesResults"></div>
+    </section>
+
+    <section id="tvSection">
+      <h2>TV Shows</h2>
+      <div class="results-row" id="tvResults"></div>
+    </section>
+  </main>
+
+  <!-- NAVBAR -->
+  <script>
+    fetch('/bilm.github.io/shared/navbar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('navbar-placeholder').innerHTML = html;
+        const script = document.createElement('script');
+        script.src = '/bilm.github.io/shared/navbar.js';
+        document.body.appendChild(script);
+      });
+  </script>
+
+  <!-- SEARCH LOGIC -->
+  <script>
+    const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
+    const OMDB_API_KEY = '9bf8cd26';
+    const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentQuery = urlParams.get('q') || '';
+
+    const searchInput = document.getElementById('searchInput');
+    const resultsTitle = document.getElementById('resultsTitle');
+    const moviesSection = document.getElementById('moviesSection');
+    const tvSection = document.getElementById('tvSection');
+    const moviesResults = document.getElementById('moviesResults');
+    const tvResults = document.getElementById('tvResults');
+
+    searchInput.value = currentQuery;
+    resultsTitle.textContent = `Search Results for "${currentQuery}"`;
+
+    document.getElementById('searchBtn').addEventListener('click', () => {
+      const query = searchInput.value.trim();
+      if (query) {
+        window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
+      }
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('searchBtn').click();
+      }
+    });
+
+    if (currentQuery) {
+      Promise.all([
+        fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`).then(r => r.json()),
+        fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(currentQuery)}&apikey=${OMDB_API_KEY}&type=movie`).then(r => r.json()),
+        fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(currentQuery)}&apikey=${OMDB_API_KEY}&type=series`).then(r => r.json())
+      ])
+      .then(([tmdbMovies, tmdbTV, omdbMovies, omdbTV]) => {
+        const movieMap = new Map();
+        const tvMap = new Map();
+
+        (tmdbMovies.results || []).forEach(item => {
+          const key = `${item.title}-${item.release_date?.slice(0, 4)}`;
+          if (!movieMap.has(key)) {
+            movieMap.set(key, {
+              title: item.title,
+              year: item.release_date?.slice(0, 4) || 'N/A',
+              img: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/140x210?text=No+Image',
+              link: `${BASE_URL}/movies/viewer.html?id=${item.id}`,
+              source: 'TMDB'
+            });
+          }
+        });
+
+        (tmdbTV.results || []).forEach(item => {
+          const key = `${item.name}-${item.first_air_date?.slice(0, 4)}`;
+          if (!tvMap.has(key)) {
+            tvMap.set(key, {
+              title: item.name,
+              year: item.first_air_date?.slice(0, 4) || 'N/A',
+              img: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/140x210?text=No+Image',
+              link: `${BASE_URL}/tv-shows/viewer.html?id=${item.id}`,
+              source: 'TMDB'
+            });
+          }
+        });
+
+        (omdbMovies.Search || []).forEach(item => {
+          const key = `${item.Title}-${item.Year}`;
+          if (!movieMap.has(key)) {
+            movieMap.set(key, {
+              title: item.Title,
+              year: item.Year,
+              img: item.Poster !== 'N/A' ? item.Poster : 'https://via.placeholder.com/140x210?text=No+Image',
+              link: `https://www.imdb.com/title/${item.imdbID}`,
+              source: 'OMDB'
+            });
+          }
+        });
+
+        (omdbTV.Search || []).forEach(item => {
+          const key = `${item.Title}-${item.Year}`;
+          if (!tvMap.has(key)) {
+            tvMap.set(key, {
+              title: item.Title,
+              year: item.Year,
+              img: item.Poster !== 'N/A' ? item.Poster : 'https://via.placeholder.com/140x210?text=No+Image',
+              link: `https://www.imdb.com/title/${item.imdbID}`,
+              source: 'OMDB'
+            });
+          }
+        });
+
+        renderResults(moviesResults, Array.from(movieMap.values()));
+        renderResults(tvResults, Array.from(tvMap.values()));
+
+        if (movieMap.size === 0) {
+          moviesSection.innerHTML = '<p class="no-results">No movies found.</p>';
+        }
+        if (tvMap.size === 0) {
+          tvSection.innerHTML = '<p class="no-results">No TV shows found.</p>';
+        }
+      })
+      .catch(err => {
+        console.error('Search failed', err);
+        moviesSection.innerHTML = '<p class="no-results">Failed to load results.</p>';
+        tvSection.innerHTML = '';
+      });
+    } else {
+      moviesSection.innerHTML = '<p class="no-results">Please enter a search term.</p>';
+      tvSection.innerHTML = '';
+    }
+
+    function renderResults(container, items) {
+      container.innerHTML = '';
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const img = document.createElement('img');
+        img.src = item.img;
+        img.alt = item.title;
+
+        const title = document.createElement('p');
+        title.textContent = `${item.title} (${item.year})`;
+
+        card.appendChild(img);
+        card.appendChild(title);
+        card.dataset.source = item.source;
+
+        card.onclick = () => {
+          console.log(`🟣 Clicked on "${item.title}" from API: ${item.source}`);
+          window.location.href = item.link;
+        };
+
+        container.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
