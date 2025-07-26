@@ -9,19 +9,24 @@
 </head>
 <body>
 
-<header>
-  <nav>
-    <button data-page="home">Home</button>
-    <button data-page="movies">Movies</button>
-    <button data-page="tv">TV Shows</button>
-  </nav>
-</header>
+<!-- Shared navbar placeholder -->
+<div id="navbar-placeholder"></div>
 
 <main>
   <div id="movieSections"></div>
 </main>
 
-<script src="./script.js"></script>
+<!-- Load shared navbar then page logic -->
+<script>
+  fetch('/bilm.github.io/shared/navbar.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('navbar-placeholder').innerHTML = html;
+      const script = document.createElement('script');
+      script.src = './script.js';
+      document.body.appendChild(script);
+    });
+</script>
 
 </body>
 </html>
