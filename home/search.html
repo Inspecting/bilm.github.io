@@ -5,20 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bilm 💜 - Search Results</title>
 
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-
-  <!-- Shared navbar CSS -->
   <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
 
   <style>
-    * {
-      margin: 0; 
-      padding: 0; 
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Poppins', sans-serif;
       background-color: #121212;
       color: #f0f0f0;
       min-height: 100vh;
@@ -27,7 +20,6 @@
       overflow-y: auto;
     }
 
-    /* Search bar container */
     .search-bar-container {
       display: flex;
       justify-content: center;
@@ -35,7 +27,7 @@
       padding: 20px;
       background-color: #1a1a1a;
       position: sticky;
-      top: 60px; /* below navbar */
+      top: 60px;
       z-index: 900;
     }
 
@@ -60,17 +52,11 @@
       font-weight: 600;
       border: none;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
 
-    #searchBtn:hover {
-      background-color: #a855f7;
-    }
+    #searchBtn:hover { background-color: #a855f7; }
 
-    main {
-      flex: 1;
-      padding: 20px;
-    }
+    main { flex: 1; padding: 20px; }
 
     h1 {
       color: #c084fc;
@@ -79,9 +65,7 @@
       font-weight: 700;
     }
 
-    section {
-      margin-bottom: 30px;
-    }
+    section { margin-bottom: 30px; }
 
     .results-row {
       display: flex;
@@ -117,9 +101,7 @@
       flex-direction: column;
     }
 
-    .card:hover {
-      transform: scale(1.05);
-    }
+    .card:hover { transform: scale(1.05); }
 
     .card img {
       width: 140px;
@@ -150,18 +132,10 @@
 </head>
 <body>
 
-  <!-- Shared navbar placeholder -->
   <div id="navbar-placeholder"></div>
 
-  <!-- Search bar -->
   <div class="search-bar-container">
-    <input 
-      id="searchInput" 
-      type="search" 
-      placeholder="Search movies or TV shows..."
-      value=""
-      autocomplete="off"
-    />
+    <input id="searchInput" type="search" placeholder="Search movies or TV shows..." autocomplete="off" />
     <button id="searchBtn">Search</button>
   </div>
 
@@ -179,21 +153,21 @@
     </section>
   </main>
 
-  <!-- Load navbar and navbar.js -->
   <script>
     fetch('/bilm.github.io/shared/navbar.html')
       .then(res => res.text())
       .then(html => {
         document.getElementById('navbar-placeholder').innerHTML = html;
-
         const script = document.createElement('script');
         script.src = '/bilm.github.io/shared/navbar.js';
         document.body.appendChild(script);
       });
   </script>
 
+  <!-- Full Search Logic -->
   <script>
     const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
+    const OMDB_API_KEY = '9bf8cd26';
     const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -224,20 +198,74 @@
 
     if (currentQuery) {
       Promise.all([
-        fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`),
-        fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`)
+        fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`).then(r => r.json()),
+        fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`).then(r => r.json()),
+        fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(currentQuery)}&apikey=${OMDB_API_KEY}&type=movie`).then(r => r.json()),
+        fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(currentQuery)}&apikey=${OMDB_API_KEY}&type=series`).then(r => r.json())
       ])
-      .then(async ([movieRes, tvRes]) => {
-        const movies = (await movieRes.json()).results || [];
-        const tvs = (await tvRes.json()).results || [];
+      .then(([tmdbMovies, tmdbTV, omdbMovies, omdbTV]) => {
+        const movieMap = new Map();
+        const tvMap = new Map();
 
-        renderResults(moviesResults, movies, 'movie');
-        renderResults(tvResults, tvs, 'tv');
+        (tmdbMovies.results || []).forEach(item => {
+          const key = `${item.title}-${item.release_date?.slice(0, 4)}`;
+          if (!movieMap.has(key)) {
+            movieMap.set(key, {
+              title: item.title,
+              year: item.release_date?.slice(0, 4) || 'N/A',
+              img: item.poster_path
+                ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                : 'https://via.placeholder.com/140x210?text=No+Image',
+              link: `${BASE_URL}/movies/viewer.html?id=${item.id}`
+            });
+          }
+        });
 
-        if (movies.length === 0) {
+        (tmdbTV.results || []).forEach(item => {
+          const key = `${item.name}-${item.first_air_date?.slice(0, 4)}`;
+          if (!tvMap.has(key)) {
+            tvMap.set(key, {
+              title: item.name,
+              year: item.first_air_date?.slice(0, 4) || 'N/A',
+              img: item.poster_path
+                ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                : 'https://via.placeholder.com/140x210?text=No+Image',
+              link: `${BASE_URL}/tv-shows/viewer.html?id=${item.id}`
+            });
+          }
+        });
+
+        (omdbMovies.Search || []).forEach(item => {
+          const key = `${item.Title}-${item.Year}`;
+          if (!movieMap.has(key)) {
+            movieMap.set(key, {
+              title: item.Title,
+              year: item.Year,
+              img: item.Poster !== 'N/A' ? item.Poster : 'https://via.placeholder.com/140x210?text=No+Image',
+              link: `https://www.imdb.com/title/${item.imdbID}`
+            });
+          }
+        });
+
+        (omdbTV.Search || []).forEach(item => {
+          const key = `${item.Title}-${item.Year}`;
+          if (!tvMap.has(key)) {
+            tvMap.set(key, {
+              title: item.Title,
+              year: item.Year,
+              img: item.Poster !== 'N/A' ? item.Poster : 'https://via.placeholder.com/140x210?text=No+Image',
+              link: `https://www.imdb.com/title/${item.imdbID}`
+            });
+          }
+        });
+
+        renderResults(moviesResults, Array.from(movieMap.values()));
+        renderResults(tvResults, Array.from(tvMap.values()));
+
+        if (movieMap.size === 0) {
           moviesSection.innerHTML = '<p class="no-results">No movies found.</p>';
         }
-        if (tvs.length === 0) {
+        if (tvMap.size === 0) {
           tvSection.innerHTML = '<p class="no-results">No TV shows found.</p>';
         }
       })
@@ -251,28 +279,24 @@
       tvSection.innerHTML = '';
     }
 
-    function renderResults(container, items, type) {
+    function renderResults(container, items) {
       container.innerHTML = '';
       items.forEach(item => {
         const card = document.createElement('div');
         card.className = 'card';
 
         const img = document.createElement('img');
-        img.src = item.poster_path
-          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-          : 'https://via.placeholder.com/140x210?text=No+Image';
-        img.alt = type === 'movie' ? item.title : item.name;
+        img.src = item.img;
+        img.alt = item.title;
 
         const title = document.createElement('p');
-        title.textContent = type === 'movie'
-          ? `${item.title} (${item.release_date?.slice(0,4) || 'N/A'})`
-          : `${item.name} (${item.first_air_date?.slice(0,4) || 'N/A'})`;
+        title.textContent = `${item.title} (${item.year})`;
 
         card.appendChild(img);
         card.appendChild(title);
 
         card.onclick = () => {
-          window.location.href = `${BASE_URL}/${type === 'movie' ? 'movies' : 'tv-shows'}/viewer.html?id=${item.id}`;
+          window.location.href = item.link;
         };
 
         container.appendChild(card);
