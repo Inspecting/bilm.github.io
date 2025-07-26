@@ -1,12 +1,12 @@
 const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
+const OMDB_API_KEY = '9bf8cd26';
 const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
 const showsPerLoad = 15;
 const loadedCounts = {};
+const addedShowsBySection = {};
 
 document.addEventListener('DOMContentLoaded', () => {
-  // No nav buttons logic here anymore, navbar.js handles that
-
   const sections = [
     { title: 'Trending', endpoint: '/trending/tv/week' },
     { title: 'Popular', endpoint: '/tv/popular' },
@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('tvSections');
   sections.forEach(section => {
     loadedCounts[section.title] = 0;
+    addedShowsBySection[section.title] = new Set();
     renderTVSection(section, container);
   });
 });
@@ -75,19 +76,32 @@ async function renderTVSection(section, container) {
 
     const shows = data.results || [];
 
-    shows.slice(0, showsPerLoad).forEach(show => {
+    for (const show of shows.slice(0, showsPerLoad)) {
+      const uniqueKey = `${show.name}-${show.first_air_date?.slice(0, 4)}`;
+      if (addedShowsBySection[section.title].has(uniqueKey)) continue;
+
+      let poster = show.poster_path
+        ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
+        : null;
+
+      const imdbId = await getImdbIdFromTmdbTV(show.id);
+      if (imdbId) {
+        const omdbData = await fetchOmdbData(imdbId);
+        if (omdbData?.Poster && omdbData.Poster !== 'N/A') {
+          poster = omdbData.Poster;
+        }
+      }
+
       const card = document.createElement('div');
       card.className = 'movie-card';
 
-      const poster = document.createElement('img');
-      poster.src = show.poster_path
-        ? `https://image.tmdb.org/t/p/w500${show.poster_path}`
-        : 'https://via.placeholder.com/140x210?text=No+Image';
+      const posterImg = document.createElement('img');
+      posterImg.src = poster || 'https://via.placeholder.com/140x210?text=No+Image';
 
       const title = document.createElement('p');
       title.textContent = `${show.name} (${show.first_air_date?.slice(0, 4) || 'N/A'})`;
 
-      card.appendChild(poster);
+      card.appendChild(posterImg);
       card.appendChild(title);
 
       card.onclick = () => {
@@ -95,7 +109,8 @@ async function renderTVSection(section, container) {
       };
 
       rowEl.appendChild(card);
-    });
+      addedShowsBySection[section.title].add(uniqueKey);
+    }
 
     loadedCounts[section.title] = alreadyLoaded + showsPerLoad;
 
@@ -110,6 +125,26 @@ async function renderTVSection(section, container) {
       rowEl.appendChild(moreCard);
     }
   } catch (err) {
-    console.error('Failed loading', section.title, err);
+    console.error('❌ Failed loading', section.title, err);
+  }
+}
+
+async function getImdbIdFromTmdbTV(tmdbId) {
+  try {
+    const res = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}/external_ids?api_key=${TMDB_API_KEY}`);
+    const data = await res.json();
+    return data.imdb_id;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function fetchOmdbData(imdbId) {
+  try {
+    const res = await fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDB_API_KEY}`);
+    const data = await res.json();
+    return data;
+  } catch (e) {
+    return null;
   }
 }
