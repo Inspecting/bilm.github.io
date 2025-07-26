@@ -3,46 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bilm 💜 - TV Show Viewer</title>
+  <title>Bilm 💜 - TV Viewer</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../shared/navbar.css" />
   <style>
-    /* Reset and base */
     * {
-      margin: 0; padding: 0; box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    html, body {
-      height: 100%;
-      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    
+    body {
+      font-family: 'Poppins', sans-serif;
       background-color: #121212;
       color: #f0f0f0;
-    }
-    body {
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      padding-top: 60px; /* Space for fixed navbar */
     }
 
-    /* Main content */
     main {
       flex: 1;
       padding: 20px;
-      overflow-y: auto;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    /* Player container */
     #playerContainer {
       width: 800px;
       max-width: 95vw;
-      aspect-ratio: 16 / 9;
-      background-color: black;
-      position: relative;
+      aspect-ratio: 16/9;
+      background: #000;
       border-radius: 12px;
       box-shadow: 0 0 15px #a14effaa;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     iframe {
@@ -52,70 +48,59 @@
       border-radius: 12px;
     }
 
-    /* Fullscreen button */
+    #selectors {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      width: 800px;
+      max-width: 95vw;
+    }
+
+    select {
+      flex: 1;
+      padding: 8px 12px;
+      background-color: #2a2a2a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
     #fullscreenBtn {
-      position: relative;
-      margin: 8px auto 16px auto;
-      display: block;
+      padding: 8px 16px;
       background-color: #3a1361;
       color: white;
       border: none;
-      padding: 8px 14px;
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
       transition: background-color 0.3s ease;
-      max-width: 120px;
-      text-align: center;
-    }
-    #fullscreenBtn:hover {
-      background-color: #a855f7;
     }
 
-    /* Season & episode selectors */
-    #selectors {
-      width: 800px;
-      max-width: 95vw;
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-    select {
-      background-color: #2a2a2a;
-      border: none;
-      border-radius: 8px;
-      color: #eee;
-      padding: 8px 12px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    select:hover {
-      background-color: #3a1361;
+    #fullscreenBtn:hover {
+      background-color: #a855f7;
     }
   </style>
 </head>
 <body>
-  <header><!-- Navbar injected here --></header>
+  <header></header>
 
   <main>
     <div id="playerContainer">
       <iframe
         id="videoPlayer"
-        src=""
         allowfullscreen
         allow="fullscreen; encrypted-media"
         playsinline
         scrolling="no"
       ></iframe>
     </div>
-
+    
     <div id="selectors">
       <select id="seasonSelect"></select>
       <select id="episodeSelect"></select>
     </div>
-
+    
     <button id="fullscreenBtn">Fullscreen</button>
   </main>
 
@@ -123,51 +108,42 @@
     import { navbarHTML, setupNavbar } from '../shared/navbar.js';
     document.querySelector('header').innerHTML = navbarHTML;
     setupNavbar();
+    document.querySelector('header').style.opacity = '1';
 
     const params = new URLSearchParams(window.location.search);
     const showId = params.get('id');
     const iframe = document.getElementById('videoPlayer');
     const seasonSelect = document.getElementById('seasonSelect');
     const episodeSelect = document.getElementById('episodeSelect');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
 
     async function loadSeasons() {
-      try {
-        const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=3ade810499876bb5672f40e54960e6a2`);
-        const data = await res.json();
-
-        seasonSelect.innerHTML = '';
-        data.seasons.forEach(season => {
-          if (season.season_number === 0) return;
+      const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=3ade810499876bb5672f40e54960e6a2`);
+      const data = await res.json();
+      
+      seasonSelect.innerHTML = '';
+      data.seasons.forEach(season => {
+        if (season.season_number > 0) { // Skip season 0
           const option = document.createElement('option');
           option.value = season.season_number;
           option.textContent = `Season ${season.season_number}`;
           seasonSelect.appendChild(option);
-        });
-
-        await loadEpisodes(seasonSelect.value);
-      } catch (e) {
-        console.error(e);
-      }
+        }
+      });
+      loadEpisodes(seasonSelect.value);
     }
 
-    async function loadEpisodes(seasonNumber) {
-      try {
-        const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNumber}?api_key=3ade810499876bb5672f40e54960e6a2`);
-        const data = await res.json();
-
-        episodeSelect.innerHTML = '';
-        data.episodes.forEach(ep => {
-          const option = document.createElement('option');
-          option.value = ep.episode_number;
-          option.textContent = `Episode ${ep.episode_number}`;
-          episodeSelect.appendChild(option);
-        });
-
-        loadVideo(seasonNumber, episodeSelect.value);
-      } catch (e) {
-        console.error(e);
-      }
+    async function loadEpisodes(season) {
+      const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${season}?api_key=3ade810499876bb5672f40e54960e6a2`);
+      const data = await res.json();
+      
+      episodeSelect.innerHTML = '';
+      data.episodes.forEach(ep => {
+        const option = document.createElement('option');
+        option.value = ep.episode_number;
+        option.textContent = `Episode ${ep.episode_number}`;
+        episodeSelect.appendChild(option);
+      });
+      loadVideo(season, episodeSelect.value);
     }
 
     function loadVideo(season, episode) {
@@ -176,7 +152,7 @@
 
     seasonSelect.addEventListener('change', () => loadEpisodes(seasonSelect.value));
     episodeSelect.addEventListener('change', () => loadVideo(seasonSelect.value, episodeSelect.value));
-    fullscreenBtn.onclick = () => iframe.requestFullscreen?.();
+    document.getElementById('fullscreenBtn').onclick = () => iframe.requestFullscreen();
 
     if (showId) loadSeasons();
   </script>
