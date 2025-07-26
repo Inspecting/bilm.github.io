@@ -9,12 +9,15 @@
 </head>
 <body>
 
-<!-- Shared navbar placeholder -->
-<div id="navbar-placeholder"></div>
-
-<main>
-  <div id="movieSections"></div>
-</main>
+<script>
+  fetch('/bilm.github.io/shared/navbar.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('navbar-placeholder').innerHTML = html;
+      const script = document.createElement('script');
+      script.src = '/bilm.github.io/shared/navbar.js';
+      document.body.appendChild(script);
+    });
 
 <script>
   // Load shared navbar, then load movie scripts
