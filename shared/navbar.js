@@ -1,23 +1,29 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const navbarPath = '/bilm.github.io/shared/navbar.html';
-  fetch(navbarPath)
-    .then(response => response.text())
-    .then(html => {
-      const container = document.getElementById('navbar-placeholder');
-      if (container) {
-        container.innerHTML = html;
+document.addEventListener("DOMContentLoaded", () => {
+  const navbar = `
+    <header>
+      <nav>
+        <button data-page="home">Home</button>
+        <button data-page="movies">Movies</button>
+        <button data-page="tv">TV Shows</button>
+      </nav>
+    </header>
+  `;
+  const placeholder = document.getElementById('navbar-placeholder');
+  if (placeholder) {
+    placeholder.innerHTML = navbar;
 
-        // Hook nav buttons
-        document.querySelectorAll('nav button').forEach(btn => {
-          const page = btn.dataset.page;
-          btn.addEventListener('click', () => {
-            const base = 'https://inspecting.github.io/bilm.github.io';
-            if (page === 'home') window.location.href = `${base}/home/`;
-            else if (page === 'movies') window.location.href = `${base}/movies/`;
-            else if (page === 'tv') window.location.href = `${base}/tv-shows/`;
-          });
-        });
-      }
-    })
-    .catch(err => console.error('Navbar failed to load:', err));
+    // Navigation logic
+    document.querySelectorAll('nav button').forEach(btn => {
+      btn.onclick = () => {
+        const page = btn.dataset.page;
+        if (page === 'home') {
+          window.location.href = '/bilm.github.io/home/';
+        } else if (page === 'movies') {
+          window.location.href = '/bilm.github.io/movies/';
+        } else if (page === 'tv') {
+          window.location.href = '/bilm.github.io/tv-shows/';
+        }
+      };
+    });
+  }
 });
