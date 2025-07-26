@@ -3,22 +3,23 @@
     <button data-page="home">Home</button>
     <button data-page="movies">Movies</button>
     <button data-page="tv">TV Shows</button>
+    <button data-page="tv">Settings</button>
   </nav>
-</header>
 
-<script>
-  const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
-
-  document.querySelectorAll('nav button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const page = btn.dataset.page;
-      if (page === 'home') {
-        window.location.href = BASE_URL + '/home/';
-      } else if (page === 'movies') {
-        window.location.href = BASE_URL + '/movies/';
-      } else if (page === 'tv') {
-        window.location.href = BASE_URL + '/tv-shows/';
-      }
+  <script>
+    document.querySelectorAll('nav button').forEach(btn => {
+      btn.onclick = () => {
+        const page = btn.dataset.page;
+        if (page === 'home') {
+          window.location.href = '/bilm.github.io/home/';
+        } else if (page === 'movies') {
+          window.location.href = '/bilm.github.io/movies/';
+        } else if (page === 'tv') {
+          window.location.href = '/bilm.github.io/tv-shows/';
+        } else if (page === 'settings') {
+          window.location.href = '/bilm.github.io/settings/';
+        }
+      };
     });
-  });
-</script>
+  </script>
+</header>
