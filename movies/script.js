@@ -1,14 +1,10 @@
 const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
-const OMDB_API_KEY = '9bf8cd26';
 const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
 const moviesPerLoad = 15;
 const loadedCounts = {};
-const addedMoviesBySection = {};
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('✅ Movie script loaded and DOM ready');
-
   const sections = [
     { title: 'Trending', endpoint: '/trending/movie/week' },
     { title: 'Popular', endpoint: '/movie/popular' },
@@ -31,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('movieSections');
   sections.forEach(section => {
     loadedCounts[section.title] = 0;
-    addedMoviesBySection[section.title] = new Set();
     renderMovieSection(section, container);
   });
 });
@@ -76,42 +71,30 @@ async function renderMovieSection(section, container) {
 
     const movies = data.results || [];
 
-    for (const movie of movies.slice(0, moviesPerLoad)) {
-      const uniqueKey = `${movie.title}-${movie.release_date?.slice(0, 4)}`;
-      if (addedMoviesBySection[section.title].has(uniqueKey)) continue;
-
-      let poster = movie.poster_path
-        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-        : null;
-
-      // Try getting IMDb ID and then OMDB data
-      const imdbId = await getImdbIdFromTmdb(movie.id);
-      if (imdbId) {
-        const omdbData = await fetchOmdbData(imdbId);
-        if (omdbData?.Poster && omdbData.Poster !== 'N/A') {
-          poster = omdbData.Poster;
-        }
-      }
-
+    movies.slice(0, moviesPerLoad).forEach(movie => {
       const card = document.createElement('div');
       card.className = 'movie-card';
 
-      const posterImg = document.createElement('img');
-      posterImg.src = poster || 'https://via.placeholder.com/140x210?text=No+Image';
+      const poster = document.createElement('img');
+      poster.src = movie.poster_path
+        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+        : 'https://via.placeholder.com/140x210?text=No+Image';
 
       const title = document.createElement('p');
       title.textContent = `${movie.title} (${movie.release_date?.slice(0, 4) || 'N/A'})`;
 
-      card.appendChild(posterImg);
+      card.appendChild(poster);
       card.appendChild(title);
 
+      // Add source data attribute and console log on click
+      card.dataset.source = 'TMDB';
       card.onclick = () => {
+        console.log(`Clicked on "${movie.title}" from API: TMDB`);
         window.location.href = `${BASE_URL}/movies/viewer.html?id=${movie.id}`;
       };
 
       rowEl.appendChild(card);
-      addedMoviesBySection[section.title].add(uniqueKey);
-    }
+    });
 
     loadedCounts[section.title] = alreadyLoaded + moviesPerLoad;
 
@@ -127,25 +110,5 @@ async function renderMovieSection(section, container) {
     }
   } catch (err) {
     console.error('❌ Failed loading', section.title, err);
-  }
-}
-
-async function getImdbIdFromTmdb(tmdbId) {
-  try {
-    const res = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/external_ids?api_key=${TMDB_API_KEY}`);
-    const data = await res.json();
-    return data.imdb_id;
-  } catch (e) {
-    return null;
-  }
-}
-
-async function fetchOmdbData(imdbId) {
-  try {
-    const res = await fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=${OMDB_API_KEY}`);
-    const data = await res.json();
-    return data;
-  } catch (e) {
-    return null;
   }
 }
