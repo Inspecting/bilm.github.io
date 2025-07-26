@@ -48,9 +48,6 @@ async function fetchTMDBTV(endpoint, page) {
 }
 
 async function fetchOMDBTV(query, page) {
-  // OMDB doesn't have genre or section-based discover endpoints, 
-  // so this is a fallback: search by the section title as keyword + page
-  // (Limited and may not be very accurate for discover)
   const url = `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${encodeURIComponent(query)}&type=series&page=${page}`;
   const res = await fetch(url);
   const data = await res.json();
@@ -85,13 +82,11 @@ async function renderTVSection(section, container) {
     const alreadyLoaded = loadedCounts[section.title] || 0;
     const page = Math.floor(alreadyLoaded / showsPerLoad) + 1;
 
-    // Fetch TMDB shows for this section/page
-    const tmdbShows = await fetchTMDBTV(section.endpoint, page);
+    const [tmdbShows, omdbShows] = await Promise.all([
+      fetchTMDBTV(section.endpoint, page),
+      fetchOMDBTV(section.title, page)
+    ]);
 
-    // Fetch OMDB shows — using section title as a keyword search fallback
-    const omdbShows = await fetchOMDBTV(section.title, page);
-
-    // Merge and dedupe by title + year
     const tvMap = new Map();
 
     tmdbShows.forEach(show => {
@@ -122,11 +117,9 @@ async function renderTVSection(section, container) {
       }
     });
 
-    // Remove old show more button
     const oldShowMore = rowEl.querySelector('.show-more-card');
     if (oldShowMore) oldShowMore.remove();
 
-    // Render up to showsPerLoad items
     let renderedCount = 0;
     for (const show of tvMap.values()) {
       if (renderedCount >= showsPerLoad) break;
@@ -156,8 +149,7 @@ async function renderTVSection(section, container) {
 
     loadedCounts[section.title] += renderedCount;
 
-    // Show more if TMDB has more pages, else hide "show more"
-    if (Math.floor(loadedCounts[section.title] / showsPerLoad) <  (tmdbShows.length === 0 ? 0 : page + 1)) {
+    if (renderedCount >= showsPerLoad && tmdbShows.length === 20) {
       const moreCard = document.createElement('div');
       moreCard.className = 'show-more-card';
       moreCard.textContent = '→';
