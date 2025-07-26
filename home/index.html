@@ -20,11 +20,9 @@
       opacity: 0;
       transition: opacity 1.5s ease-in-out;
     }
-
     main.visible .search-container h1 {
       opacity: 1;
     }
-
     .heart-icon {
       height: 1.2em;
       vertical-align: middle;
@@ -34,7 +32,8 @@
 </head>
 <body>
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
-  <header><!-- Navbar will be injected here --></header>
+  <header></header>
+
   <main>
     <div class="search-container">
       <h1>
@@ -51,37 +50,25 @@
 
   <script type="module">
     import { navbarHTML, setupNavbar } from '../shared/navbar.js';
-    
-    // Inject navbar
     document.querySelector('header').innerHTML = navbarHTML;
     setupNavbar();
 
-    // Existing home page logic
     document.addEventListener('DOMContentLoaded', () => {
       const header = document.querySelector('header');
       const main = document.querySelector('main');
-      const searchInput = document.getElementById('searchInput');
-      const searchBtn = document.getElementById('searchBtn');
-
       header.classList.add('visible');
       main.classList.add('visible');
 
-      // Search button click
-      searchBtn.onclick = () => {
-        const query = searchInput.value.trim();
+      document.getElementById('searchBtn').onclick = () => {
+        const query = document.getElementById('searchInput').value.trim();
         if (!query) return alert('Please enter a search term');
-        window.location.href = `../home/search.html?q=${encodeURIComponent(query)}`;
+        window.location.href = `search.html?q=${encodeURIComponent(query)}`;
       };
-
-      // Enter key triggers search
-      searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') searchBtn.click();
-      });
     });
   </script>
 
   <script>
-    // Particle background script (keep as-is)
+    // Particle background script (unchanged)
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
     const dotCount = 80;
@@ -132,11 +119,9 @@
       initDots();
     });
 
-    window.addEventListener('DOMContentLoaded', () => {
-      resize();
-      initDots();
-      animate();
-    });
+    resize();
+    initDots();
+    animate();
   </script>
 </body>
 </html>
