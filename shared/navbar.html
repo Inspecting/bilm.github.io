@@ -3,6 +3,7 @@
     <button data-page="home">Home</button>
     <button data-page="movies">Movies</button>
     <button data-page="tv">TV Shows</button>
+    <button data-page="tv">Settings</button>
   </nav>
 
   <script>
@@ -15,6 +16,8 @@
           window.location.href = '/bilm.github.io/movies/';
         } else if (page === 'tv') {
           window.location.href = '/bilm.github.io/tv-shows/';
+        } else if (page === 'settings') {
+          window.location.href = '/bilm.github.io/settings/';
         }
       };
     });
