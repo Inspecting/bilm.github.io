@@ -1,11 +1,16 @@
 const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
 const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
-
 const moviesPerLoad = 15;
 const loadedCounts = {};
 
+console.log('Movie script loaded and running');
+
 document.addEventListener('DOMContentLoaded', () => {
-  // No navbar button logic here; navbar handles that.
+  const container = document.getElementById('movieSections');
+  if (!container) {
+    console.error('movieSections container not found');
+    return;
+  }
 
   const sections = [
     { title: 'Trending', endpoint: '/trending/movie/week' },
@@ -26,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { title: 'Thriller', endpoint: '/discover/movie?with_genres=53' }
   ];
 
-  const container = document.getElementById('movieSections');
   sections.forEach(section => {
     loadedCounts[section.title] = 0;
     renderMovieSection(section, container);
