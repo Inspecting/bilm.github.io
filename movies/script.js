@@ -4,7 +4,22 @@ const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 const moviesPerLoad = 15;
 const loadedCounts = {};
 
-window.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
+  // Navigation buttons
+  document.querySelectorAll('nav button').forEach(btn => {
+    btn.onclick = () => {
+      const page = btn.dataset.page;
+      if (page === 'home') {
+        window.location.href = `${BASE_URL}/home/`;
+      } else if (page === 'movies') {
+        window.location.href = `${BASE_URL}/movies/`;
+      } else if (page === 'tv') {
+        window.location.href = `${BASE_URL}/tv-shows/`;
+      }
+    };
+  });
+
+  // Load default movie sections on page load
   const sections = [
     { title: 'Trending', endpoint: '/trending/movie/week' },
     { title: 'Popular', endpoint: '/movie/popular' },
@@ -79,8 +94,6 @@ async function renderMovieSection(section, container) {
       poster.src = movie.poster_path
         ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
         : 'https://via.placeholder.com/140x210?text=No+Image';
-
-      poster.alt = movie.title;
 
       const title = document.createElement('p');
       title.textContent = `${movie.title} (${movie.release_date?.slice(0, 4) || 'N/A'})`;

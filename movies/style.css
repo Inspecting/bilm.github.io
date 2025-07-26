@@ -1,7 +1,10 @@
 /* Reset and base */
 * {
-  margin: 0; padding: 0; box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
+
 html, body {
   height: 100%;
   font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -9,12 +12,13 @@ html, body {
   color: #f0f0f0;
   overflow: hidden;
 }
+
 body {
   display: flex;
   flex-direction: column;
 }
 
-/* Main area */
+/* Main content */
 main {
   flex: 1;
   overflow-y: auto;
@@ -28,6 +32,7 @@ main {
 .section {
   margin-bottom: 30px;
 }
+
 .section-title {
   font-size: 24px;
   font-weight: 700;
@@ -44,12 +49,15 @@ main {
   scroll-behavior: smooth;
   width: 100vw;
 }
+
 .scroll-row::-webkit-scrollbar {
   height: 8px;
 }
+
 .scroll-row::-webkit-scrollbar-track {
   background: #1e1e1e;
 }
+
 .scroll-row::-webkit-scrollbar-thumb {
   background-color: #a14eff;
   border-radius: 10px;
@@ -70,15 +78,18 @@ main {
   user-select: none;
   transition: transform 0.2s ease;
 }
+
 .movie-card:hover {
   transform: scale(1.05);
 }
+
 .movie-card img {
   width: 140px;
   height: 180px;
   object-fit: cover;
   border-radius: 12px 12px 0 0;
 }
+
 .movie-card p {
   padding: 6px 8px;
   font-size: 14px;
@@ -108,6 +119,7 @@ main {
   user-select: none;
   transition: background-color 0.3s ease;
 }
+
 .show-more-card:hover {
   background-color: #a855f7;
 }

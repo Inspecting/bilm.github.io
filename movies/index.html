@@ -5,57 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bilm 💜 - Movies</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../shared/navbar.css" />
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-
-  <!-- Shared navbar placeholder -->
-  <div id="navbar-placeholder"></div>
-
+  <header><!-- Navbar injected here --></header>
   <main>
     <div id="movieSections"></div>
   </main>
-
-  <script>
-    // Load navbar.html then navbar.js, then movie script.js in sequence
-    async function loadPage() {
-      try {
-        // Load navbar.html
-        const res = await fetch('/bilm.github.io/shared/navbar.html');
-        if (!res.ok) throw new Error('Navbar HTML fetch failed');
-        const navbarHtml = await res.text();
-        document.getElementById('navbar-placeholder').innerHTML = navbarHtml;
-
-        // Load navbar.js and wait
-        await new Promise((resolve, reject) => {
-          const navScript = document.createElement('script');
-          navScript.src = '/bilm.github.io/shared/navbar.js';
-          navScript.onload = resolve;
-          navScript.onerror = reject;
-          document.body.appendChild(navScript);
-        });
-
-        // Setup navbar listeners (function must be exported from navbar.js)
-        if (typeof setupNavbarListeners === 'function') {
-          setupNavbarListeners();
-        }
-
-        // Load movies script.js
-        await new Promise((resolve, reject) => {
-          const movieScript = document.createElement('script');
-          movieScript.src = './script.js';
-          movieScript.onload = resolve;
-          movieScript.onerror = reject;
-          document.body.appendChild(movieScript);
-        });
-
-      } catch (error) {
-        console.error('Error loading page scripts:', error);
-      }
-    }
-
-    loadPage();
+  <script type="module">
+    import { navbarHTML, setupNavbar } from '../shared/navbar.js';
+    document.querySelector('header').innerHTML = navbarHTML;
+    setupNavbar();
   </script>
-
+  <script src="./script.js"></script>
 </body>
 </html>
