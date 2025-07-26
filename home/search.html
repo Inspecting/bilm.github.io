@@ -1,3 +1,4 @@
+<script>
 const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
 const OMDB_API_KEY = '9bf8cd26';
 const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
@@ -15,6 +16,7 @@ const tvResults = document.getElementById('tvResults');
 searchInput.value = currentQuery;
 resultsTitle.textContent = `Search Results for "${currentQuery}"`;
 
+// Handle search button
 document.getElementById('searchBtn').addEventListener('click', () => {
   const query = searchInput.value.trim();
   if (query) {
@@ -28,6 +30,7 @@ searchInput.addEventListener('keydown', (e) => {
   }
 });
 
+// Perform search
 if (currentQuery) {
   Promise.all([
     fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`).then(r => r.json()),
@@ -39,6 +42,7 @@ if (currentQuery) {
     const movieMap = new Map();
     const tvMap = new Map();
 
+    // TMDB Movies
     (tmdbMovies.results || []).forEach(item => {
       const key = `${item.title}-${item.release_date?.slice(0, 4)}`;
       if (!movieMap.has(key)) {
@@ -54,6 +58,7 @@ if (currentQuery) {
       }
     });
 
+    // TMDB TV Shows
     (tmdbTV.results || []).forEach(item => {
       const key = `${item.name}-${item.first_air_date?.slice(0, 4)}`;
       if (!tvMap.has(key)) {
@@ -69,6 +74,7 @@ if (currentQuery) {
       }
     });
 
+    // OMDB Movies
     (omdbMovies.Search || []).forEach(item => {
       const key = `${item.Title}-${item.Year}`;
       if (!movieMap.has(key)) {
@@ -82,6 +88,7 @@ if (currentQuery) {
       }
     });
 
+    // OMDB TV Shows
     (omdbTV.Search || []).forEach(item => {
       const key = `${item.Title}-${item.Year}`;
       if (!tvMap.has(key)) {
@@ -95,6 +102,7 @@ if (currentQuery) {
       }
     });
 
+    // Render results
     renderResults(moviesResults, Array.from(movieMap.values()));
     renderResults(tvResults, Array.from(tvMap.values()));
 
@@ -115,6 +123,7 @@ if (currentQuery) {
   tvSection.innerHTML = '';
 }
 
+// Render result cards
 function renderResults(container, items) {
   container.innerHTML = '';
   items.forEach(item => {
@@ -130,14 +139,14 @@ function renderResults(container, items) {
 
     card.appendChild(img);
     card.appendChild(title);
-
-    card.dataset.source = item.source || 'Unknown';
+    card.dataset.source = item.source;
 
     card.onclick = () => {
-      console.log(`Clicked on "${item.title}" from API: ${card.dataset.source}`);
+      console.log(`🟣 Clicked on "${item.title}" from API: ${item.source}`);
       window.location.href = item.link;
     };
 
     container.appendChild(card);
   });
 }
+</script>
