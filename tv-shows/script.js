@@ -5,18 +5,7 @@ const showsPerLoad = 15;
 const loadedCounts = {};
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('nav button').forEach(btn => {
-    btn.onclick = () => {
-      const page = btn.dataset.page;
-      if (page === 'home') {
-        window.location.href = `${BASE_URL}/home/`;
-      } else if (page === 'movies') {
-        window.location.href = `${BASE_URL}/movies/`;
-      } else if (page === 'tv') {
-        window.location.href = `${BASE_URL}/tv-shows/`;
-      }
-    };
-  });
+  // No nav buttons logic here anymore, navbar.js handles that
 
   const sections = [
     { title: 'Trending', endpoint: '/trending/tv/week' },
@@ -101,7 +90,6 @@ async function renderTVSection(section, container) {
       card.appendChild(poster);
       card.appendChild(title);
 
-      // ▶ Make TV card open viewer.html?id={id}
       card.onclick = () => {
         window.location.href = `${BASE_URL}/tv-shows/viewer.html?id=${show.id}`;
       };
