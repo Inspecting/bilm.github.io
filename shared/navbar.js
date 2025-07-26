@@ -1,29 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const navbar = `
-    <header>
-      <nav>
-        <button data-page="home">Home</button>
-        <button data-page="movies">Movies</button>
-        <button data-page="tv">TV Shows</button>
-      </nav>
-    </header>
-  `;
-  const placeholder = document.getElementById('navbar-placeholder');
+  const placeholder = document.getElementById("navbar-placeholder");
   if (placeholder) {
-    placeholder.innerHTML = navbar;
+    fetch("/bilm.github.io/shared/navbar.html")
+      .then(res => res.text())
+      .then(html => {
+        placeholder.innerHTML = html;
 
-    // Navigation logic
-    document.querySelectorAll('nav button').forEach(btn => {
-      btn.onclick = () => {
-        const page = btn.dataset.page;
-        if (page === 'home') {
-          window.location.href = '/bilm.github.io/home/';
-        } else if (page === 'movies') {
-          window.location.href = '/bilm.github.io/movies/';
-        } else if (page === 'tv') {
-          window.location.href = '/bilm.github.io/tv-shows/';
-        }
-      };
-    });
+        // After loading the HTML, activate the nav buttons
+        document.querySelectorAll('nav button').forEach(btn => {
+          btn.onclick = () => {
+            const page = btn.dataset.page;
+            if (page === 'home') {
+              window.location.href = '/bilm.github.io/home/';
+            } else if (page === 'movies') {
+              window.location.href = '/bilm.github.io/movies/';
+            } else if (page === 'tv') {
+              window.location.href = '/bilm.github.io/tv-shows/';
+            }
+          };
+        });
+      })
+      .catch(err => console.error("Failed to load navbar:", err));
   }
 });
