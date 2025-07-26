@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>In Progress</title>
+  <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
+  <style>
+    /* Make the body fill the page and set background black */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #000;
+      color: #ccc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Navbar placeholder should stay at top */
+    #navbar-placeholder {
+      z-index: 1000;
+    }
+    /* Main content takes remaining space */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
+      text-align: center;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation bar placeholder -->
+  <div id="navbar-placeholder"></div>
+
+  <!-- Main content area -->
+  <main>
+    Page In Progress - Stay Tuned!
+  </main>
+
+  <script>
+    fetch('/bilm.github.io/shared/navbar.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('navbar-placeholder').innerHTML = html;
+
+        const navbarScript = document.createElement('script');
+        navbarScript.src = '/bilm.github.io/shared/navbar.js';
+        document.body.appendChild(navbarScript);
+      });
+  </script>
+
+</body>
+</html>
