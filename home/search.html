@@ -8,7 +8,7 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 
-  <!-- Navbar CSS -->
+  <!-- Shared navbar CSS -->
   <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
 
   <style>
@@ -24,8 +24,9 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-y: auto;
     }
-    
+
     /* Search bar container */
     .search-bar-container {
       display: flex;
@@ -34,10 +35,10 @@
       padding: 20px;
       background-color: #1a1a1a;
       position: sticky;
-      top: 60px; /* Below navbar */
+      top: 60px; /* below navbar */
       z-index: 900;
     }
-    
+
     #searchInput {
       flex: 1;
       max-width: 600px;
@@ -48,8 +49,9 @@
       background-color: #222;
       color: #eee;
       box-shadow: 0 0 8px #a14eff44;
+      font-weight: 500;
     }
-    
+
     #searchBtn {
       padding: 12px 24px;
       border-radius: 12px;
@@ -60,7 +62,7 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-    
+
     #searchBtn:hover {
       background-color: #a855f7;
     }
@@ -69,38 +71,38 @@
       flex: 1;
       padding: 20px;
     }
-    
+
     h1 {
       color: #c084fc;
       margin-bottom: 20px;
       text-align: center;
       font-weight: 700;
     }
-    
+
     section {
       margin-bottom: 30px;
     }
-    
+
     .results-row {
       display: flex;
       gap: 12px;
       overflow-x: auto;
       padding-bottom: 8px;
     }
-    
+
     .results-row::-webkit-scrollbar {
       height: 8px;
     }
-    
+
     .results-row::-webkit-scrollbar-track {
       background: #1e1e1e;
     }
-    
+
     .results-row::-webkit-scrollbar-thumb {
       background-color: #a14eff;
       border-radius: 10px;
     }
-    
+
     .card {
       flex: 0 0 auto;
       width: 140px;
@@ -114,18 +116,18 @@
       display: flex;
       flex-direction: column;
     }
-    
+
     .card:hover {
       transform: scale(1.05);
     }
-    
+
     .card img {
       width: 140px;
       height: 210px;
       object-fit: cover;
       border-radius: 12px 12px 0 0;
     }
-    
+
     .card p {
       padding: 6px 8px;
       font-weight: 600;
@@ -137,7 +139,7 @@
       text-overflow: ellipsis;
       flex-grow: 1;
     }
-    
+
     .no-results {
       text-align: center;
       color: #888;
@@ -148,7 +150,7 @@
 </head>
 <body>
 
-  <!-- Navbar placeholder -->
+  <!-- Shared navbar placeholder -->
   <div id="navbar-placeholder"></div>
 
   <!-- Search bar -->
@@ -177,12 +179,16 @@
     </section>
   </main>
 
-  <!-- Load shared navbar dynamically -->
+  <!-- Load navbar and navbar.js -->
   <script>
     fetch('/bilm.github.io/shared/navbar.html')
       .then(res => res.text())
       .then(html => {
         document.getElementById('navbar-placeholder').innerHTML = html;
+
+        const script = document.createElement('script');
+        script.src = '/bilm.github.io/shared/navbar.js';
+        document.body.appendChild(script);
       });
   </script>
 
@@ -190,29 +196,63 @@
     const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
     const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
-    // Parse query from URL
     const urlParams = new URLSearchParams(window.location.search);
     const currentQuery = urlParams.get('q') || '';
+
     const searchInput = document.getElementById('searchInput');
     const resultsTitle = document.getElementById('resultsTitle');
+    const moviesSection = document.getElementById('moviesSection');
+    const tvSection = document.getElementById('tvSection');
+    const moviesResults = document.getElementById('moviesResults');
+    const tvResults = document.getElementById('tvResults');
+
     searchInput.value = currentQuery;
     resultsTitle.textContent = `Search Results for "${currentQuery}"`;
 
-    // Search button + Enter key
     document.getElementById('searchBtn').addEventListener('click', () => {
       const query = searchInput.value.trim();
       if (query) {
         window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
       }
     });
-    searchInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') document.getElementById('searchBtn').click();
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('searchBtn').click();
+      }
     });
 
-    function renderResults(containerId, items, type) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
+    if (currentQuery) {
+      Promise.all([
+        fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`),
+        fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`)
+      ])
+      .then(async ([movieRes, tvRes]) => {
+        const movies = (await movieRes.json()).results || [];
+        const tvs = (await tvRes.json()).results || [];
 
+        renderResults(moviesResults, movies, 'movie');
+        renderResults(tvResults, tvs, 'tv');
+
+        if (movies.length === 0) {
+          moviesSection.innerHTML = '<p class="no-results">No movies found.</p>';
+        }
+        if (tvs.length === 0) {
+          tvSection.innerHTML = '<p class="no-results">No TV shows found.</p>';
+        }
+      })
+      .catch(err => {
+        console.error('Search failed', err);
+        moviesSection.innerHTML = '<p class="no-results">Failed to load results.</p>';
+        tvSection.innerHTML = '';
+      });
+    } else {
+      moviesSection.innerHTML = '<p class="no-results">Please enter a search term.</p>';
+      tvSection.innerHTML = '';
+    }
+
+    function renderResults(container, items, type) {
+      container.innerHTML = '';
       items.forEach(item => {
         const card = document.createElement('div');
         card.className = 'card';
@@ -237,35 +277,6 @@
 
         container.appendChild(card);
       });
-    }
-
-    if (currentQuery) {
-      Promise.all([
-        fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`),
-        fetch(`https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(currentQuery)}`)
-      ])
-      .then(async ([movieRes, tvRes]) => {
-        const movies = (await movieRes.json()).results || [];
-        const tvs = (await tvRes.json()).results || [];
-
-        renderResults('moviesResults', movies, 'movie');
-        renderResults('tvResults', tvs, 'tv');
-
-        if (movies.length === 0) {
-          document.getElementById('moviesSection').innerHTML = '<p class="no-results">No movies found.</p>';
-        }
-        if (tvs.length === 0) {
-          document.getElementById('tvSection').innerHTML = '<p class="no-results">No TV shows found.</p>';
-        }
-      })
-      .catch(err => {
-        console.error('Search failed', err);
-        document.getElementById('moviesSection').innerHTML = '<p class="no-results">Failed to load results.</p>';
-        document.getElementById('tvSection').innerHTML = '';
-      });
-    } else {
-      document.getElementById('moviesSection').innerHTML = '<p class="no-results">Please enter a search term.</p>';
-      document.getElementById('tvSection').innerHTML = '';
     }
   </script>
 
