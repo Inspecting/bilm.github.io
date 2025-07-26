@@ -8,21 +8,17 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 
-  <!-- Shared Navbar CSS -->
-  <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
-
-  <!-- Page-specific CSS -->
+  <!-- Local + shared styles -->
   <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
 </head>
 <body>
 
-  <!-- Shared navbar container -->
-  <div id="navbar-placeholder"></div>
-
-  <!-- Background particles -->
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-  <!-- Main content -->
+  <!-- Navbar placeholder -->
+  <div id="navbar-placeholder"></div>
+
   <main>
     <div class="search-container">
       <h1>
@@ -37,33 +33,33 @@
     </div>
   </main>
 
-  <!-- Load shared navbar JS -->
-  <script src="/bilm.github.io/shared/navbar.js" defer></script>
+  <!-- Navbar script -->
+  <script src="/bilm.github.io/shared/navbar.js"></script>
 
+  <!-- Search + page logic -->
   <script>
     const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
 
     document.addEventListener('DOMContentLoaded', () => {
+      const main = document.querySelector('main');
       const searchInput = document.getElementById('searchInput');
       const searchBtn = document.getElementById('searchBtn');
 
-      // Handle search button
+      main.classList.add('visible');
+
       searchBtn.onclick = () => {
         const query = searchInput.value.trim();
         if (!query) return alert('Please enter a search term');
         window.location.href = `${BASE_URL}/home/search.html?q=${encodeURIComponent(query)}`;
       };
 
-      // Handle Enter key
       searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          searchBtn.click();
-        }
+        if (e.key === 'Enter') searchBtn.click();
       });
     });
   </script>
 
-  <!-- Particle background animation -->
+  <!-- Particle background script -->
   <script>
     const canvas = document.getElementById('bgCanvas');
     const ctx = canvas.getContext('2d');
@@ -121,5 +117,6 @@
       animate();
     });
   </script>
+
 </body>
 </html>
