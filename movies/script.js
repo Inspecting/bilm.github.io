@@ -6,6 +6,8 @@ const loadedCounts = {};
 
 document.addEventListener('DOMContentLoaded', () => {
   // No navbar button logic here; navbar handles that.
+console.log("movieSections container exists?", document.getElementById('movieSections'));
+console.log("movieSections children count:", document.getElementById('movieSections').children.length);
 
   const sections = [
     { title: 'Trending', endpoint: '/trending/movie/week' },
