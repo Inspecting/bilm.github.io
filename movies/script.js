@@ -34,17 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-async function fetchOMDBByImdbId(imdbID) {
-  try {
-    const res = await fetch(`https://www.omdbapi.com/?i=${imdbID}&apikey=${OMDB_API_KEY}`);
-    const data = await res.json();
-    if (data.Response === 'True') return data;
-  } catch (e) {
-    // ignore errors
-  }
-  return null;
-}
-
 async function renderMovieSection(section, container) {
   let sectionEl = document.getElementById(`section-${section.title.replace(/\s/g, '')}`);
   let rowEl;
@@ -79,94 +68,42 @@ async function renderMovieSection(section, container) {
 
     const res = await fetch(url);
     const data = await res.json();
-    const tmdbMovies = data.results || [];
 
-    // We'll store unique movies by TMDB id
-    const uniqueMoviesMap = new Map();
+    const movies = data.results || [];
 
-    // Add TMDB movies first
-    tmdbMovies.forEach(m => uniqueMoviesMap.set(m.id, { source: 'TMDB', data: m }));
-
-    // For each TMDB movie with imdb_id, fetch OMDB info and add if unique by imdbID
-    // We fetch OMDB in parallel to speed up
-    const imdbFetches = tmdbMovies.map(async (movie) => {
-      if (!movie.id) return null;
-      try {
-        // First, get TMDB external IDs to find imdb_id
-        const extRes = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}/external_ids?api_key=${TMDB_API_KEY}`);
-        const extData = await extRes.json();
-        const imdbID = extData.imdb_id;
-        if (imdbID) {
-          const omdbData = await fetchOMDBByImdbId(imdbID);
-          if (omdbData && !uniqueMoviesMap.has(omdbData.imdbID)) {
-            // Add OMDB movie with a synthetic id with prefix to avoid collision
-            uniqueMoviesMap.set(`omdb_${omdbData.imdbID}`, { source: 'OMDB', data: omdbData });
-          }
-        }
-      } catch {
-        // ignore errors
-      }
-    });
-
-    await Promise.all(imdbFetches);
-
-    // Clear old show-more card if exists
+    // Remove old show more
     const oldShowMore = rowEl.querySelector('.show-more-card');
     if (oldShowMore) oldShowMore.remove();
 
-    // Now create cards from uniqueMoviesMap
-    // We slice the number of moviesPerLoad from unique results starting from alreadyLoaded
-    const uniqueMoviesArray = Array.from(uniqueMoviesMap.values());
-
-    const moviesToShow = uniqueMoviesArray.slice(alreadyLoaded, alreadyLoaded + moviesPerLoad);
-
-    moviesToShow.forEach(({ source, data }) => {
+    // Render movie cards
+    movies.slice(0, moviesPerLoad).forEach(movie => {
       const card = document.createElement('div');
       card.className = 'movie-card';
-      card.setAttribute('data-source', source);
-
-      let posterSrc = 'https://via.placeholder.com/140x210?text=No+Image';
-      let titleText = '';
-      let clickId = '';
-      if (source === 'TMDB') {
-        posterSrc = data.poster_path
-          ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
-          : posterSrc;
-        titleText = `${data.title} (${data.release_date?.slice(0, 4) || 'N/A'})`;
-        clickId = data.id;
-      } else if (source === 'OMDB') {
-        posterSrc = (data.Poster && data.Poster !== 'N/A')
-          ? data.Poster
-          : posterSrc;
-        titleText = `${data.Title} (${data.Year || 'N/A'})`;
-        clickId = data.imdbID;
-      }
+      card.dataset.source = 'TMDB';
 
       const poster = document.createElement('img');
-      poster.src = posterSrc;
+      poster.src = movie.poster_path
+        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+        : 'https://via.placeholder.com/140x210?text=No+Image';
 
       const title = document.createElement('p');
-      title.textContent = titleText;
+      title.textContent = `${movie.title} (${movie.release_date?.slice(0, 4) || 'N/A'})`;
 
       card.appendChild(poster);
       card.appendChild(title);
 
       card.onclick = () => {
-        console.log(`Clicked movie "${titleText}" from API: ${source}`);
-        if (source === 'TMDB') {
-          window.location.href = `${BASE_URL}/movies/viewer.html?id=${clickId}`;
-        } else {
-          // OMDB doesn't have a viewer page, fallback to IMDb website
-          window.open(`https://www.imdb.com/title/${clickId}/`, '_blank');
-        }
+        console.log(`Clicked on "${movie.title}" from API: TMDB`);
+        window.location.href = `${BASE_URL}/movies/viewer.html?id=${movie.id}`;
       };
 
       rowEl.appendChild(card);
     });
 
-    loadedCounts[section.title] = alreadyLoaded + moviesPerLoad;
+    loadedCounts[section.title] = alreadyLoaded + movies.length;
 
-    if (loadedCounts[section.title] < uniqueMoviesArray.length) {
+    // Show more only if more pages remain
+    if (page < data.total_pages) {
       const moreCard = document.createElement('div');
       moreCard.className = 'show-more-card';
       moreCard.textContent = '→';
@@ -176,7 +113,6 @@ async function renderMovieSection(section, container) {
       };
       rowEl.appendChild(moreCard);
     }
-
   } catch (err) {
     console.error('❌ Failed loading', section.title, err);
   }
