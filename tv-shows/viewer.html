@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Bilm 💜 - TV Show Viewer</title>
 
-<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
 
 <style>
@@ -23,39 +22,6 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-  }
-
-  /* Header navigation */
-  header {
-    background-color: #1e1e1e;
-    padding: 12px 20px;
-    display: flex;
-    justify-content: center; /* Center nav horizontally */
-    align-items: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-  }
-  nav {
-    display: flex;
-    gap: 20px;
-  }
-  nav button {
-    background: none;
-    border: none;
-    color: #ccc;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: color 0.3s ease;
-    padding: 8px 14px;
-    border-radius: 12px;
-    user-select: none;
-  }
-  nav button:hover {
-    color: #fff;
-    background-color: #3a1361;
   }
 
   /* Main content */
@@ -134,13 +100,8 @@
 </head>
 <body>
 
-<header>
-  <nav>
-    <button data-page="home">Home</button>
-    <button data-page="movies">Movies</button>
-    <button data-page="tv">TV Shows</button>
-  </nav>
-</header>
+<!-- Navbar placeholder -->
+<div id="navbar-placeholder"></div>
 
 <main>
   <div id="playerContainer">
@@ -162,18 +123,22 @@
   </div>
 </main>
 
+<!-- Load shared navbar -->
+<script>
+  fetch('/bilm.github.io/shared/navbar.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('navbar-placeholder').innerHTML = html;
+
+      const navbarScript = document.createElement('script');
+      navbarScript.src = '/bilm.github.io/shared/navbar.js';
+      document.body.appendChild(navbarScript);
+    });
+</script>
+
 <script>
   const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
-
-  // Navigation button clicks
-  document.querySelectorAll('nav button').forEach(btn => {
-    btn.onclick = () => {
-      const page = btn.dataset.page;
-      if (page === 'home') window.location.href = `${BASE_URL}/home/`;
-      else if (page === 'movies') window.location.href = `${BASE_URL}/movies/`;
-      else if (page === 'tv') window.location.href = `${BASE_URL}/tv-shows/`;
-    };
-  });
+  const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
 
   const params = new URLSearchParams(window.location.search);
   const showId = params.get('id');
@@ -186,7 +151,7 @@
   // Load seasons
   async function loadSeasons() {
     try {
-      const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=3ade810499876bb5672f40e54960e6a2`);
+      const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}?api_key=${TMDB_API_KEY}`);
       const data = await res.json();
 
       // Populate seasons (skip specials with season_number 0)
@@ -208,17 +173,17 @@
     }
   }
 
-  // Load episodes with simple numbering only
+  // Load episodes
   async function loadEpisodes(seasonNumber) {
     try {
-      const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNumber}?api_key=3ade810499876bb5672f40e54960e6a2`);
+      const res = await fetch(`https://api.themoviedb.org/3/tv/${showId}/season/${seasonNumber}?api_key=${TMDB_API_KEY}`);
       const data = await res.json();
 
       episodeSelect.innerHTML = '';
       data.episodes.forEach(ep => {
         const option = document.createElement('option');
         option.value = ep.episode_number;
-        option.textContent = `Episode ${ep.episode_number}`; // simplified label
+        option.textContent = `Episode ${ep.episode_number}`;
         episodeSelect.appendChild(option);
       });
 
