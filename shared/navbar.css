@@ -1,0 +1,24 @@
+/* Navbar styles */
+nav {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+nav button {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+nav button:hover {
+  color: #fff;
+  background-color: #3a1361;
+}
