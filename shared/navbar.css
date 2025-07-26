@@ -9,10 +9,11 @@ header {
 
 .navbar-container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  max-width: 100%;
+  gap: 20px;
 }
 
 .logo {
@@ -25,7 +26,6 @@ header {
   border-radius: 10px;
   transition: background-color 0.3s ease;
 }
-
 .logo:hover {
   background-color: #3a1361;
   color: white;
@@ -33,23 +33,54 @@ header {
 
 nav {
   display: flex;
-  gap: 20px;
+  gap: 16px;
 }
-
 nav button {
   background: none;
   border: none;
   color: #ccc;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: color 0.3s ease;
-  padding: 8px 14px;
-  border-radius: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
   user-select: none;
 }
-
 nav button:hover {
   color: #fff;
   background-color: #3a1361;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.search-container input {
+  background-color: #2a2a2a;
+  border: none;
+  border-radius: 8px;
+  color: #eee;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  width: 160px;
+}
+.search-container input::placeholder {
+  color: #888;
+}
+.search-container button {
+  background-color: #3a1361;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+.search-container button:hover {
+  background-color: #a855f7;
 }
