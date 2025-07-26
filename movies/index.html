@@ -5,23 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bilm 💜 - Movies</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="../shared/navbar.css" />
+  <style>
+    body {
+      background-color: #121212;
+      color: #f0f0f0;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    main {
+      padding: 24px;
+    }
+    h1 {
+      text-align: center;
+      color: #c084fc;
+      margin-bottom: 24px;
+    }
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+    }
+    .movie-card {
+      background: #1e1e1e;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 10px #a14eff55;
+      transition: transform 0.2s;
+      cursor: pointer;
+    }
+    .movie-card:hover {
+      transform: scale(1.05);
+    }
+    .movie-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+    }
+    .movie-card p {
+      padding: 8px;
+      font-size: 14px;
+      text-align: center;
+      font-weight: 600;
+      color: #eee;
+    }
+  </style>
 </head>
 <body>
 
-<header>
-  <nav>
-    <button data-page="home">Home</button>
-    <button data-page="movies">Movies</button>
-    <button data-page="tv">TV Shows</button>
-  </nav>
-</header>
+  <div id="navbar-container"></div>
 
-<main>
-  <div id="movieSections"></div>
-</main>
+  <main>
+    <h1>Popular Movies</h1>
+    <div class="movie-grid" id="movieGrid"></div>
+  </main>
 
-<script src="./script.js"></script>
-
+  <script src="../shared/navbar.js"></script>
+  <script>
+    const apiKey = '3ade810499876bb5672f40e54960e6a2';
+    fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`)
+      .then(res => res.json())
+      .then(data => {
+        const grid = document.getElementById('movieGrid');
+        data.results.forEach(movie => {
+          const card = document.createElement('div');
+          card.className = 'movie-card';
+          card.onclick = () => {
+            window.location.href = `viewer.html?id=${movie.id}`;
+          };
+          card.innerHTML = `
+            <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
+            <p>${movie.title}</p>
+          `;
+          grid.appendChild(card);
+        });
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  </script>
 </body>
 </html>
