@@ -1,17 +1,40 @@
 const TMDB_API_KEY = '3ade810499876bb5672f40e54960e6a2';
 const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
+
 const moviesPerLoad = 15;
 const loadedCounts = {};
 
-console.log('Movie script loaded and running');
+// Wait until navbar buttons exist, then attach nav button listeners
+function waitForNavbarButtons() {
+  return new Promise((resolve) => {
+    const interval = setInterval(() => {
+      const navButtons = document.querySelectorAll('nav button[data-page]');
+      if (navButtons.length > 0) {
+        clearInterval(interval);
+        resolve(navButtons);
+      }
+    }, 50);
+  });
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-  const container = document.getElementById('movieSections');
-  if (!container) {
-    console.error('movieSections container not found');
-    return;
-  }
+document.addEventListener('DOMContentLoaded', async () => {
+  // Wait for navbar buttons to be in DOM (because navbar loads async)
+  const navButtons = await waitForNavbarButtons();
 
+  navButtons.forEach(btn => {
+    btn.onclick = () => {
+      const page = btn.dataset.page;
+      if (page === 'home') {
+        window.location.href = `${BASE_URL}/home/`;
+      } else if (page === 'movies') {
+        window.location.href = `${BASE_URL}/movies/`;
+      } else if (page === 'tv') {
+        window.location.href = `${BASE_URL}/tv-shows/`;
+      }
+    };
+  });
+
+  // Now load movie sections as before
   const sections = [
     { title: 'Trending', endpoint: '/trending/movie/week' },
     { title: 'Popular', endpoint: '/movie/popular' },
@@ -31,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { title: 'Thriller', endpoint: '/discover/movie?with_genres=53' }
   ];
 
+  const container = document.getElementById('movieSections');
   sections.forEach(section => {
     loadedCounts[section.title] = 0;
     renderMovieSection(section, container);
