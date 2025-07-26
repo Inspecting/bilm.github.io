@@ -14,14 +14,18 @@
       margin: 0;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
     main {
+      flex: 1;
       padding: 24px;
     }
     h1 {
       text-align: center;
       color: #c084fc;
       margin-bottom: 24px;
+      font-size: 2.5rem;
+      font-weight: 700;
     }
     .movie-grid {
       display: grid;
@@ -51,6 +55,24 @@
       font-weight: 600;
       color: #eee;
     }
+
+    /* Optional Search Bar Styling */
+    .search-bar {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .search-bar input {
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 1rem;
+      border: none;
+      width: 80%;
+      max-width: 400px;
+      background-color: #222;
+      color: #fff;
+      box-shadow: 0 0 6px #a14eff44;
+      outline: none;
+    }
   </style>
 </head>
 <body>
@@ -58,6 +80,9 @@
   <div id="navbar-container"></div>
 
   <main>
+    <div class="search-bar">
+      <input type="search" id="searchInput" placeholder="Search movies..." />
+    </div>
     <h1>Popular Movies</h1>
     <div class="movie-grid" id="movieGrid"></div>
   </main>
@@ -65,6 +90,7 @@
   <script src="../shared/navbar.js"></script>
   <script>
     const apiKey = '3ade810499876bb5672f40e54960e6a2';
+
     fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}`)
       .then(res => res.json())
       .then(data => {
@@ -85,6 +111,17 @@
       .catch(err => {
         console.error(err);
       });
+
+    // Optional local search redirect
+    const input = document.getElementById("searchInput");
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const query = input.value.trim();
+        if (query) {
+          window.location.href = `../home/search.html?q=${encodeURIComponent(query)}`;
+        }
+      }
+    });
   </script>
 </body>
 </html>
