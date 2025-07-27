@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -36,14 +36,17 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      max-width: 1000px;
+      margin: 0 auto;
     }
 
     #contentWrapper {
       display: flex;
       gap: 20px;
-      width: 100%;
-      max-width: 95vw;
       justify-content: center;
+      align-items: flex-start;
+      max-width: calc(800px + 180px); /* player width + sidebar + padding */
+      width: 100%;
     }
 
     #playerContainer {
@@ -180,7 +183,7 @@
   const fullscreenBtn = document.getElementById('fullscreenBtn');
   const serverBar = document.getElementById('serverBar');
 
-  // ✅ Your deployed scraper base URL
+  // Your deployed scraper base URL
   const RENDER_API_BASE = 'https://bilm-github-io.onrender.com';
 
   const servers = [
