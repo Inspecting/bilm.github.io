@@ -21,11 +21,13 @@
       font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #121212;
       color: #f0f0f0;
+      overflow-x: hidden; /* prevent horizontal scroll if server list outside viewport */
     }
     body {
       display: flex;
       flex-direction: column;
       height: 100vh;
+      position: relative;
     }
 
     main {
@@ -34,23 +36,23 @@
       overflow-y: auto;
 
       display: flex;
-      justify-content: center; /* center horizontally */
+      justify-content: center; /* center the video player wrapper only */
       align-items: flex-start;
-      gap: 30px;
       max-width: 100vw;
     }
 
-    /* Wrap player + fullscreen btn together so they're treated as one block */
+    /* Centered video player + fullscreen button */
     #playerWrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
       flex-shrink: 0; /* prevent shrinking */
+      width: 800px;
+      max-width: 95vw;
     }
 
     #playerContainer {
-      width: 800px;
-      max-width: 95vw;
+      width: 100%;
       aspect-ratio: 16 / 9;
       background-color: black;
       border-radius: 12px;
@@ -85,15 +87,24 @@
       background-color: #a855f7;
     }
 
+    /* Server list is absolutely positioned on the right */
     #serverList {
+      position: fixed;
+      top: 80px; /* adjust based on your navbar height */
+      right: 20px;
+      width: 140px;
+      color: #ddd;
+      user-select: none;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      min-width: 120px;
-      max-height: 288px; /* roughly player height */
-      padding-top: 12px;
-      color: #ddd;
-      user-select: none;
+      padding: 12px;
+      background: rgba(26, 22, 40, 0.9);
+      border-radius: 12px;
+      box-shadow: 0 0 15px #a14effaa;
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 1000;
     }
 
     #serverList h2 {
@@ -147,13 +158,13 @@
     </div>
     <button id="fullscreenBtn">Fullscreen</button>
   </div>
-
-  <div id="serverList">
-    <h2>Servers</h2>
-    <button class="serverBtn active" id="server1Btn">Vidsrc</button>
-    <button class="serverBtn" id="server2Btn">Server 2</button>
-  </div>
 </main>
+
+<div id="serverList">
+  <h2>Servers</h2>
+  <button class="serverBtn active" id="server1Btn">Vidsrc</button>
+  <button class="serverBtn" id="server2Btn">Server 2</button>
+</div>
 
 <!-- Load shared navbar -->
 <script>
