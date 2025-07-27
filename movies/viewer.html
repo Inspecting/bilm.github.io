@@ -46,7 +46,7 @@
       flex-shrink: 0;
       width: 800px;
       max-width: 95vw;
-      position: relative; /* Important to anchor server list */
+      position: relative;
     }
 
     #playerContainer {
@@ -101,7 +101,7 @@
       background: rgba(26, 22, 40, 0.9);
       border-radius: 12px;
       box-shadow: 0 0 15px #a14effaa;
-      max-height: 300px;
+      max-height: 400px;
       overflow-y: auto;
       z-index: 10;
     }
@@ -126,6 +126,7 @@
       width: 100%;
       text-align: center;
       user-select: none;
+      white-space: nowrap;
     }
 
     .serverBtn:hover {
@@ -159,8 +160,16 @@
 
     <div id="serverList">
       <h2>Servers</h2>
-      <button class="serverBtn active" id="server1Btn">Vidsrc</button>
-      <button class="serverBtn" id="server2Btn">Server 2</button>
+      <button class="serverBtn active" id="serverVidsrc">Vidsrc</button>
+      <button class="serverBtn" id="serverMultiembed">MultiEmbed</button>
+      <button class="serverBtn" id="serverVipstream">Vipstream</button>
+      <button class="serverBtn" id="serverFembed">Fembed</button>
+      <button class="serverBtn" id="serverStreamtape">Streamtape</button>
+      <button class="serverBtn" id="serverStreamsb">StreamSB</button>
+      <button class="serverBtn" id="serverGomostream">Gomo</button>
+      <button class="serverBtn" id="serverDood">Dood</button>
+      <button class="serverBtn" id="serverMixdrop">Mixdrop</button>
+      <button class="serverBtn" id="serverOkru">Okru</button>
     </div>
   </div>
 </main>
@@ -184,34 +193,92 @@
 
   const iframe = document.getElementById('videoPlayer');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
-  const server1Btn = document.getElementById('server1Btn');
-  const server2Btn = document.getElementById('server2Btn');
 
-  function loadVidsrc() {
+  // Server buttons
+  const servers = {
+    vidsrc: document.getElementById('serverVidsrc'),
+    multiembed: document.getElementById('serverMultiembed'),
+    vipstream: document.getElementById('serverVipstream'),
+    fembed: document.getElementById('serverFembed'),
+    streamtape: document.getElementById('serverStreamtape'),
+    streamsb: document.getElementById('serverStreamsb'),
+    gomostream: document.getElementById('serverGomostream'),
+    dood: document.getElementById('serverDood'),
+    mixdrop: document.getElementById('serverMixdrop'),
+    okru: document.getElementById('serverOkru')
+  };
+
+  // Detect TMDB (all digits) or IMDb (starts with tt)
+  function isTMDB(id) {
+    return /^\d+$/.test(id);
+  }
+
+  // Embed URLs for each server, all using movieId param in URL appropriately
+  function loadServer(server) {
     if (!movieId) {
       console.error('No movie ID provided.');
       iframe.src = '';
       return;
     }
-    iframe.src = `https://vidsrc.xyz/embed/movie/${movieId}`;
+
+    let url = '';
+    switch(server) {
+      case 'vidsrc':
+        url = `https://vidsrc.xyz/embed/movie/${movieId}`;
+        break;
+      case 'multiembed':
+        if (isTMDB(movieId)) url = `https://multiembed.mov/?video_id=${movieId}&type=tmdb`;
+        else url = `https://multiembed.mov/?video_id=${movieId}`;
+        break;
+      case 'vipstream':
+        url = `https://vipstream.tv/embed/${movieId}`;
+        break;
+      case 'fembed':
+        url = `https://www.fembed.com/v/${movieId}`;
+        break;
+      case 'streamtape':
+        url = `https://streamtape.com/e/${movieId}`;
+        break;
+      case 'streamsb':
+        url = `https://streamsb.net/e/${movieId}`;
+        break;
+      case 'gomostream':
+        url = `https://gomostream.com/e/${movieId}`;
+        break;
+      case 'dood':
+        url = `https://dood.yt/e/${movieId}`;
+        break;
+      case 'mixdrop':
+        url = `https://mixdrop.co/e/${movieId}`;
+        break;
+      case 'okru':
+        url = `https://ok.ru/videoembed/${movieId}`;
+        break;
+      default:
+        url = `https://vidsrc.xyz/embed/movie/${movieId}`;
+    }
+    iframe.src = url;
   }
 
-  loadVidsrc();
+  // Remove active from all buttons, add to clicked one
+  function setActive(serverKey) {
+    Object.keys(servers).forEach(key => {
+      if(key === serverKey) servers[key].classList.add('active');
+      else servers[key].classList.remove('active');
+    });
+  }
 
-  server1Btn.addEventListener('click', () => {
-    if (server1Btn.classList.contains('active')) return;
-    server1Btn.classList.add('active');
-    server2Btn.classList.remove('active');
-    loadVidsrc();
+  // Setup event listeners
+  Object.entries(servers).forEach(([key, btn]) => {
+    btn.addEventListener('click', () => {
+      if(btn.classList.contains('active')) return;
+      setActive(key);
+      loadServer(key);
+    });
   });
 
-  server2Btn.addEventListener('click', () => {
-    if (server2Btn.classList.contains('active')) return;
-    server2Btn.classList.add('active');
-    server1Btn.classList.remove('active');
-    iframe.src = '';
-    alert('Server 2 is not available yet.');
-  });
+  // Load default server (vidsrc)
+  loadServer('vidsrc');
 
   fullscreenBtn.onclick = () => {
     if (iframe.requestFullscreen) iframe.requestFullscreen();
