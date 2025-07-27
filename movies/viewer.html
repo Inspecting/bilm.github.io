@@ -10,18 +10,19 @@
   <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
 
   <style>
-    /* Reset and base */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
     html, body {
       height: 100%;
       font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #121212;
       color: #f0f0f0;
     }
+
     body {
       display: flex;
       flex-direction: column;
@@ -40,13 +41,14 @@
     #contentWrapper {
       display: flex;
       gap: 20px;
+      width: 100%;
       max-width: 95vw;
-      width: 800px;
-      flex: 1;
+      justify-content: center;
     }
 
     #playerContainer {
-      flex: 3;
+      width: 800px;
+      max-width: 95vw;
       aspect-ratio: 16 / 9;
       background-color: black;
       border-radius: 12px;
@@ -61,7 +63,7 @@
     }
 
     #serverSidebar {
-      flex: 1;
+      width: 160px;
       color: white;
       font-family: 'Poppins', sans-serif;
     }
@@ -117,15 +119,15 @@
       background-color: #a855f7;
     }
 
-    /* Responsive tweak for smaller widths */
     @media (max-width: 850px) {
       #contentWrapper {
         flex-direction: column;
-        width: 100%;
-        max-width: 100vw;
+        align-items: center;
       }
+
       #serverSidebar {
-        flex: none;
+        width: 100%;
+        max-width: 800px;
         margin-top: 16px;
       }
     }
@@ -178,10 +180,9 @@
   const fullscreenBtn = document.getElementById('fullscreenBtn');
   const serverBar = document.getElementById('serverBar');
 
-  // Replace with your actual Render scraper API URL
-  const RENDER_API_BASE = 'https://your-render-url.onrender.com';
+  // ✅ Your deployed scraper base URL
+  const RENDER_API_BASE = 'https://bilm-github-io.onrender.com';
 
-  // List of servers with names and URLs
   const servers = [
     {
       name: 'Vipstream',
@@ -218,7 +219,6 @@
 
   async function loadVideo(url) {
     if (url.startsWith(RENDER_API_BASE)) {
-      // Our API returns JSON with { embed: url }
       try {
         const res = await fetch(url);
         const data = await res.json();
@@ -233,7 +233,6 @@
         iframe.src = '';
       }
     } else {
-      // Direct URL (no JSON response)
       iframe.src = url;
     }
   }
