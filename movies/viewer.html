@@ -161,10 +161,7 @@
     <div id="serverList">
       <h2>Servers</h2>
       <button class="serverBtn active" id="serverVidsrc">VidSrc</button>
-      <button class="serverBtn" id="serverFilemoon">Filemoon</button>
       <button class="serverBtn" id="serverVidplay">VidPlay</button>
-      <button class="serverBtn" id="serverAutohd">AutoHD</button>
-      <button class="serverBtn" id="serverVidlink">Vidlink</button>
     </div>
   </div>
 </main>
@@ -189,21 +186,11 @@
   const iframe = document.getElementById('videoPlayer');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-  // Server buttons
   const servers = {
     vidsrc: document.getElementById('serverVidsrc'),
-    filemoon: document.getElementById('serverFilemoon'),
-    vidplay: document.getElementById('serverVidplay'),
-    autohd: document.getElementById('serverAutohd'),
-    vidlink: document.getElementById('serverVidlink')
+    vidplay: document.getElementById('serverVidplay')
   };
 
-  // Detect TMDB (all digits) or IMDb (starts with tt)
-  function isTMDB(id) {
-    return /^\d+$/.test(id);
-  }
-
-  // Embed URLs for each server, adapt to TMDB or IMDb as needed
   function loadServer(server) {
     if (!movieId) {
       console.error('No movie ID provided.');
@@ -216,27 +203,15 @@
       case 'vidsrc':
         url = `https://vidsrc.xyz/embed/movie/${movieId}`;
         break;
-      case 'filemoon':
-        url = isTMDB(movieId) ?
-          `https://filemoon.sx/e/${movieId}` : // assuming TMDB id in path
-          `https://filemoon.sx/e/${movieId}`;  // fallback (adjust if needed)
-        break;
       case 'vidplay':
-        url = `https://vidplay.net/embed/${movieId}`;
-        break;
-      case 'autohd':
-        url = `https://auto-hd.com/embed/${movieId}`;
-        break;
-      case 'vidlink':
-        url = `https://vidlink.to/embed/${movieId}`;
+        url = `https://vidplay.to/movie/${movieId}`;
         break;
       default:
-        url = `https://vidsrc.xyz/embed/movie/${movieId}`;
+        url = '';
     }
     iframe.src = url;
   }
 
-  // Remove active from all buttons, add to clicked one
   function setActive(serverKey) {
     Object.keys(servers).forEach(key => {
       if(key === serverKey) servers[key].classList.add('active');
@@ -244,7 +219,6 @@
     });
   }
 
-  // Setup event listeners
   Object.entries(servers).forEach(([key, btn]) => {
     btn.addEventListener('click', () => {
       if(btn.classList.contains('active')) return;
@@ -253,7 +227,8 @@
     });
   });
 
-  // Load default server (vidsrc)
+  // Default to VidSrc server
+  setActive('vidsrc');
   loadServer('vidsrc');
 
   fullscreenBtn.onclick = () => {
