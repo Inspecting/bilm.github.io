@@ -46,6 +46,7 @@
       flex-shrink: 0;
       width: 800px;
       max-width: 95vw;
+      position: relative; /* Important to anchor server list */
     }
 
     #playerContainer {
@@ -88,8 +89,8 @@
       position: absolute;
       left: 100%;
       margin-left: 20px;
-
       top: 0;
+
       width: 140px;
       color: #ddd;
       user-select: none;
@@ -188,8 +189,8 @@
 
   function loadVidsrc() {
     if (!movieId) {
+      console.error('No movie ID provided.');
       iframe.src = '';
-      alert('No movie ID provided.');
       return;
     }
     iframe.src = `https://vidsrc.xyz/embed/movie/${movieId}`;
