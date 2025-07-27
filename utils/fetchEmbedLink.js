@@ -1,5 +1,5 @@
 import axios from 'axios';
-import cheerio from 'cheerio';
+import { load } from 'cheerio';
 
 export async function getVipstreamEmbed(tmdbId) {
   const url = `https://vidsrc.to/embed/movie/${tmdbId}`;
@@ -9,7 +9,7 @@ export async function getVipstreamEmbed(tmdbId) {
       headers: { 'User-Agent': 'Mozilla/5.0' }
     });
 
-    const $ = cheerio.load(html);
+    const $ = load(html);
     const vipIframe = $('iframe[src*="vipstream"]');
     if (vipIframe.length > 0) {
       return vipIframe.attr('src');
