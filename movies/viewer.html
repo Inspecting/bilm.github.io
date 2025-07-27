@@ -38,6 +38,269 @@
       align-items: center;
     }
 
+    /* Container for player + server list */
+    #contentWrapper {
+      display: flex;
+      gap: 20px;
+      justify-content: center; /* center horizontally */
+      align-items: flex-start; /* align children to top */
+      margin: 0 auto;
+      width: 100%;
+      max-width: 1000px; /* 800px player + 160px sidebar + gap */
+    }
+
+    /* Player container */
+    #playerContainer {
+      width: 800px;
+      aspect-ratio: 16 / 9;
+      background-color: black;
+      border-radius: 12px;
+      box-shadow: 0 0 15px #a14effaa;
+      flex-shrink: 0;
+    }
+
+    #playerContainer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 12px;
+    }
+
+    /* Server sidebar */
+    #serverSidebar {
+      width: 160px;
+      flex-shrink: 0;
+      /* no centering here */
+    }
+
+    #serverSidebar h3 {
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      text-align: left; /* left aligned title */
+    }
+
+    #serverBar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left; /* left align buttons */
+    }
+
+    #serverBar button {
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      background-color: #3a1361;
+      color: white;
+      font-weight: 600;
+      text-align: left;
+      transition: background-color 0.3s ease;
+      width: 100%;
+    }
+
+    #serverBar button.active {
+      background-color: #a14eff;
+    }
+
+    #serverBar button:hover:not(.active) {
+      background-color: #5a2baf;
+    }
+
+    #fullscreenBtn {
+      margin: 16px auto;
+      background-color: #3a1361;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+      max-width: 120px;
+      text-align: center;
+    }
+
+    #fullscreenBtn:hover {
+      background-color: #a855f7;
+    }
+
+    /* Responsive layout */
+    @media (max-width: 900px) {
+      #contentWrapper {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #serverSidebar {
+        width: 100%;
+        max-width: 800px;
+        margin-top: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Shared Navbar Placeholder -->
+<div id="navbar-placeholder"></div>
+
+<main>
+  <div id="contentWrapper">
+    <div id="playerContainer">
+      <iframe
+        id="videoPlayer"
+        src=""
+        allowfullscreen
+        allow="fullscreen; encrypted-media"
+        playsinline
+        scrolling="no"
+      ></iframe>
+    </div>
+
+    <div id="serverSidebar">
+      <h3>Servers</h3>
+      <div id="serverBar"></div>
+    </div>
+  </div>
+
+  <button id="fullscreenBtn">Fullscreen</button>
+</main>
+
+<!-- Load shared navbar -->
+<script>
+  fetch('/bilm.github.io/shared/navbar.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('navbar-placeholder').innerHTML = html;
+      const script = document.createElement('script');
+      script.src = '/bilm.github.io/shared/navbar.js';
+      document.body.appendChild(script);
+    });
+</script>
+
+<!-- Viewer logic -->
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const movieId = params.get('id');
+  const iframe = document.getElementById('videoPlayer');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const serverBar = document.getElementById('serverBar');
+
+  const RENDER_API_BASE = 'https://bilm-github-io.onrender.com';
+
+  const servers = [
+    {
+      name: 'Vipstream',
+      url: `${RENDER_API_BASE}/embed/${movieId}`
+    },
+    {
+      name: 'Vidsrc',
+      url: `https://vidsrc.xyz/embed/movie/${movieId}`
+    },
+    {
+      name: 'Multiembed',
+      url: `https://multiembed.mov/?video_id=${movieId}&tmdb=1`
+    }
+  ];
+
+  function createServerButtons() {
+    servers.forEach((server, index) => {
+      const btn = document.createElement('button');
+      btn.textContent = server.name;
+      btn.classList.toggle('active', index === 0);
+      btn.onclick = () => {
+        setActiveServer(index);
+        loadVideo(server.url);
+      };
+      serverBar.appendChild(btn);
+    });
+  }
+
+  function setActiveServer(activeIndex) {
+    Array.from(serverBar.children).forEach((btn, i) => {
+      btn.classList.toggle('active', i === activeIndex);
+    });
+  }
+
+  async function loadVideo(url) {
+    if (url.startsWith(RENDER_API_BASE)) {
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.embed) {
+          iframe.src = data.embed;
+        } else {
+          console.warn('No embed URL returned from server.');
+          iframe.src = '';
+        }
+      } catch (e) {
+        console.error('Failed to load video from server:', e);
+        iframe.src = '';
+      }
+    } else {
+      iframe.src = url;
+    }
+  }
+
+  fullscreenBtn.onclick = () => {
+    if (iframe.requestFullscreen) iframe.requestFullscreen();
+    else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
+    else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
+  };
+
+  if (!movieId) {
+    console.error('No movie ID provided.');
+  } else {
+    createServerButtons();
+    setActiveServer(0);
+    loadVideo(servers[0].url);
+  }
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bilm 💜 - Movie Viewer</title>
+
+  <!-- Fonts and Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/bilm.github.io/shared/navbar.css" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212;
+      color: #f0f0f0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     #contentWrapper {
       display: flex;
       gap: 20px;
