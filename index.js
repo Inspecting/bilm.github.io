@@ -1,19 +1,22 @@
 import express from 'express';
-import { getVipstreamEmbed } from './utils/fetchEmbedLink.js';
+import cors from 'cors';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
-app.get('/embed/:tmdbId', async (req, res) => {
-  const { tmdbId } = req.params;
-  const embedUrl = await getVipstreamEmbed(tmdbId);
-  if (embedUrl) {
-    res.json({ embed: embedUrl });
-  } else {
-    res.status(404).json({ error: 'Embed link not found' });
-  }
+// Enable CORS for all origins
+app.use(cors());
+
+// Embed route returning Vidsrc embed URL
+app.get('/embed/:id', (req, res) => {
+  const movieId = req.params.id;
+
+  // Construct the Vidsrc embed URL
+  const embedUrl = `https://vidsrc.to/embed/movie/${movieId}`;
+
+  res.json({ embed: embedUrl });
 });
 
-app.listen(PORT, () => {
-  console.log(`Scraper API running at http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
