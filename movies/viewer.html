@@ -33,8 +33,10 @@
       padding: 20px;
       overflow-y: auto;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      justify-content: center; /* centers video player + server container horizontally */
+      align-items: flex-start; /* align to top */
+      gap: 20px;
+      max-width: 100vw;
     }
 
     #playerContainer {
@@ -44,7 +46,7 @@
       background-color: black;
       border-radius: 12px;
       box-shadow: 0 0 15px #a14effaa;
-      margin-bottom: 12px;
+      flex-shrink: 0;
     }
 
     iframe {
@@ -54,8 +56,50 @@
       border-radius: 12px;
     }
 
+    #serverList {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 120px;
+      max-height: 288px; /* match roughly player height */
+      padding-top: 12px;
+      color: #ddd;
+      user-select: none;
+    }
+
+    #serverList h2 {
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #a14eff;
+      text-align: center;
+    }
+
+    .serverBtn {
+      background-color: #3a1361;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+      width: 100%;
+      text-align: center;
+      user-select: none;
+    }
+
+    .serverBtn:hover {
+      background-color: #a855f7;
+    }
+
+    .serverBtn.active {
+      background-color: #a14eff;
+      cursor: default;
+    }
+
     #fullscreenBtn {
-      margin: 8px auto 16px auto;
+      margin: 12px auto 0 auto;
       background-color: #3a1361;
       color: white;
       border: none;
@@ -66,6 +110,7 @@
       transition: background-color 0.3s ease;
       max-width: 120px;
       text-align: center;
+      display: block;
     }
 
     #fullscreenBtn:hover {
@@ -88,9 +133,14 @@
       playsinline
       scrolling="no"
     ></iframe>
+    <button id="fullscreenBtn">Fullscreen</button>
   </div>
 
-  <button id="fullscreenBtn">Fullscreen</button>
+  <div id="serverList">
+    <h2>Servers</h2>
+    <button class="serverBtn active" id="server1Btn">Vidsrc</button>
+    <button class="serverBtn" id="server2Btn">Server 2</button>
+  </div>
 </main>
 
 <!-- Load shared navbar -->
@@ -107,13 +157,16 @@
 
 <!-- Viewer logic -->
 <script>
-  const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
   const params = new URLSearchParams(window.location.search);
   const movieId = params.get('id');
+
   const iframe = document.getElementById('videoPlayer');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const server1Btn = document.getElementById('server1Btn');
+  const server2Btn = document.getElementById('server2Btn');
 
-  function loadVideo() {
+  // Load video for the main server (Vidsrc)
+  function loadVidsrc() {
     if (!movieId) {
       iframe.src = '';
       alert('No movie ID provided.');
@@ -122,13 +175,31 @@
     iframe.src = `https://vidsrc.xyz/embed/movie/${movieId}`;
   }
 
+  // Initialize with vidsrc
+  loadVidsrc();
+
+  // Server 1 button click handler (vidsrc)
+  server1Btn.addEventListener('click', () => {
+    if (server1Btn.classList.contains('active')) return;
+    server1Btn.classList.add('active');
+    server2Btn.classList.remove('active');
+    loadVidsrc();
+  });
+
+  // Server 2 button click handler (placeholder, does nothing)
+  server2Btn.addEventListener('click', () => {
+    if (server2Btn.classList.contains('active')) return;
+    server2Btn.classList.add('active');
+    server1Btn.classList.remove('active');
+    iframe.src = ''; // no video for now
+    alert('Server 2 is not available yet.');
+  });
+
   fullscreenBtn.onclick = () => {
     if (iframe.requestFullscreen) iframe.requestFullscreen();
     else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen();
     else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
   };
-
-  loadVideo();
 </script>
 
 </body>
