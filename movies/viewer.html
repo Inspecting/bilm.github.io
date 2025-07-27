@@ -37,6 +37,14 @@
       align-items: center;
     }
 
+    #serverBar {
+      margin-bottom: 12px;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     #playerContainer {
       width: 800px;
       max-width: 95vw;
@@ -71,6 +79,26 @@
     #fullscreenBtn:hover {
       background-color: #a855f7;
     }
+
+    /* Server button styles */
+    #serverBar button {
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      background-color: #3a1361;
+      color: white;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+
+    #serverBar button.active {
+      background-color: #a14eff;
+    }
+
+    #serverBar button:hover:not(.active) {
+      background-color: #5a2baf;
+    }
   </style>
 </head>
 <body>
@@ -79,6 +107,8 @@
 <div id="navbar-placeholder"></div>
 
 <main>
+  <div id="serverBar"></div>
+  
   <div id="playerContainer">
     <iframe
       id="videoPlayer"
@@ -107,19 +137,70 @@
 
 <!-- Viewer logic -->
 <script>
-  const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
   const params = new URLSearchParams(window.location.search);
   const movieId = params.get('id');
   const iframe = document.getElementById('videoPlayer');
   const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const serverBar = document.getElementById('serverBar');
 
-  function loadVideo() {
-    if (!movieId) {
-      iframe.src = '';
-      alert('No movie ID provided.');
-      return;
+  // Replace with your actual Render scraper API URL
+  const RENDER_API_BASE = 'https://your-render-url.onrender.com';
+
+  // List of servers with names and URLs
+  const servers = [
+    {
+      name: 'Vipstream',
+      url: `${RENDER_API_BASE}/embed/${movieId}`
+    },
+    {
+      name: 'Vidsrc',
+      url: `https://vidsrc.xyz/embed/movie/${movieId}`
+    },
+    {
+      name: 'Multiembed',
+      url: `https://multiembed.mov/?video_id=${movieId}&tmdb=1`
     }
-    iframe.src = `https://vidsrc.xyz/embed/movie/${movieId}`;
+  ];
+
+  function createServerButtons() {
+    servers.forEach((server, index) => {
+      const btn = document.createElement('button');
+      btn.textContent = server.name;
+      btn.classList.toggle('active', index === 0);
+      btn.onclick = () => {
+        setActiveServer(index);
+        loadVideo(server.url);
+      };
+      serverBar.appendChild(btn);
+    });
+  }
+
+  function setActiveServer(activeIndex) {
+    Array.from(serverBar.children).forEach((btn, i) => {
+      btn.classList.toggle('active', i === activeIndex);
+    });
+  }
+
+  async function loadVideo(url) {
+    if (url.startsWith(RENDER_API_BASE)) {
+      // Our API returns JSON with { embed: url }
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.embed) {
+          iframe.src = data.embed;
+        } else {
+          alert('Failed to load video from server.');
+          iframe.src = '';
+        }
+      } catch (e) {
+        alert('Failed to load video from server.');
+        iframe.src = '';
+      }
+    } else {
+      // Direct URL (no JSON response)
+      iframe.src = url;
+    }
   }
 
   fullscreenBtn.onclick = () => {
@@ -128,7 +209,13 @@
     else if (iframe.msRequestFullscreen) iframe.msRequestFullscreen();
   };
 
-  loadVideo();
+  if (!movieId) {
+    alert('No movie ID provided.');
+  } else {
+    createServerButtons();
+    setActiveServer(0);
+    loadVideo(servers[0].url);
+  }
 </script>
 
 </body>
