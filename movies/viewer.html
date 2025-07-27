@@ -32,11 +32,20 @@
       flex: 1;
       padding: 20px;
       overflow-y: auto;
+
       display: flex;
-      justify-content: center; /* centers video player + server container horizontally */
-      align-items: flex-start; /* align to top */
-      gap: 20px;
+      justify-content: center; /* center horizontally */
+      align-items: flex-start;
+      gap: 30px;
       max-width: 100vw;
+    }
+
+    /* Wrap player + fullscreen btn together so they're treated as one block */
+    #playerWrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0; /* prevent shrinking */
     }
 
     #playerContainer {
@@ -46,7 +55,7 @@
       background-color: black;
       border-radius: 12px;
       box-shadow: 0 0 15px #a14effaa;
-      flex-shrink: 0;
+      overflow: hidden;
     }
 
     iframe {
@@ -54,6 +63,26 @@
       height: 100%;
       border: none;
       border-radius: 12px;
+      display: block;
+    }
+
+    #fullscreenBtn {
+      margin-top: 12px;
+      background-color: #3a1361;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+      max-width: 120px;
+      text-align: center;
+      user-select: none;
+    }
+
+    #fullscreenBtn:hover {
+      background-color: #a855f7;
     }
 
     #serverList {
@@ -61,7 +90,7 @@
       flex-direction: column;
       gap: 12px;
       min-width: 120px;
-      max-height: 288px; /* match roughly player height */
+      max-height: 288px; /* roughly player height */
       padding-top: 12px;
       color: #ddd;
       user-select: none;
@@ -97,25 +126,6 @@
       background-color: #a14eff;
       cursor: default;
     }
-
-    #fullscreenBtn {
-      margin: 12px auto 0 auto;
-      background-color: #3a1361;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background-color 0.3s ease;
-      max-width: 120px;
-      text-align: center;
-      display: block;
-    }
-
-    #fullscreenBtn:hover {
-      background-color: #a855f7;
-    }
   </style>
 </head>
 <body>
@@ -124,15 +134,17 @@
 <div id="navbar-placeholder"></div>
 
 <main>
-  <div id="playerContainer">
-    <iframe
-      id="videoPlayer"
-      src=""
-      allowfullscreen
-      allow="fullscreen; encrypted-media"
-      playsinline
-      scrolling="no"
-    ></iframe>
+  <div id="playerWrapper">
+    <div id="playerContainer">
+      <iframe
+        id="videoPlayer"
+        src=""
+        allowfullscreen
+        allow="fullscreen; encrypted-media"
+        playsinline
+        scrolling="no"
+      ></iframe>
+    </div>
     <button id="fullscreenBtn">Fullscreen</button>
   </div>
 
@@ -165,7 +177,6 @@
   const server1Btn = document.getElementById('server1Btn');
   const server2Btn = document.getElementById('server2Btn');
 
-  // Load video for the main server (Vidsrc)
   function loadVidsrc() {
     if (!movieId) {
       iframe.src = '';
@@ -175,10 +186,8 @@
     iframe.src = `https://vidsrc.xyz/embed/movie/${movieId}`;
   }
 
-  // Initialize with vidsrc
   loadVidsrc();
 
-  // Server 1 button click handler (vidsrc)
   server1Btn.addEventListener('click', () => {
     if (server1Btn.classList.contains('active')) return;
     server1Btn.classList.add('active');
@@ -186,12 +195,11 @@
     loadVidsrc();
   });
 
-  // Server 2 button click handler (placeholder, does nothing)
   server2Btn.addEventListener('click', () => {
     if (server2Btn.classList.contains('active')) return;
     server2Btn.classList.add('active');
     server1Btn.classList.remove('active');
-    iframe.src = ''; // no video for now
+    iframe.src = '';
     alert('Server 2 is not available yet.');
   });
 
