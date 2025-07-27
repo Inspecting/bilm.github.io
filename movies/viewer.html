@@ -35,7 +35,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
     }
 
     #playerContainer {
@@ -108,6 +107,7 @@
 
 <!-- Viewer logic -->
 <script>
+  const BASE_URL = 'https://inspecting.github.io/bilm.github.io';
   const params = new URLSearchParams(window.location.search);
   const movieId = params.get('id');
   const iframe = document.getElementById('videoPlayer');
